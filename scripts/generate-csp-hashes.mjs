@@ -25,9 +25,10 @@
  *
  * connect-src: pins the `https://*.supabase.co` and
  * `wss://*.supabase.co` wildcards to the exact project host derived from
- * VITE_SUPABASE_URL (process.env, falling back to .env.local / .env). The app
- * cannot build without that variable (vite inlines it into the islands), so a
- * missing value is a broken build environment: fail loud.
+ * VITE_SUPABASE_URL (process.env, falling back to .env.local / .env). The
+ * normal app requires that variable. The declared unofficial guest mirror is
+ * the exception: it has no Supabase project, so its CSP removes those two
+ * endpoints entirely instead of retaining a broad wildcard.
  *
  * What gets hashed in script-src:
  *   - inline classic scripts: `<script>...</script>` (no `src`)
@@ -48,7 +49,8 @@
  * cannot be found, if no inline scripts / no inline style elements were found
  * (which would mean an extractor regex silently stopped matching — fail loud
  * rather than ship a policy that blocks every inline script/style), or if
- * VITE_SUPABASE_URL cannot be resolved for connect-src pinning.
+ * VITE_SUPABASE_URL cannot be resolved for connect-src pinning outside the
+ * declared unofficial guest mirror build.
  *
  * Wired as `npm run csp:hash` and into the postbuild chain.
  */
@@ -62,6 +64,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const DIST = join(ROOT, 'dist')
 const HEADERS_PATH = join(DIST, '_headers')
+const IS_UNOFFICIAL_GUEST_MIRROR = process.env.PUBLIC_UNOFFICIAL_FORK === 'true'
 
 const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi
 const STYLE_EL_RE = /<style\b[^>]*>([\s\S]*?)<\/style>/gi
@@ -180,11 +183,11 @@ function main() {
   }
 
   const supabaseUrl = resolveSupabaseUrl()
-  if (!supabaseUrl) {
+  if (!supabaseUrl && !IS_UNOFFICIAL_GUEST_MIRROR) {
     console.error('✗ generate-csp-hashes: VITE_SUPABASE_URL not found in env, .env.local or .env — cannot pin connect-src. The app cannot build without it, so this environment is broken.')
     process.exit(1)
   }
-  const supabaseHost = new URL(supabaseUrl).host
+  const supabaseHost = supabaseUrl ? new URL(supabaseUrl).host : null
 
   let headers = readFileSync(HEADERS_PATH, 'utf8')
 
@@ -211,11 +214,17 @@ function main() {
     return `${cleaned} ${styleTokens}`
   })
 
-  // connect-src: pin the Supabase wildcards to the exact project host.
+  // connect-src: pin the Supabase wildcards to the exact project host. The
+  // unofficial guest mirror intentionally has no Supabase project, so remove
+  // both endpoints instead of keeping wildcard permissions it cannot use.
   headers = rewriteDirective(headers, 'connect-src', (body) =>
-    body
-      .replace(/https:\/\/\*\.supabase\.co/g, `https://${supabaseHost}`)
-      .replace(/wss:\/\/\*\.supabase\.co/g, `wss://${supabaseHost}`)
+    (supabaseHost
+      ? body
+        .replace(/https:\/\/\*\.supabase\.co/g, `https://${supabaseHost}`)
+        .replace(/wss:\/\/\*\.supabase\.co/g, `wss://${supabaseHost}`)
+      : body
+        .replace(/\s*https:\/\/\*\.supabase\.co/g, '')
+        .replace(/\s*wss:\/\/\*\.supabase\.co/g, ''))
       .trim()
       .replace(/\s+/g, ' ')
   )
@@ -225,7 +234,9 @@ function main() {
     `✓ CSP: script-src ${scriptHashes.size} hash(es) from ${inlineScriptCount} inline script(s); ` +
     `style-src ${styleElHashes.size} element + ${styleAttrHashes.size} attribute hash(es) from ` +
     `${styleElCount}/${styleAttrCount} occurrences ('unsafe-inline' removed from both); ` +
-    `connect-src pinned to ${supabaseHost} in dist/_headers`
+    (supabaseHost
+      ? `connect-src pinned to ${supabaseHost} in dist/_headers`
+      : 'connect-src removed unused Supabase endpoints for unofficial guest mirror')
   )
 }
 
