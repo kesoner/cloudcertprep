@@ -74,13 +74,18 @@ New certification proposals and contributors are welcome via the [add-certificat
 git clone https://github.com/nastaso/cloudcertprep.git
 cd cloudcertprep
 npm install
-cp .env.example .env   # fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
 npm run dev
 ```
 
-You'll need your own [Supabase](https://supabase.com) project to test authenticated flows. The anon key and project URL are safe to expose (security is enforced server-side via Row Level Security). The service role key is private and never appears in client code.
+Guest exams and domain practice work locally without any environment variables. To test authenticated flows or saved progress, copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from your own [Supabase](https://supabase.com) project. The anon key and project URL are safe to expose (security is enforced server-side via Row Level Security). The service role key is private and never appears in client code.
 
 Open <http://localhost:4321> (the Astro dev server's default port). Sign-up flows require a working Supabase backend; everything else (guest exams, domain practice) works offline against the bundled question JSON.
+
+If a previously running development server shows a permanent loading spinner after source or environment changes, stop it and run `npm run dev:clean`. This rebuilds Vite's local dependency cache.
+
+### Unofficial learning mirrors
+
+MIT permits independent deployments, provided the copyright and license notice remain available. An unofficial mirror must clearly state that it is not affiliated with CloudCertPrep or AWS, preserve a link to the source repository, and avoid competing with the official site in search. This repository's Netlify deployment configuration uses `PUBLIC_NOINDEX=true` and an on-page source notice for that purpose. The included configuration is intended for the `xuyuzu.online` learning mirror; do not reuse it for the official project.
 
 Sign-in offers three options (**Google, GitHub, and email/password**), brokered by Supabase Auth, with Cloudflare Turnstile bot protection on the auth forms. None of these are needed to develop the guest-mode experience. Maintainer setup for the OAuth providers (Google and GitHub) and Turnstile lives in [CONTRIBUTING.md, Deployment and auth setup](./CONTRIBUTING.md#deployment--auth-setup-maintainer).
 

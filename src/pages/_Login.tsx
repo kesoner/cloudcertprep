@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
-import { getSupabase } from '../lib/supabase'
+import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
 import { validatePassword, isPasswordStrongEnough } from '../lib/validation'
 import { trackEvent } from '../lib/analytics'
 import { useSEO } from '../hooks/useSEO'
@@ -110,7 +110,9 @@ export function Login() {
   // they fill the form keeps the first sign-in click instant. (useAuth itself
   // skips Supabase for logged-out visitors with no `?code=` callback, so this
   // page is responsible for its own warm-up.)
-  useEffect(() => { void getSupabase() }, [])
+  useEffect(() => {
+    if (isSupabaseConfigured) void getSupabase()
+  }, [])
 
   // Tick the resend cooldown down to zero, then re-enable the resend button.
   useEffect(() => {

@@ -91,6 +91,29 @@ function isRedirectStub(html) {
   return /<meta\s+http-equiv=["']refresh["']/i.test(html)
 }
 
+// An unofficial, noindex mirror must not present the source project's
+// Organization or Person data as its own. In that explicit deployment mode,
+// verify the inverse contract: no JSON-LD is emitted in the document head.
+if (process.env.PUBLIC_UNOFFICIAL_FORK === 'true') {
+  const pagesWithJsonLd = files
+    .filter(file => !isRedirectStub(readFileSync(file, 'utf8')))
+    .map(file => ({
+      route: '/' + relative(DIST, file).split(sep).join('/'),
+      count: headJsonLdBodies(readFileSync(file, 'utf8')).length,
+    }))
+    .filter(({ count }) => count > 0)
+
+  if (pagesWithJsonLd.length > 0) {
+    fail(
+      `Unofficial mirror privacy guard FAILED: JSON-LD remains on ${pagesWithJsonLd.length} page(s): ` +
+        pagesWithJsonLd.map(({ route }) => route).join(', '),
+    )
+  }
+
+  console.log('\n✅ Unofficial mirror privacy guard PASSED: no source identity JSON-LD was emitted in document heads.')
+  process.exit(0)
+}
+
 const violations = []
 let checked = 0
 let skipped = 0

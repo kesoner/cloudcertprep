@@ -2,6 +2,13 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # This is a personal, unaffiliated learning mirror. It must never compete
+  # with the source project in search results.
+  PUBLIC_NOINDEX = "true"
+  PUBLIC_UNOFFICIAL_FORK = "true"
+  PUBLIC_SITE_URL = "https://xuyuzu.online"
+
 # NOTE (R10.8, trailing slashes): an earlier `from = "/*/"` force-redirect here
 # was INVALID — Netlify parses it as `/*`, force-redirecting every path to
 # itself (infinite loop; the entire 2026-06-11 dev branch deploy 301-looped).

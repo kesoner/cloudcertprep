@@ -6,7 +6,7 @@
 import { APP_NAME } from './constants'
 import { QUESTION_COUNTS, TOTAL_ACTIVE_QUESTIONS } from './generated/question-counts'
 
-export const SITE_URL = 'https://www.cloudcertprep.io'
+export const SITE_URL = (import.meta.env.PUBLIC_SITE_URL ?? 'https://www.cloudcertprep.io').replace(/\/$/, '')
 
 /**
  * Build a fully-qualified canonical URL from a site-relative path. Single

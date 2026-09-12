@@ -63,7 +63,7 @@ const blogContentSanitizeSchema = {
 
 export default defineConfig({
   output: 'static',
-  site: 'https://www.cloudcertprep.io',
+  site: process.env.PUBLIC_SITE_URL ?? 'https://www.cloudcertprep.io',
   trailingSlash: 'never',
   // Sanitize HTML in blog markdown so a contributor PR cannot land raw
   // <script>/onerror= handlers (stored-XSS via the content pipeline).

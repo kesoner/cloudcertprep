@@ -23,6 +23,11 @@ interface AuthState {
   loading: boolean
 }
 
+// useSyncExternalStore requires the server snapshot to keep the same identity
+// between hydration checks. Returning a new object here causes React to retry
+// indefinitely, which prevents the practice-exam island from finishing load.
+const SERVER_SNAPSHOT: AuthState = { user: null, loading: true }
+
 let state: AuthState = { user: null, loading: true }
 const listeners = new Set<() => void>()
 let initialised = false
@@ -298,7 +303,7 @@ function subscribe(cb: () => void) {
 }
 
 function getSnapshot(): AuthState { return state }
-function getServerSnapshot(): AuthState { return { user: null, loading: true } }
+function getServerSnapshot(): AuthState { return SERVER_SNAPSHOT }
 
 interface UseAuthValue {
   user: User | null
@@ -309,4 +314,3 @@ export function useAuth(): UseAuthValue {
   const snap = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   return { user: snap.user, loading: snap.loading }
 }
-

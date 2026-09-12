@@ -6,6 +6,7 @@
   "scripts": {
     "prepare": "git config core.hooksPath .githooks || true",
     "dev": "astro dev",
+    "dev:clean": "astro dev --force",
     "prebuild": "node scripts/validate-questions.mjs && npx tsx scripts/generate-seo-assets.mjs && node scripts/generate-stats-snapshot.mjs && node scripts/generate-og-images.mjs && node scripts/validate-blog-frontmatter.mjs && node scripts/validate-internal-links.mjs",
     "build": "astro build",
     "postbuild": "npm run check:citation && npm run check:graph && npm run check:person-graph && npm run check:seo-head && npm run security-txt:refresh && npm run csp:hash && npm run cf:headers",

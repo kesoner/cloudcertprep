@@ -3,8 +3,10 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
+
+function missingConfigError(): Error {
+  return new Error(
     'Missing Supabase environment variables. ' +
     'Please ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your .env file.'
   )
@@ -29,6 +31,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 let clientPromise: Promise<SupabaseClient> | null = null
 
 export function getSupabase(): Promise<SupabaseClient> {
+  // Guest practice reads bundled question JSON and must work without a
+  // Supabase project. Defer this error until an auth or progress action needs
+  // the client instead of throwing while the header module is imported.
+  if (!supabaseUrl || !supabaseAnonKey) return Promise.reject(missingConfigError())
+
   if (!clientPromise) {
     clientPromise = import('@supabase/supabase-js').then(({ createClient }) =>
       createClient(supabaseUrl, supabaseAnonKey, {

@@ -4,40 +4,40 @@
 
 ## Pages
 
-- [Home](https://www.cloudcertprep.io/): platform overview and certification catalog
-- [About](https://www.cloudcertprep.io/about): who maintains CloudCertPrep, the question-writing methodology, and the free open-source rationale
-- [Blog](https://www.cloudcertprep.io/blog): AWS certification study guides, exam strategy, and career articles
-- [Contribute](https://www.cloudcertprep.io/contribute): how to add questions, fix errors, or propose a new certification via GitHub
-- [Privacy Policy](https://www.cloudcertprep.io/privacy): GDPR-compliant data practices, EU hosting, no data selling
-- [Terms of Service](https://www.cloudcertprep.io/terms): MIT license, trademark notices, no warranty disclaimer
+- [Home](https://xuyuzu.online/): platform overview and certification catalog
+- [About](https://xuyuzu.online/about): who maintains CloudCertPrep, the question-writing methodology, and the free open-source rationale
+- [Blog](https://xuyuzu.online/blog): AWS certification study guides, exam strategy, and career articles
+- [Contribute](https://xuyuzu.online/contribute): how to add questions, fix errors, or propose a new certification via GitHub
+- [Privacy Policy](https://xuyuzu.online/privacy): GDPR-compliant data practices, EU hosting, no data selling
+- [Terms of Service](https://xuyuzu.online/terms): MIT license, trademark notices, no warranty disclaimer
 
 ## Certifications
 
 ### Foundational Level
 
 **AWS Cloud Practitioner (CLF-C02)**
-- [Certification Home](https://www.cloudcertprep.io/aws/clf-c02): 65 questions, 90 minutes, scaled scoring (700/1000 to pass)
+- [Certification Home](https://xuyuzu.online/aws/clf-c02): 65 questions, 90 minutes, scaled scoring (700/1000 to pass)
 - Why practice here: realistic exam simulation, detailed explanations for every question, aligned to the current CLF-C02 exam guide.
-- [Cloud Concepts](https://www.cloudcertprep.io/aws/clf-c02/cloud-concepts): Cloud Concepts free practice questions with explanations
-- [Security & Compliance](https://www.cloudcertprep.io/aws/clf-c02/security-and-compliance): Security & Compliance free practice questions with explanations
-- [Cloud Technology & Services](https://www.cloudcertprep.io/aws/clf-c02/cloud-technology-and-services): Cloud Technology & Services free practice questions with explanations
-- [Billing, Pricing & Support](https://www.cloudcertprep.io/aws/clf-c02/billing-pricing-and-support): Billing, Pricing & Support free practice questions with explanations
+- [Cloud Concepts](https://xuyuzu.online/aws/clf-c02/cloud-concepts): Cloud Concepts free practice questions with explanations
+- [Security & Compliance](https://xuyuzu.online/aws/clf-c02/security-and-compliance): Security & Compliance free practice questions with explanations
+- [Cloud Technology & Services](https://xuyuzu.online/aws/clf-c02/cloud-technology-and-services): Cloud Technology & Services free practice questions with explanations
+- [Billing, Pricing & Support](https://xuyuzu.online/aws/clf-c02/billing-pricing-and-support): Billing, Pricing & Support free practice questions with explanations
 - Question Bank: 1050 questions across 4 domains (Cloud Concepts, Security & Compliance, Cloud Technology & Services, Billing, Pricing & Support)
 
 **AWS Certified AI Practitioner (AIF-C01)**
-- [Certification Home](https://www.cloudcertprep.io/aws/aif-c01): 65 questions, 90 minutes, scaled scoring (700/1000 to pass)
+- [Certification Home](https://xuyuzu.online/aws/aif-c01): 65 questions, 90 minutes, scaled scoring (700/1000 to pass)
 - Why practice here: realistic exam simulation, detailed explanations for every question, aligned to the current AIF-C01 exam guide.
-- [Fundamentals of AI and ML](https://www.cloudcertprep.io/aws/aif-c01/fundamentals-of-ai-and-ml): Fundamentals of AI and ML free practice questions with explanations
-- [Fundamentals of Generative AI](https://www.cloudcertprep.io/aws/aif-c01/fundamentals-of-generative-ai): Fundamentals of Generative AI free practice questions with explanations
-- [Applications of Foundation Models](https://www.cloudcertprep.io/aws/aif-c01/applications-of-foundation-models): Applications of Foundation Models free practice questions with explanations
-- [Guidelines for Responsible AI](https://www.cloudcertprep.io/aws/aif-c01/guidelines-for-responsible-ai): Guidelines for Responsible AI free practice questions with explanations
-- [Security, Compliance, and Governance](https://www.cloudcertprep.io/aws/aif-c01/security-compliance-and-governance): Security, Compliance, and Governance free practice questions with explanations
+- [Fundamentals of AI and ML](https://xuyuzu.online/aws/aif-c01/fundamentals-of-ai-and-ml): Fundamentals of AI and ML free practice questions with explanations
+- [Fundamentals of Generative AI](https://xuyuzu.online/aws/aif-c01/fundamentals-of-generative-ai): Fundamentals of Generative AI free practice questions with explanations
+- [Applications of Foundation Models](https://xuyuzu.online/aws/aif-c01/applications-of-foundation-models): Applications of Foundation Models free practice questions with explanations
+- [Guidelines for Responsible AI](https://xuyuzu.online/aws/aif-c01/guidelines-for-responsible-ai): Guidelines for Responsible AI free practice questions with explanations
+- [Security, Compliance, and Governance](https://xuyuzu.online/aws/aif-c01/security-compliance-and-governance): Security, Compliance, and Governance free practice questions with explanations
 - Question Bank: 419 questions across 5 domains (Fundamentals of AI and ML, Fundamentals of Generative AI, Applications of Foundation Models, Guidelines for Responsible AI, Security, Compliance, and Governance)
 
 ### Coming Soon
 
 **AWS Solutions Architect Associate (SAA-C03)** - Coming Soon
-- [Certification Home](https://www.cloudcertprep.io/aws/saa-c03)
+- [Certification Home](https://xuyuzu.online/aws/saa-c03)
 
 ## FAQ
 
@@ -175,9 +175,9 @@ No. We do not provide exam dumps, which are leaked or stolen real exam questions
 
 ## Articles
 
-- [AWS Cloud Practitioner Passing Score (700/1000) and Pass Rate](https://www.cloudcertprep.io/blog/aws-cloud-practitioner-passing-score): The AWS Cloud Practitioner (CLF-C02) passing score is 700/1000. Here is what that means, the pass-rate context, and what happens if you fail.
-- [Is the AWS Cloud Practitioner Exam Hard?](https://www.cloudcertprep.io/blog/is-aws-cloud-practitioner-exam-hard): How hard is the AWS Cloud Practitioner (CLF-C02) exam? An honest difficulty breakdown by domain, with study time, pass-rate context, and prep tips.
-- [AIF-C01 vs CLF-C02: Which AWS Cert to Take First](https://www.cloudcertprep.io/blog/aif-c01-vs-clf-c02): A practical comparison of the AWS Certified AI Practitioner (AIF-C01) and Cloud Practitioner (CLF-C02) exams, and which foundational cert to sit first.
+- [AWS Cloud Practitioner Passing Score (700/1000) and Pass Rate](https://xuyuzu.online/blog/aws-cloud-practitioner-passing-score): The AWS Cloud Practitioner (CLF-C02) passing score is 700/1000. Here is what that means, the pass-rate context, and what happens if you fail.
+- [Is the AWS Cloud Practitioner Exam Hard?](https://xuyuzu.online/blog/is-aws-cloud-practitioner-exam-hard): How hard is the AWS Cloud Practitioner (CLF-C02) exam? An honest difficulty breakdown by domain, with study time, pass-rate context, and prep tips.
+- [AIF-C01 vs CLF-C02: Which AWS Cert to Take First](https://xuyuzu.online/blog/aif-c01-vs-clf-c02): A practical comparison of the AWS Certified AI Practitioner (AIF-C01) and Cloud Practitioner (CLF-C02) exams, and which foundational cert to sit first.
 
 ## Resources
 
