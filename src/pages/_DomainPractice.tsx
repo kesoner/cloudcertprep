@@ -20,7 +20,7 @@ import { confirmExamLeave, isIntentionalLeave, registerExamLeaveHandler, markInt
 import { useSignOut } from '../hooks/useSignOut'
 import { UnlockCTA } from '../components/landing/UnlockCTA'
 import { updateDomainProgress } from '../lib/supabaseUtils'
-import { reviewCellClass } from '../lib/buttonStyles'
+import { buttonClass, reviewCellClass } from '../lib/buttonStyles'
 import { goToLogin } from '../lib/navigation'
 import { calculateDomainMastery } from '../lib/domainStats'
 import type { Question, OptionKey, DomainProgress } from '../types'
@@ -39,6 +39,7 @@ import {
   buildGitHubIssueUrl,
 } from '../lib/constants'
 import { ArrowRight, Check, X } from 'lucide-react'
+import { recordWrongAnswer, resolveWrongAnswer } from '../lib/wrongAnswers'
 
 type Screen = 'selection' | 'config' | 'practice' | 'results'
 
@@ -352,6 +353,14 @@ export function DomainPractice() {
     // so `userAnswer` already holds the answer. Single passes its key in directly.
     const answerToCheck: string | string[] = answer ?? userAnswer ?? (type === 'single' ? '' : [])
     const correct = isAnswerCorrect(answerToCheck, correctAnswerFor(current), type)
+    const keyMap = optionKeyMaps.get(current.id) ?? {}
+    const storedAnswer = encodeAnswerForDb(answerToCheck, keyMap, type)
+
+    if (correct) {
+      resolveWrongAnswer(cert.code, current.id)
+    } else {
+      recordWrongAnswer(cert.code, current.id, storedAnswer)
+    }
 
     // Functional updaters avoid stale closures if two checkAnswer calls
     // race in the same tick (e.g. rapid keyboard / re-render).
@@ -620,6 +629,7 @@ export function DomainPractice() {
 
   if (effectiveScreen === 'results') {
     const currentResult = questionResults[selectedQuestionIndex]
+    const missedCount = questionResults.filter(result => !result.isCorrect).length
     
     return (
       <div className="p-4 md:p-8">
@@ -694,6 +704,14 @@ export function DomainPractice() {
               <Button onClick={goHome} variant="secondary" className="flex-1">
                 Back to home
               </Button>
+              {missedCount > 0 && (
+                <a
+                  href={`/${cert.provider}/${cert.code}/wrong-answers`}
+                  className={buttonClass({ variant: 'secondary', className: 'flex-1 text-center' })}
+                >
+                  Review mistakes
+                </a>
+              )}
               <Button onClick={() => selectDomain(selectedDomain!)} variant="primary" className="flex-1">
                 Practice again
               </Button>

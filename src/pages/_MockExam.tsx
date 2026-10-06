@@ -36,6 +36,7 @@ import { useSignOut } from '../hooks/useSignOut'
 import { storePendingAttempt, consumePendingAttemptSavedNotice, markPendingAttemptSaveIntent, PENDING_ATTEMPT_SAVED_EVENT, peekPendingAttempt, hasPendingAttemptSaveIntent, type PendingAttempt } from '../lib/pendingAttempt'
 import { getProviderLabel } from '../data/certifications'
 import { findNextDomainAction } from '../lib/domainStats'
+import { recordWrongAnswer, resolveWrongAnswer } from '../lib/wrongAnswers'
 
 type ExamScreen = 'start' | 'exam' | 'results' | 'review'
 
@@ -173,6 +174,7 @@ export function MockExam() {
       wasFlagged: boolean
     }>
   } | null>(null)
+  const missedQuestionCount = results?.questionResults.filter(result => !result.isCorrect).length ?? 0
   const [loading, setLoading] = useState(false)
   // Synchronous re-entrancy guard for exam submission. setLoading is async, so a
   // state-only guard lets rapid clicks (or any re-entrant call) before the next
@@ -539,6 +541,17 @@ export function MockExam() {
     const domainScores: Record<string, number> = {}
     for (const domain of cert.domains) {
       domainScores[String(domain.id)] = getDomainScore(results, domain.id)
+    }
+
+    // Keep a guest-friendly, browser-local set of currently missed questions.
+    // This remains available even when an exam is too short to save, or when
+    // the learner deliberately studies without an account.
+    for (const result of results) {
+      if (result.isCorrect) {
+        resolveWrongAnswer(cert.code, result.questionId)
+      } else {
+        recordWrongAnswer(cert.code, result.questionId, result.originalUserAnswer)
+      }
     }
 
     try {
@@ -919,6 +932,14 @@ export function MockExam() {
           )}
 
           <div className="mt-6 space-y-3">
+            {missedQuestionCount > 0 && (
+              <a
+                href={`/${cert.provider}/${cert.code}/wrong-answers`}
+                className={buttonClass({ variant: 'secondary', fullWidth: true })}
+              >
+                Review {missedQuestionCount} missed question{missedQuestionCount === 1 ? '' : 's'}
+              </a>
+            )}
             {/* Signed-in FAIL: route the moment of highest motivation straight
                 into targeted domain practice (M5; guests get the adaptive
                 UnlockCTA above instead). Weakest here is THIS exam's per-domain

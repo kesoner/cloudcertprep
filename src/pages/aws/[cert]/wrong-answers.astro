@@ -1,0 +1,41 @@
+---
+/**
+ * /aws/:cert/wrong-answers - local mistake review and redo island.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import AppIsland from '../../../components/AppIsland.tsx'
+import Breadcrumb from '../../../components/Breadcrumb.astro'
+import { getActiveCertStaticPaths, type Certification } from '../../../data/certifications'
+import { canonicalFor } from '../../../lib/seo-data'
+
+export const getStaticPaths = getActiveCertStaticPaths
+
+interface Props {
+  cert: Certification
+}
+
+const { cert } = Astro.props
+const title = `${cert.shortName} Mistake Review · CloudCertPrep`
+const description = `Review and redo missed ${cert.name} practice questions saved in this browser.`
+const canonical = canonicalFor(`/aws/${cert.code}/wrong-answers`)
+const breadcrumbItems = [
+  { label: 'Home', to: '/' },
+  { label: cert.shortName, to: `/aws/${cert.code}` },
+  { label: 'Mistake review' },
+]
+---
+
+<BaseLayout title={title} description={description} canonical={canonical} robots="noindex" noscriptDirectory={true}>
+  <div class="w-full max-w-4xl mx-auto px-4 md:px-8 pt-4 md:pt-6">
+    <Breadcrumb items={breadcrumbItems} />
+  </div>
+  <div class="relative flex-1 flex flex-col min-h-[70vh]">
+    <div id="cc-island-fallback" class="absolute inset-0 flex items-center justify-center" role="status" aria-label="Loading">
+      <div class="w-12 h-12 relative">
+        <div class="absolute inset-0 border-[3px] border-text-muted/20 rounded-full"></div>
+        <div class="absolute inset-0 border-[3px] border-transparent border-t-text-primary/80 rounded-full animate-spin"></div>
+      </div>
+    </div>
+    <AppIsland client:only="react" />
+  </div>
+</BaseLayout>

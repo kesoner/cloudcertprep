@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { ChevronDown, FileText, Target, Gauge } from 'lucide-react'
+import { ChevronDown, FileText, Target, Gauge, RotateCcw } from 'lucide-react'
 import { getSortedCerts } from '../data/certifications'
 import { useExamActive } from '../hooks/useExamActive'
 import type { Certification } from '../data/certifications'
@@ -30,6 +30,7 @@ import type { Certification } from '../data/certifications'
 const PRACTICE_MODES = [
   { seg: 'practice-exam', label: 'Practice exam', desc: 'Full-length, timed, scored', Icon: FileText },
   { seg: 'domain-practice', label: 'Domain practice', desc: 'One domain at a time', Icon: Target },
+  { seg: 'wrong-answers', label: 'Mistake review', desc: 'Review explanations and retry misses', Icon: RotateCcw },
 ] as const
 
 type MenuItem = { href: string; label: string; desc: string; Icon: typeof FileText }
