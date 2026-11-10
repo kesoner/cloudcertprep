@@ -1,4 +1,5 @@
 ---
+import { SITE_URL } from '../lib/seo-data'
 /**
  * /login — interactive page body island. Noindexed (R2.7).
  * Static Astro chrome (header/footer) comes from BaseLayout; AppIsland renders
@@ -9,9 +10,9 @@ import AppIsland from '../components/AppIsland.tsx'
 ---
 
 <BaseLayout
-  title="Sign In · CloudCertPrep"
-  description="Sign in to CloudCertPrep to track your progress across practice exams and domain sessions."
-  canonical="https://www.cloudcertprep.io/login"
+  title="登入 · CloudCertPrep-zh"
+  description="登入 CloudCertPrep-zh，追蹤模擬測驗與領域練習進度。"
+  canonical={SITE_URL + "/login"}
   robots="noindex"
   noscriptDirectory={true}
 >
@@ -29,7 +30,7 @@ import AppIsland from '../components/AppIsland.tsx'
       id="cc-island-fallback"
       class="absolute inset-0 flex items-start justify-center px-4 py-10 md:py-16"
       role="status"
-      aria-label="Loading sign in"
+      aria-label="正在載入登入頁面"
     >
       <div class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 md:items-start gap-8 lg:gap-12">
         {/* Left: marketing rail skeleton (desktop only). min-h matches the real

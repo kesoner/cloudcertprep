@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { ChevronDown, FileText, Target, Gauge } from 'lucide-react'
+import { ChevronDown, FileText, Target, Gauge, RotateCcw } from 'lucide-react'
 import { getSortedCerts } from '../data/certifications'
 import { useExamActive } from '../hooks/useExamActive'
 import type { Certification } from '../data/certifications'
@@ -28,8 +28,9 @@ import type { Certification } from '../data/certifications'
  */
 
 const PRACTICE_MODES = [
-  { seg: 'practice-exam', label: 'Practice exam', desc: 'Full-length, timed, scored', Icon: FileText },
-  { seg: 'domain-practice', label: 'Domain practice', desc: 'One domain at a time', Icon: Target },
+  { seg: 'practice-exam', label: '模擬測驗', desc: '完整計時測驗與評分', Icon: FileText },
+  { seg: 'domain-practice', label: '領域練習', desc: '一次專注一個領域', Icon: Target },
+  { seg: 'wrong-answers', label: '錯題本', desc: '查看解析，重做答錯的題目', Icon: RotateCcw },
 ] as const
 
 type MenuItem = { href: string; label: string; desc: string; Icon: typeof FileText }
@@ -40,7 +41,7 @@ function itemsFor(cert: Certification, isAuthed: boolean): MenuItem[] {
   }))
   // Signed-in: the cert dashboard (progress + mastery) is the returning-user hub.
   return isAuthed
-    ? [{ href: `/${cert.provider}/${cert.code}`, label: 'Dashboard', desc: 'Your progress and mastery', Icon: Gauge }, ...modes]
+    ? [{ href: `/${cert.provider}/${cert.code}`, label: '學習總覽', desc: '你的進度與熟練度', Icon: Gauge }, ...modes]
     : modes
 }
 
@@ -51,7 +52,7 @@ export function PracticeMenu({ variant, isAuthed = false, onNavigate, currentPat
   // CertSwitcher roster just above - listing every cert twice is redundant on a
   // phone. Off a cert page (home/about/blog) there is no active cert, so show
   // all certs as the practice funnel. Desktop always shows all (it is the funnel
-  // and there is no CertSwitcher beside it). "Browse all certifications" below
+  // and there is no CertSwitcher beside it). "瀏覽所有證照" below
   // always keeps the other certs one tap away.
   const activeCert = variant === 'mobile' && currentPath
     ? certs.find(c => currentPath.startsWith(`/${c.provider}/${c.code}`))
@@ -106,11 +107,11 @@ export function PracticeMenu({ variant, isAuthed = false, onNavigate, currentPat
           aria-expanded={open}
           aria-controls={open ? panelId : undefined}
           disabled={examActive}
-          title={examActive ? 'Finish your exam to open the practice menu' : undefined}
+          title={examActive ? '完成測驗後即可開啟練習選單' : undefined}
           onClick={() => setOpen(o => !o)}
           className={`hdr-link inline-flex items-center gap-1 text-on-header font-medium transition-colors text-sm rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-on-header focus-visible:ring-offset-2 focus-visible:ring-offset-header-bg ${examActive ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          Practice
+          練習
           <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
         </button>
         {open && !examActive && (
@@ -119,7 +120,7 @@ export function PracticeMenu({ variant, isAuthed = false, onNavigate, currentPat
             className="absolute right-0 top-full mt-2 w-[min(94vw,30rem)] origin-top-right animate-scale-in rounded-2xl border border-border-hairline bg-bg-card shadow-card-hover p-3 md:p-4 z-50"
           >
             {/* Plain container, NOT a nav landmark: the footer already owns the
-                "Practice" nav, and a disclosure panel should not add duplicate
+                "練習" nav, and a disclosure panel should not add duplicate
                 landmarks. The button's aria-expanded/aria-controls is the a11y
                 contract; the links inside are reachable by Tab. */}
             <div>
@@ -154,7 +155,7 @@ export function PracticeMenu({ variant, isAuthed = false, onNavigate, currentPat
                 onClick={() => { setOpen(false); onNavigate?.() }}
                 className="mt-2 flex items-center justify-center rounded-lg border-t border-border-hairline/60 px-2 pt-2.5 pb-1.5 text-sm font-medium text-text-primary hover:text-brand transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
-                Browse all certifications
+                瀏覽所有證照
               </a>
             </div>
           </div>
@@ -175,7 +176,7 @@ export function PracticeMenu({ variant, isAuthed = false, onNavigate, currentPat
         className={`w-full px-4 py-3 text-text-primary hover:bg-bg-dark rounded-xl transition-colors active:scale-[0.98] font-medium flex items-center gap-3 ${examActive ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <Target className="w-5 h-5 text-text-muted" aria-hidden="true" />
-        Practice
+        練習
         <ChevronDown className={`w-4 h-4 ml-auto text-text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
       {open && !examActive && (
@@ -201,7 +202,7 @@ export function PracticeMenu({ variant, isAuthed = false, onNavigate, currentPat
             onClick={onNavigate}
             className="px-4 py-2.5 min-h-11 mt-1 text-text-primary hover:bg-bg-dark rounded-xl transition-colors active:scale-[0.98] flex items-center gap-3 text-sm font-medium"
           >
-            Browse all certifications
+            瀏覽所有證照
           </a>
         </div>
       )}

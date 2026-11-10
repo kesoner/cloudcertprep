@@ -28,7 +28,7 @@ function DismissButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      aria-label="Dismiss"
+      aria-label="關閉提示"
       className="inline-flex h-11 w-11 -m-1.5 shrink-0 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-card-hover hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
     >
       <X className="h-4 w-4" aria-hidden="true" />
@@ -113,8 +113,8 @@ export default function AuthLinkNotice() {
       <TopNotice role="alert" borderClass="border-warning/40">
         <AlertTriangle className="h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
         <span className="min-w-0 flex-1 text-sm text-text-primary">
-          That link has expired or was already used.{' '}
-          <a href="/login" className="font-semibold underline">Request a new one</a>.
+          連結已過期或已使用。{' '}
+          <a href="/login" className="font-semibold underline">重新取得連結</a>.
         </span>
         <DismissButton onClick={() => setNotice(null)} />
       </TopNotice>
@@ -126,8 +126,8 @@ export default function AuthLinkNotice() {
       <TopNotice role="alert" borderClass="border-warning/40">
         <AlertTriangle className="h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
         <span className="min-w-0 flex-1 text-sm text-text-primary">
-          We could not complete that sign-in link.{' '}
-          <a href="/login" className="font-semibold underline">Request a new one</a> or try again.
+          無法完成連結登入。{' '}
+          <a href="/login" className="font-semibold underline">重新取得連結</a> 或再試一次。
         </span>
         <DismissButton onClick={() => setNotice(null)} />
       </TopNotice>
@@ -139,7 +139,7 @@ export default function AuthLinkNotice() {
       <TopNotice role="status" borderClass="border-success/30">
         <CheckCircle className="h-5 w-5 shrink-0 text-success" aria-hidden="true" />
         <span className="min-w-0 flex-1 text-sm text-text-primary">
-          Your account and all your data have been deleted. Thanks for trying CloudCertPrep.
+          你的帳戶及所有資料已刪除。感謝使用 CloudCertPrep-zh。
         </span>
         <DismissButton onClick={() => setNotice(null)} />
       </TopNotice>
@@ -158,9 +158,9 @@ export default function AuthLinkNotice() {
   return (
     <TopNotice role="status" borderClass="border-success/30">
       <CheckCircle className="h-5 w-5 shrink-0 text-success" aria-hidden="true" />
-      <span className="min-w-0 flex-1 text-sm text-text-primary">Your email is confirmed.</span>
+      <span className="min-w-0 flex-1 text-sm text-text-primary">電子郵件已驗證完成。</span>
       <a href="/login" className={`${buttonClass({ variant: 'brand', size: 'sm' })} shrink-0`}>
-        Sign in
+        登入
       </a>
       <DismissButton onClick={() => setNotice(null)} />
     </TopNotice>

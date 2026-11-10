@@ -27,17 +27,17 @@ const SAVED_NOTICE_KEY = 'cloudcertprep_pending_attempt_saved'
 
 /** Start the exam and wait until the timed exam screen is active. */
 async function startExam(page: Page) {
-  await page.getByRole('button', { name: 'Start exam', exact: true }).click()
+  await page.getByRole('button', { name: "開始測驗", exact: true }).click()
   await page.waitForFunction(() => document.body.dataset.examActive === 'true', { timeout: 25000 })
 }
 
 /** Submit the active exam through the confirm modal -> results screen. */
 async function submitExam(page: Page) {
-  await page.getByRole('button', { name: 'Submit exam' }).first().click()
-  const dialog = page.getByRole('dialog', { name: 'Ready to submit?' })
+  await page.getByRole('button', { name: "交卷" }).first().click()
+  const dialog = page.getByRole('dialog', { name: "確定要交卷嗎？" })
   await expect(dialog).toBeVisible()
-  await dialog.getByRole('button', { name: 'Submit for grading' }).click()
-  await expect(page.getByRole('button', { name: 'Retake exam' })).toBeVisible({ timeout: 15000 })
+  await dialog.getByRole('button', { name: "交卷並評分" }).click()
+  await expect(page.getByRole('button', { name: "重新測驗" })).toBeVisible({ timeout: 15000 })
 }
 
 test('retake does not re-open the "Ready to submit?" modal over question 1', async ({ page }) => {
@@ -45,26 +45,26 @@ test('retake does not re-open the "Ready to submit?" modal over question 1', asy
   await startExam(page)
   await submitExam(page) // manual submit path leaves showEndModal=true (pre-fix)
 
-  await page.getByRole('button', { name: 'Retake exam' }).click()
+  await page.getByRole('button', { name: "重新測驗" }).click()
   await startExam(page) // mounts the exam screen again
 
   // The stale confirm modal must NOT be open on the fresh attempt, and the user
   // should land on a clean question 1.
-  await expect(page.getByRole('dialog', { name: 'Ready to submit?' })).toHaveCount(0)
-  await expect(page.getByText('Question 1 of', { exact: false })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: "確定要交卷嗎？" })).toHaveCount(0)
+  await expect(page.getByText('第 1 題，共', { exact: false })).toBeVisible()
 })
 
 test('signed-in sub-60s submit shows an explicit "not saved" notice', async ({ page }) => {
   await seedSession(page)
   await page.goto(EXAM_URL)
   // Confirm auth has resolved so handleSubmitExam sees a logged-in user.
-  await expect(page.getByRole('button', { name: 'Account menu' }).first()).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "帳戶選單" }).first()).toBeVisible({ timeout: 15000 })
 
   await startExam(page)
   await submitExam(page) // well under 60s -> too short -> not persisted
 
   await expect(
-    page.getByText('This attempt was too short to be saved to your history.'),
+    page.getByText("本次測驗時間過短，未儲存至歷史紀錄。"),
   ).toBeVisible()
 })
 
@@ -80,7 +80,7 @@ test('a stale "attempt saved" notice does NOT bounce a deliberate exam start to 
   await page.goto(EXAM_URL)
 
   // Stays on the exam start screen instead of bouncing to /history.
-  await expect(page.getByRole('button', { name: 'Start exam', exact: true })).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "開始測驗", exact: true })).toBeVisible({ timeout: 15000 })
   await expect(page).toHaveURL(/\/practice-exam$/)
 })
 
@@ -112,11 +112,11 @@ test('no "Saving your attempt..." loader for a pending attempt with no save inte
   // AFTER auth resolves. Wait for the signed-in chrome, then let the gated effect
   // (setTimeout 0) settle - pre-fix this is exactly when "Saving your attempt..."
   // would replace the start screen for up to 8s.
-  await expect(page.getByRole('button', { name: 'Account menu' }).first()).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "帳戶選單" }).first()).toBeVisible({ timeout: 15000 })
   await page.waitForTimeout(500)
 
-  await expect(page.getByText('Saving your attempt...')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Start exam', exact: true })).toBeVisible()
+  await expect(page.getByText("正在儲存本次測驗…")).toHaveCount(0)
+  await expect(page.getByRole('button', { name: "開始測驗", exact: true })).toBeVisible()
   // Sanity: intent really is absent (this is what gates the loader).
   expect(await page.evaluate((k) => sessionStorage.getItem(k), INTENT_KEY)).toBeNull()
 })

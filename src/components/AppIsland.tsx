@@ -30,6 +30,7 @@ import { NotFound } from '../pages/_NotFound'
 
 const MockExam = lazy(() => import('../pages/_MockExam').then(m => ({ default: m.MockExam })))
 const DomainPractice = lazy(() => import('../pages/_DomainPractice').then(m => ({ default: m.DomainPractice })))
+const WrongAnswers = lazy(() => import('../pages/_WrongAnswers').then(m => ({ default: m.WrongAnswers })))
 const History = lazy(() => import('../pages/_History').then(m => ({ default: m.History })))
 const Account = lazy(() => import('../pages/_Account').then(m => ({ default: m.Account })))
 const Login = lazy(() => import('../pages/_Login').then(m => ({ default: m.Login })))
@@ -121,6 +122,7 @@ function AppRoutes() {
         <Route path="/:provider/:certCode" element={<CertRouteGuard />}>
           <Route path="practice-exam" element={<MockExam />} />
           <Route path="domain-practice" element={<DomainPractice />} />
+          <Route path="wrong-answers" element={<WrongAnswers />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

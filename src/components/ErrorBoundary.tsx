@@ -50,13 +50,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <div className="bg-bg-card rounded-2xl p-6 md:p-8 max-w-md w-full shadow-card text-center border border-border-hairline">
           <AlertCircle className="w-12 h-12 text-danger mx-auto mb-4" />
           <h1 className="text-xl md:text-2xl font-semibold text-text-primary mb-2">
-            Something went wrong
+            發生問題
           </h1>
           <p className="text-text-muted text-sm md:text-base mb-6 leading-relaxed">
-            An unexpected error broke this page. Reloading usually fixes it. If the problem keeps happening, please report it on GitHub.
+            頁面發生非預期錯誤，請重新載入。若問題持續，請在 GitHub 回報。
           </p>
           <Button onClick={this.handleReload} variant="primary" fullWidth>
-            Reload page
+            重新載入頁面
           </Button>
         </div>
       </div>

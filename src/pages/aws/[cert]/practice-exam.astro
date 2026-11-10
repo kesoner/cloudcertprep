@@ -19,18 +19,18 @@ interface Props {
 }
 
 const { cert } = Astro.props
-const title = `${cert.shortName} Practice Exam · CloudCertPrep`
+const title = `${cert.shortName} 模擬測驗 · CloudCertPrep-zh`
 const description = `Take a free ${cert.name} practice exam. ${cert.examQuestionCount} questions in ${Math.round(cert.examTimeSeconds / 60)} minutes, matching the real exam format.`
 const canonical = canonicalFor(`/aws/${cert.code}/practice-exam`)
 
 // Orientation breadcrumb (UX only: the page is noindex, so no SEO weight).
 // During an active timed exam its links are intercepted by the exam island's
-// delegated click guard and routed through the "Leave the exam?" modal, so it
+// delegated click guard and routed through the "要離開測驗嗎？" modal, so it
 // is not an accidental-exit trap.
 const breadcrumbItems = [
-  { label: 'Home', to: '/' },
+  { label: '首頁', to: '/' },
   { label: cert.shortName, to: `/aws/${cert.code}` },
-  { label: 'Practice exam' },
+  { label: '模擬測驗' },
 ]
 ---
 

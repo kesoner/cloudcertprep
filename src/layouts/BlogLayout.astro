@@ -5,7 +5,8 @@
  * Emits BlogPosting JSON-LD anchored to the Person entity (@id) in the
  * BaseLayout graph, renders a breadcrumb trail, and delegates page chrome,
  * meta tags, and platform JSON-LD to BaseLayout. The post body is rendered
- * via the default <slot />.
+ * via the default <p class="mb-6 text-sm text-text-muted">本文保留英文原文，方便對照 AWS 官方術語。</p>
+            <div lang="en"><slot /></div>.
  *
  * Canonical is self-referential (https://www.cloudcertprep.io/blog/<slug>)
  * unless frontmatter.canonical overrides it.
@@ -37,7 +38,7 @@ interface BlogFrontmatter {
 
 interface Props {
   data: BlogFrontmatter
-  /** Heading tree from render(post); drives the wide-screen "On this page" TOC. */
+  /** Heading tree from render(post); drives the wide-screen "本頁目錄" TOC. */
   headings?: { depth: number; slug: string; text: string }[]
   /** Estimated reading time (minutes) for the byline. */
   readingMinutes?: number
@@ -79,8 +80,8 @@ const datePublished = data.date.toISOString()
 const dateModified = (data.updated ?? data.date).toISOString()
 
 const breadcrumbItems = [
-  { label: 'Home', to: '/' },
-  { label: 'Blog', to: '/blog' },
+  { label: '首頁', to: '/' },
+  { label: '學習文章', to: '/blog' },
   { label: data.title },
 ]
 
@@ -167,9 +168,9 @@ const updatedDisplay = data.updated
             title's left edge lines up with the body prose column below. */}
         <header class={`stagger max-w-[68ch] mx-auto${showToc ? ' lg:mx-0' : ''}`}>
           <nav class="font-mono text-[12px] tracking-wide text-[#8B95A3]" aria-label="Breadcrumb">
-            <a href="/" class="hover:text-[#C9D2DC] transition-colors">Home</a>
+            <a href="/" class="hover:text-[#C9D2DC] transition-colors">首頁</a>
             <span class="mx-1.5 text-white/25">›</span>
-            <a href="/blog" class="hover:text-[#C9D2DC] transition-colors">Blog</a>
+            <a href="/blog" class="hover:text-[#C9D2DC] transition-colors">學習文章</a>
           </nav>
 
           <p class="mt-5 font-mono text-[12px] tracking-wide text-[#8B95A3]">
@@ -199,20 +200,20 @@ const updatedDisplay = data.updated
 
     <div class="sheet-overlap pb-16 md:pb-24 pt-10 md:pt-14">
       <div class={`${frameWide} mx-auto px-4 md:px-8`}>
-        {/* Wide screens: prose column + a sticky "On this page" rail that fills
+        {/* Wide screens: prose column + a sticky "本頁目錄" rail that fills
             the otherwise-empty right gutter (the owner's 1440p complaint). The
             prose measure stays 68ch. < lg and short posts keep a single
             centered column (no grid, no rail). */}
         <div class={showToc ? 'lg:grid lg:grid-cols-[minmax(0,68ch)_1fr] lg:gap-12' : ''}>
           {showToc && (
-            // Mobile / tablet "On this page": the wide-screen rail is hidden
+            // Mobile / tablet "本頁目錄": the wide-screen rail is hidden
             // below lg, so a collapsible native <details> gives the same jump
             // links without a sticky sidebar. lg:hidden -> removed from the grid
             // entirely on wide screens (display:none items don't form a track),
             // so the 2-column rail layout is unaffected. (M3 [C])
             <details class="lg:hidden mb-8 max-w-[68ch] mx-auto rounded-xl border border-border-hairline bg-bg-card/70">
               <summary class="flex items-center justify-between gap-2 cursor-pointer list-none px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-text-muted [&::-webkit-details-marker]:hidden">
-                On this page
+                本頁目錄
                 <svg class="w-4 h-4 transition-transform duration-gentle [details[open]_&]:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
               </summary>
               <ul class="list-none p-0 m-0 px-4 pb-3 space-y-0.5">
@@ -243,7 +244,7 @@ const updatedDisplay = data.updated
           {showToc && (
             <nav class="hidden lg:block sticky top-24" aria-label="Table of contents">
               <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-text-muted mb-3">
-                On this page
+                本頁目錄
               </p>
               <ul class="space-y-1 list-none p-0 m-0 border-l border-border-hairline">
                 {toc.map((h) => (
@@ -268,7 +269,7 @@ const updatedDisplay = data.updated
             reader-facing E-E-A-T surface, not a crawler-facing one. */}
         <div class={`mt-10 max-w-[68ch] mx-auto${showToc ? ' lg:mx-0' : ''}`}>
           <div class="rounded-xl border border-border-hairline bg-bg-card/70 p-5 md:p-6">
-            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-text-muted mb-2">About the author</p>
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-text-muted mb-2">關於作者</p>
             <p class="text-sm text-text-muted leading-relaxed">
               <a href="https://santonastaso.me" class="font-semibold text-text-primary hover:underline underline-offset-2">Alex Santonastaso</a> is a software engineer who built CloudCertPrep to prepare for the AWS Certified Cloud Practitioner exam, then passed it. He maintains the platform and its open-source question banks, which are validated by an automated checker and publicly auditable on GitHub.
             </p>
@@ -292,8 +293,8 @@ const updatedDisplay = data.updated
             redundant landmark (axe moderate #147). */}
         <div class={`mt-14 md:mt-20 max-w-[68ch] mx-auto${showToc ? ' lg:mx-0' : ''}`}>
           <div class="rounded-2xl border border-border-hairline bg-bg-card shadow-card p-6 md:p-8 text-center">
-            <h2 class="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary">Ready to put this into practice?</h2>
-            <p class="mt-2 text-text-muted">Free, full-length practice exams with every answer explained. No signup required.</p>
+            <h2 class="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary">準備好實際練習了嗎？</h2>
+            <p class="mt-2 text-text-muted">免費完整模擬測驗，每題皆附解析，不必註冊即可開始。</p>
             <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <a href={ctaPrimary.href} class={buttonClass({ variant: 'brand', size: 'lg' })}>{ctaPrimary.label}</a>
               <a href={ctaSecondary.href} class={buttonClass({ variant: 'secondary', size: 'lg' })}>{ctaSecondary.label}</a>
@@ -301,7 +302,7 @@ const updatedDisplay = data.updated
           </div>
           <div class="mt-6 text-center">
             <a href="/blog" class="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors">
-              <span aria-hidden="true">←</span> Back to all posts
+              <span aria-hidden="true">←</span> 返回所有文章
             </a>
           </div>
         </div>

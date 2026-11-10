@@ -21,57 +21,57 @@ async function seed(page: import('@playwright/test').Page, pending: unknown, mar
 
 test('P0-2 edge: welcome card shows once, then the ack flag suppresses it', async ({ page }) => {
   await page.goto('/?verified=1')
-  await expect(page.getByText('Your email is confirmed')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText('電子郵件已驗證完成。')).toBeVisible({ timeout: 10000 })
   await page.goto('/?verified=1') // ack now set
   await page.waitForTimeout(1200)
-  await expect(page.getByText('Your email is confirmed')).toHaveCount(0)
+  await expect(page.getByText('電子郵件已驗證完成。')).toHaveCount(0)
 })
 
 test('P0-2 edge: welcome card dismiss hides it', async ({ page }) => {
   await page.goto('/?verified=1')
-  await expect(page.getByText('Your email is confirmed')).toBeVisible({ timeout: 10000 })
-  await page.getByRole('button', { name: 'Dismiss' }).click()
-  await expect(page.getByText('Your email is confirmed')).toBeHidden()
+  await expect(page.getByText('電子郵件已驗證完成。')).toBeVisible({ timeout: 10000 })
+  await page.getByRole('button', { name: "關閉提示" }).click()
+  await expect(page.getByText('電子郵件已驗證完成。')).toBeHidden()
 })
 
 test('P0-3 edge: otp_expired alone (no error param) shows the banner', async ({ page }) => {
   await page.goto('/?error_code=otp_expired')
-  await expect(page.getByText('That link has expired')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText('連結已過期')).toBeVisible({ timeout: 10000 })
 })
 
 test('P0-3 edge: access_denied alone shows the banner', async ({ page }) => {
   await page.goto('/?error=access_denied')
-  await expect(page.getByText('That link has expired')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText('連結已過期')).toBeVisible({ timeout: 10000 })
 })
 
 test('P1-6 edge: cert mismatch does NOT rehydrate', async ({ page }) => {
   await seed(page, PENDING(), 'clf-c02')
   await page.goto('/aws/aif-c01/practice-exam') // marker cert != this cert
   // No rehydrate: the START screen shows, never the results screen.
-  await expect(page.getByRole('button', { name: 'Start exam', exact: true })).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "開始測驗", exact: true })).toBeVisible({ timeout: 15000 })
   await page.waitForTimeout(1500)
-  await expect(page.getByRole('button', { name: /Retake exam/i })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /重新測驗/i })).toHaveCount(0)
 })
 
 test('P1-6 edge: expired pending (>24h) does NOT rehydrate', async ({ page }) => {
   await seed(page, PENDING({ finishedAt: Date.now() - 25 * 3600 * 1000 }), 'clf-c02')
   await page.goto('/aws/clf-c02/practice-exam')
-  await expect(page.getByRole('button', { name: 'Start exam', exact: true })).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "開始測驗", exact: true })).toBeVisible({ timeout: 15000 })
   await page.waitForTimeout(1500)
-  await expect(page.getByRole('button', { name: /Retake exam/i })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /重新測驗/i })).toHaveCount(0)
 })
 
 test('P1-4 edge: the Practice menu is locked during an exam (like cert switching)', async ({ page }) => {
   await page.goto('/aws/clf-c02/practice-exam')
-  await page.getByRole('button', { name: 'Start exam', exact: true }).click()
+  await page.getByRole('button', { name: "開始測驗", exact: true }).click()
   await page.waitForFunction(() => document.body.dataset.examActive === 'true', { timeout: 25000 })
-  await expect(page.getByRole('button', { name: 'Practice', exact: true }).first()).toBeDisabled()
+  await expect(page.getByRole('button', { name: "練習", exact: true }).first()).toBeDisabled()
 })
 
 test('P1-5: progress bar advances when the current question is answered', async ({ page }) => {
   await page.goto('/aws/clf-c02/domain-practice')
-  await page.getByRole('button', { name: /Practice .+: \d+ questions/ }).first().click()
-  await page.getByRole('button', { name: 'Start practice', exact: true }).click()
+  await page.getByRole('button', { name: /練習.+：\d+ 題/ }).first().click()
+  await page.getByRole('button', { name: "開始練習", exact: true }).click()
   const bar = page.getByRole('progressbar').first()
   await expect(bar).toBeVisible({ timeout: 20000 })
   expect(Number(await bar.getAttribute('aria-valuenow'))).toBe(0) // Q1 unanswered
@@ -81,7 +81,7 @@ test('P1-5: progress bar advances when the current question is answered', async 
   // required number selected before Submit grades (since the under-select warning
   // shipped), so pick the remaining options (unselected ones lock at the required
   // count) then submit. The poll below is the real assertion.
-  const submitAnswer = page.getByRole('button', { name: 'Submit answer', exact: true })
+  const submitAnswer = page.getByRole('button', { name: "送出答案", exact: true })
   if (await submitAnswer.isVisible().catch(() => false)) {
     for (let k = 0; k < 4; k++) {
       const unselected = page.locator('button[aria-pressed="false"]:not([disabled])')
@@ -107,13 +107,13 @@ test('P1-8 edge: no British spelling on the domain landing or history', async ({
 
 test('P0 edge: ?verified=1 + otp_expired -> expired wins (actionable failure)', async ({ page }) => {
   await page.goto('/?verified=1&error_code=otp_expired')
-  await expect(page.getByText('That link has expired')).toBeVisible({ timeout: 10000 })
-  await expect(page.getByText('Your email is confirmed')).toHaveCount(0)
+  await expect(page.getByText('連結已過期')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText('電子郵件已驗證完成。')).toHaveCount(0)
 })
 
 test('P0 edge: auth params stripped, but UTM/other query params preserved', async ({ page }) => {
   await page.goto('/?utm_source=newsletter&verified=1&utm_medium=email')
-  await expect(page.getByText('Your email is confirmed')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText('電子郵件已驗證完成。')).toBeVisible({ timeout: 10000 })
   await page.waitForTimeout(400)
   const url = new URL(page.url())
   expect(url.searchParams.get('verified')).toBeNull()
@@ -125,11 +125,11 @@ test('P1-6 regression: a real completed exam DOES show Review (questions loaded)
   // Guards the stateless results-Review gate: rehydrate hides "Review questions"
   // (no questions), but a real submitted exam must show it.
   await page.goto('/aws/clf-c02/practice-exam')
-  await page.getByRole('button', { name: 'Start exam', exact: true }).click()
+  await page.getByRole('button', { name: "開始測驗", exact: true }).click()
   await page.waitForFunction(() => document.body.dataset.examActive === 'true', { timeout: 25000 })
   // Flow (review screen removed): Submit exam (toolbar) -> "Ready to submit?"
   // confirm -> Submit for grading -> results.
-  await page.getByRole('button', { name: 'Submit exam', exact: true }).first().click()
-  await page.getByRole('button', { name: 'Submit for grading', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Review questions' })).toBeVisible({ timeout: 15000 })
+  await page.getByRole('button', { name: "交卷", exact: true }).first().click()
+  await page.getByRole('button', { name: "交卷並評分", exact: true }).click()
+  await expect(page.getByRole('button', { name: "檢視題目" })).toBeVisible({ timeout: 15000 })
 })

@@ -85,7 +85,7 @@ for (const theme of ['light', 'dark'] as const) {
     // Match the "<level> . Your dashboard" kicker, not a bare "Your dashboard"
     // (which also matches the transient sr-only "Loading your dashboard" status and
     // races into a strict-mode violation). See ux-audit-auth.spec.ts.
-    await expect(page.getByText(/·\s*Your dashboard/)).toBeVisible({ timeout: 20000 })
+    await expect(page.getByText(/·\s*你的學習總覽/)).toBeVisible({ timeout: 20000 })
     await page.waitForTimeout(900)
     await page.screenshot({ path: `${DIR}/dashboard-${theme}.png`, fullPage: true })
   })
@@ -94,7 +94,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.addInitScript((t) => localStorage.setItem('cloudcertprep_theme', t), theme)
     await page.setViewportSize({ width: 1280, height: 820 })
     await signIn(page, await makeUser(`menu-${theme}`))
-    const trigger = page.getByRole('button', { name: 'Practice', exact: true })
+    const trigger = page.getByRole('button', { name: "開始練習", exact: true })
     await expect(async () => {
       if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click()
       await expect(page.locator('#site-header a[href="/aws/clf-c02"]')).toBeVisible({ timeout: 1000 })

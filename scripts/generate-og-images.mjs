@@ -140,7 +140,7 @@ function parseCertRegistry() {
 // without JSX). Layout (§7): navy background, orange top stripe, the
 // cloud+check logo lockup top-left, the cert FULL NAME as the headline, a
 // "Free … Practice Exams" tagline, an optional orange domain line, and the
-// CloudCertPrep wordmark bottom-right.
+// CloudCertPrep-zh wordmark bottom-right.
 //
 // `logoDataUri` is a data: URI of the bare brand mark (orange cloud + ink
 // check, NO tile — built inline in main() below), loaded once and passed through.
@@ -166,7 +166,7 @@ function template({ title, tagline, domainName, code, level, logoDataUri }) {
       style: { display: 'flex', fontSize: 30, color: TEXT_PRIMARY, marginLeft: logoDataUri ? 18 : 0, letterSpacing: -0.5 },
       children: [
         { type: 'span', props: { style: { fontWeight: 400 }, children: 'Cloud' } },
-        { type: 'span', props: { style: { fontWeight: 700 }, children: 'CertPrep' } },
+        { type: 'span', props: { style: { fontWeight: 700 }, children: 'CertPrep-zh' } },
       ],
     },
   })

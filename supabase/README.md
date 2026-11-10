@@ -1,5 +1,51 @@
 # Supabase schema for CloudCertPrep
 
+## Separate project connected on 2026-11-09
+
+The Traditional Chinese checkout uses `nfwenbsteyehjirbghfk`
+(`xuyuzu-cloudcertprep`). Its public schema was empty before setup.
+`sql/bootstrap-new-project.sql` records the SQL applied to this project only.
+It deliberately fails on an existing schema rather than replacing existing data.
+It is not a migration or a copy of the original production database.
+
+This project has the three application tables, owner-only authenticated CRUD,
+`question_mastery` with security invoker, and the two aggregate public RPCs.
+Anonymous callers have no private-table privileges. A composite foreign key also
+prevents attaching a question to another user's exam. All user data cascades from
+`auth.users`. The unused legacy `platform_stats` table and its counters are omitted.
+
+`attempt_questions.answered_at` records each answer's time. This project's mastery
+rule is three consecutive correct answers, excluded for seven days; a recent
+wrong answer has weight 10, other active answers have weight `max(1,5-streak)`.
+These explicit defaults are specific to this new project, not verified source
+production behavior. `sql/verify-new-project.sql` checks owner reads/writes,
+cross-user denial, anonymous denial, domain 5, mastery, and aggregate RPCs inside
+a rolled-back transaction. No test users or answers remain after a passing run.
+
+Email signup and email confirmation are enabled. Google and GitHub OAuth are
+not configured. Site URL is `http://localhost:4321`, with redirect allowlist
+`http://localhost:4321/**`. Before hosting the site, set these to its real origin
+and configure OAuth credentials if those login methods are needed.
+
+`delete-account` is deployed with JWT verification enabled and its existing
+server-side `auth.getUser()` check. Its `SITE_ORIGIN` environment value is
+`http://localhost:4321`; update it to the deployed origin before hosting.
+Frontend `.env.local` uses only the public publishable key in the existing
+`VITE_SUPABASE_ANON_KEY` variable and is gitignored. No admin key is stored there.
+
+The remaining sections describe the original project's schema and settings;
+the setup above records the differences for this checkout.
+
+### Public statistics input protection (2026-11-10)
+
+Applied `sql/harden-public-stats.sql` to the fork project. Domain scores must
+be JSON objects with positive domain keys of at most nine digits and numeric
+scores from 0 through 100. The check rejects new invalid rows; `NOT VALID`
+preserves existing rows. The public RPC skips invalid historical domain scores
+instead of failing the entire request. This repair does not delete records or
+change RLS permissions. `sql/verify-new-project.sql` also checks malformed JSON,
+oversized keys, invalid scores, valid decimals, and rejected inserts.
+
 This file documents the Postgres schema that CloudCertPrep relies on. The schema lives inside a Supabase project; it is not currently managed by a migrations tool. This README is the source of truth for "what does the database look like" when setting up a fresh Supabase project or when reviewing schema changes.
 
 If you change the schema, **update this file in the same PR**. Otherwise this drifts and becomes worse than no documentation.

@@ -10,7 +10,7 @@
  * (merge-by-verified-email). When that merge happens the user silently ends up
  * with one account carrying multiple linked identities. R5.4 requires we
  * surface a one-time confirmation so the user understands their Google sign-in
- * was linked to a pre-existing CloudCertPrep account rather than creating a
+ * was linked to a pre-existing CloudCertPrep-zh account rather than creating a
  * duplicate.
  */
 import type { User } from '@supabase/supabase-js'
@@ -20,7 +20,7 @@ export const ACCOUNT_LINK_CONFIRMED_EVENT = 'account-link:google-confirmed'
 
 /** The copy shown in the confirmation notice. Single source of truth (R5.4). */
 export const ACCOUNT_LINK_MESSAGE =
-  'We linked your Google sign-in to your existing CloudCertPrep account.'
+  '已將 Google 登入連結至你現有的 CloudCertPrep-zh 帳戶。'
 
 /**
  * One-time acknowledgement flag. Persisting in localStorage means the
@@ -31,7 +31,7 @@ const GOOGLE_LINK_ACK_KEY = 'cloudcertprep_google_link_ack'
 
 /**
  * Pure predicate: does this user's identity set indicate that a Google
- * sign-in was merged into a pre-existing CloudCertPrep account?
+ * sign-in was merged into a pre-existing CloudCertPrep-zh account?
  *
  * True when the `identities` list both contains a `google` provider AND has
  * more than one entry (the second identity being the account Google merged

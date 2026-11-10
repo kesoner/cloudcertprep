@@ -139,7 +139,7 @@ test.describe('conversion events — anonymous, no-auth flows', () => {
 
     await page.goto('/')
 
-    const githubLink = page.getByRole('link', { name: 'View source on GitHub' }).first()
+    const githubLink = page.getByRole('link', { name: "在 GitHub 查看原始碼" }).first()
     await expect(githubLink).toBeVisible()
 
     // Gate the click on hydration, not just visibility: wait until the island has

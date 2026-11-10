@@ -1,4 +1,5 @@
 import { clearPendingAttemptStorage } from './pendingAttempt'
+import { clearWrongAnswers } from './wrongAnswers'
 
 /**
  * Local cleanup helpers shared by sign-out and account deletion.
@@ -39,6 +40,7 @@ export function sweepAuthTokens(): void {
  */
 export function eraseLocalTraces(userId?: string): void {
   clearPendingAttemptStorage()
+  clearWrongAnswers()
   try {
     // Owned by _MockExam (RESUME_RESULTS_KEY): the guest results-resume marker.
     sessionStorage.removeItem('cc_resume_results')

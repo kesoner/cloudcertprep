@@ -2,7 +2,7 @@ import { AnswerButton } from './AnswerButton'
 import { OrderingInput } from './OrderingInput'
 import { MatchingInput } from './MatchingInput'
 import type { Question, OptionKey } from '../types'
-import { getCertDomains, DEFAULT_CERT_ID } from '../data/certifications'
+import { CERTIFICATIONS, getCertDomains, DEFAULT_CERT_ID } from '../data/certifications'
 import { buildGitHubIssueUrl } from '../lib/constants'
 import { getQuestionType } from '../lib/utils'
 import { trackEvent } from '../lib/analytics'
@@ -41,11 +41,11 @@ export function QuestionReviewCard({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-text-muted text-xs">
-            Question {questionNumber} of {totalQuestions}
+            第 {questionNumber} 題，共 {totalQuestions} 題
           </span>
           {wasFlagged && (
             <span className="flex items-center gap-1 px-2 py-0.5 bg-warning/20 text-warning rounded text-xs font-medium">
-              <Flag className="w-3 h-3 fill-warning" /> Flagged
+              <Flag className="w-3 h-3 fill-warning" /> 已標記
             </span>
           )}
         </div>
@@ -53,19 +53,19 @@ export function QuestionReviewCard({
           isCorrect ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'
         }`}>
           {isCorrect ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-          <span>{isCorrect ? 'CORRECT' : 'INCORRECT'}</span>
+          <span>{isCorrect ? '答對' : '答錯'}</span>
         </div>
       </div>
 
       {/* Domain Badge */}
       <div className="mb-2">
         <span className="font-mono text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-bg-dark border border-border-hairline text-text-muted">
-          {getCertDomains(certCode)[question.domainId] ?? `Domain ${question.domainId}`}
+          {CERTIFICATIONS[certCode]?.domains.find(domain => domain.id === question.domainId)?.nameZh ?? getCertDomains(certCode)[question.domainId] ?? `領域 ${question.domainId}`}
         </span>
       </div>
 
       {/* Question Text */}
-      <h3 className="text-sm md:text-base text-text-primary mb-3">
+      <h3 lang="en" className="text-sm md:text-base text-text-primary mb-3">
         {question.question}
       </h3>
 
@@ -114,10 +114,10 @@ export function QuestionReviewCard({
       {/* Explanation */}
       {question.explanation && (
         <div className="bg-bg-dark rounded-lg p-3 border-l-4 border-brand">
-          <h4 className="text-xs font-semibold text-text-primary mb-1">Explanation:</h4>
+          <h4 className="text-xs font-semibold text-text-primary mb-1">解析：</h4>
           <div className="text-xs md:text-sm text-text-muted space-y-2">
             {question.explanation.split('\n').filter(Boolean).map((para, i) => (
-              <p key={i}>{para}</p>
+              <p lang="en" key={i}>{para}</p>
             ))}
           </div>
         </div>
@@ -127,7 +127,7 @@ export function QuestionReviewCard({
       <div className="mt-3 pt-2 border-t border-text-muted/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
         <span className="text-xs text-text-muted font-mono">{question.id}</span>
         <span className="text-[10px] text-text-muted">
-          Found an error?{' '}
+          發現錯誤？{' '}
           <a
             href={buildGitHubIssueUrl(question.id)}
             target="_blank"
@@ -135,7 +135,7 @@ export function QuestionReviewCard({
             onClick={() => trackEvent('report_question_clicked', { question_id: question.id })}
             className="text-text-primary underline underline-offset-2 hover:text-text-primary/70"
           >
-            Report on GitHub
+            在 GitHub 回報問題
           </a>
         </span>
       </div>

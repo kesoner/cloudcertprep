@@ -23,6 +23,7 @@ jobs:
       # build (which requires them) throws. Fall back to harmless placeholders so a
       # fork PR can build: the build never calls Supabase, the anon key is public,
       # and the CI artifact is never deployed. Same-repo pushes/PRs use the real secrets.
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://cloudcertprep-ci.invalid' }}
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key-build-only' }}
       VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA' }}
@@ -81,6 +82,7 @@ jobs:
       # the placeholder fallback (same as the build/lighthouse jobs); the seeded
       # token is a fake unsigned value and every REST read is stubbed, so no real
       # Supabase call is ever made even when the secret URL is present.
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://cloudcertprep-ci.invalid' }}
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key-build-only' }}
       VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA' }}
@@ -128,6 +130,7 @@ jobs:
       # build (which requires them) throws. Fall back to harmless placeholders so a
       # fork PR can build: the build never calls Supabase, the anon key is public,
       # and the CI artifact is never deployed. Same-repo pushes/PRs use the real secrets.
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://cloudcertprep-ci.invalid' }}
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key-build-only' }}
       VITE_TURNSTILE_SITE_KEY: ${{ secrets.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA' }}

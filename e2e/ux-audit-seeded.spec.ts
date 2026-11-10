@@ -14,7 +14,7 @@ test('seeded session: useAuth().user resolves from the ref-matched token', async
 
   // CSS-revealed (works with any sb-*-auth-token): the signed-in chrome paints
   // and the guest billboard is hidden.
-  await expect(page.getByRole('button', { name: 'Account menu' }).first()).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "帳戶選單" }).first()).toBeVisible({ timeout: 15000 })
   await expect(page.locator('#home-guest-hero')).toBeHidden()
 
   // useAuth().user-gated (needs the REF-MATCHED token): the UserMenu email row
@@ -22,7 +22,7 @@ test('seeded session: useAuth().user resolves from the ref-matched token', async
   // derived ref matches the build ref and supabase-js actually read the token.
   // Retry the open to tolerate header-island hydration lag under load.
   await expect(async () => {
-    const trigger = page.getByRole('button', { name: 'Account menu' }).first()
+    const trigger = page.getByRole('button', { name: "帳戶選單" }).first()
     if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click()
     await expect(page.getByText(user.email, { exact: true })).toBeVisible({ timeout: 1000 })
   }).toPass({ timeout: 15000 })
@@ -33,7 +33,7 @@ test('seeded session control: no seed => guest chrome (the seed is what flips it
   // not by something that is true for guests too.
   await page.goto('/')
   await expect(page.locator('#home-guest-hero')).toBeVisible({ timeout: 15000 })
-  await expect(page.getByRole('button', { name: 'Account menu' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: "帳戶選單" })).toHaveCount(0)
 })
 
 test('seeded session: getSeedRef derives a non-empty project ref', () => {

@@ -20,7 +20,7 @@ import { confirmExamLeave, isIntentionalLeave, registerExamLeaveHandler, markInt
 import { useSignOut } from '../hooks/useSignOut'
 import { UnlockCTA } from '../components/landing/UnlockCTA'
 import { updateDomainProgress } from '../lib/supabaseUtils'
-import { reviewCellClass } from '../lib/buttonStyles'
+import { buttonClass, reviewCellClass } from '../lib/buttonStyles'
 import { goToLogin } from '../lib/navigation'
 import { calculateDomainMastery } from '../lib/domainStats'
 import type { Question, OptionKey, DomainProgress } from '../types'
@@ -39,6 +39,7 @@ import {
   buildGitHubIssueUrl,
 } from '../lib/constants'
 import { ArrowRight, Check, X } from 'lucide-react'
+import { recordWrongAnswer, resolveWrongAnswer } from '../lib/wrongAnswers'
 
 type Screen = 'selection' | 'config' | 'practice' | 'results'
 
@@ -133,20 +134,20 @@ export function DomainPractice() {
     return () => { cancelled = true }
   }, [authLoading, user, effectiveScreen, cert.code])
 
-  const domains = Object.fromEntries(cert.domains.map(d => [d.id, d.name]))
+  const domains = Object.fromEntries(cert.domains.map(d => [d.id, (d.nameZh ?? d.name)]))
 
   // Set dynamic page title based on screen and domain. Canonical is the
   // per-cert domain-practice URL so each cert ranks for its own keyword space
   // (e.g. "AIF-C01 domain practice" vs "CLF-C02 domain practice").
   const domainPracticePath = `/${cert.provider}/${cert.code}/domain-practice`
-  const domainNames = cert.domains.map(d => d.name).join(', ')
+  const domainNames = cert.domains.map(d => (d.nameZh ?? d.name)).join(', ')
   const pageTitle = effectiveScreen === 'practice' && selectedDomain !== null
-    ? `${cert.shortName} · ${domains[selectedDomain] ?? ''} · CloudCertPrep`
-    : effectiveScreen === 'results' ? `${cert.shortName} practice results · CloudCertPrep`
-    : `${cert.shortName} Domain Practice with Spaced Repetition · CloudCertPrep`
+    ? `${cert.shortName} · ${domains[selectedDomain] ?? ''} · CloudCertPrep-zh`
+    : effectiveScreen === 'results' ? `${cert.shortName} 練習結果 · CloudCertPrep-zh`
+    : `${cert.shortName} 領域練習與間隔複習 · CloudCertPrep-zh`
   useSEO({
     title: pageTitle,
-    description: `Practice ${cert.name} (${cert.shortName}) questions by exam domain. Instant feedback, explanations, adaptive spaced repetition. Domains: ${domainNames}.`,
+    description: `${cert.shortName} 領域練習與適性間隔複習，涵蓋 ${domainNames}。繁體中文介面，題目與解析保留英文。`,
     // NOTE: this route ships robots=noindex (set on the Astro shell), so it
     // must NOT emit a canonical — noindex+canonical is contradictory and a
     // noindex page accrues no indexing equity. BaseLayout omits the canonical
@@ -183,7 +184,7 @@ export function DomainPractice() {
 
   // Intercept in-app anchor navigation during an active practice session (the
   // static header logo/nav, breadcrumb, footer links) and route it through the
-  // custom "Leave practice?" modal instead of the native dialog. Same
+  // custom "要離開練習嗎？" modal instead of the native dialog. Same
   // delegated capture listener as MockExam: modified clicks and
   // new-tab/external links pass through untouched (they don't unload the
   // page).
@@ -209,7 +210,7 @@ export function DomainPractice() {
   }, [effectiveScreen, questions.length])
 
   // Broker non-anchor leaves (the header Sign out button) through the same
-  // "Leave practice?" modal. The click-capture above only catches <a> clicks,
+  // "要離開練習嗎？" modal. The click-capture above only catches <a> clicks,
   // and guardExamLeave only fires when a session is flagged active - so during
   // an active session set `practiceActive` and register a leave handler. Without
   // this, Sign out runs immediately (clearing the session) and the redirect
@@ -234,7 +235,7 @@ export function DomainPractice() {
   // loses to its own popstate handling, so instead push a DUPLICATE history entry
   // on top of the practice URL: a Back pops onto this identical URL, react-router's
   // location is unchanged, the session stays mounted, and we route the Back through
-  // the same "Leave practice?" confirm as every other leave. The selection screen
+  // the same "要離開練習嗎？" confirm as every other leave. The selection screen
   // (domainPracticePath, no ?domain) is the target the confirm honors.
   useEffect(() => {
     if (effectiveScreen !== 'practice' || questions.length === 0) return
@@ -284,7 +285,7 @@ export function DomainPractice() {
   if (authLoading) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
-        <LoadingSpinner text="Loading..." />
+        <LoadingSpinner text="載入中…" />
       </div>
     )
   }
@@ -321,7 +322,7 @@ export function DomainPractice() {
       // button silently because there was no catch. Surface a retryable error
       // instead, matching the mock exam's startExam. (item 7)
       const msg = err instanceof Error ? err.message : 'Failed to load questions'
-      setLoadError(`Could not start practice. ${msg}. Please check your connection and try again.`)
+      setLoadError(`無法開始練習。${msg}。請檢查網路後重試。`)
       logError('DomainPractice.startPractice', err)
     } finally {
       setLoading(false)
@@ -352,6 +353,11 @@ export function DomainPractice() {
     // so `userAnswer` already holds the answer. Single passes its key in directly.
     const answerToCheck: string | string[] = answer ?? userAnswer ?? (type === 'single' ? '' : [])
     const correct = isAnswerCorrect(answerToCheck, correctAnswerFor(current), type)
+
+    const keyMap = optionKeyMaps.get(current.id) ?? {}
+    const storedAnswer = encodeAnswerForDb(answerToCheck, keyMap, type)
+    if (correct) resolveWrongAnswer(cert.code, current.id)
+    else recordWrongAnswer(cert.code, current.id, storedAnswer)
 
     // Functional updaters avoid stale closures if two checkAnswer calls
     // race in the same tick (e.g. rapid keyboard / re-render).
@@ -424,7 +430,7 @@ export function DomainPractice() {
         logError('DomainPractice.finishPractice', error)
         // Visible failure notice, mirroring _MockExam's save-failure copy: the
         // user must know their progress was not recorded (note 9).
-        setSaveError('Your practice results could not be saved to your progress. You can still review your answers below.')
+        setSaveError('無法儲存本次練習進度，仍可在下方檢視答案。')
       }
     }
 
@@ -447,8 +453,9 @@ export function DomainPractice() {
       <div className="p-4 md:p-8">
         <div className="max-w-2xl mx-auto">
           <Card padding="lg">
-            <h1 className="text-2xl md:text-3xl font-semibold text-text-primary mb-3 md:mb-4">{cert.shortName} Domain Practice</h1>
-            <p className="text-sm md:text-base text-text-muted mb-6 md:mb-8">Practice questions from a specific domain</p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-text-primary mb-3 md:mb-4">{cert.shortName} 領域練習</h1>
+            <p className="mb-5 text-sm leading-relaxed text-text-muted">繁體中文介面 · 英文題庫（題幹、選項與解析保留英文）</p>
+            <p className="text-sm md:text-base text-text-muted mb-6 md:mb-8">選擇一個領域，集中練習相關題目</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
               {cert.domains.map(domain => {
@@ -465,8 +472,8 @@ export function DomainPractice() {
                     key={domain.id}
                     onClick={() => selectDomain(domain.id)}
                     aria-label={showMastery
-                      ? `Practice ${domain.name}: ${domain.questionCount} questions, ${mastery}% mastery`
-                      : `Practice ${domain.name}: ${domain.questionCount} questions`}
+                      ? `練習${(domain.nameZh ?? domain.name)}：${domain.questionCount} 題，熟練度 ${mastery}%`
+                      : `練習${(domain.nameZh ?? domain.name)}：${domain.questionCount} 題`}
                     className="group bg-bg-dark hover:bg-bg-card-hover p-4 md:p-6 rounded-xl border border-border-hairline hover:border-text-muted/50 transition-[background-color,border-color] duration-gentle ease-out text-left flex flex-col gap-3"
                   >
                     <div className="flex items-center justify-between gap-3 w-full">
@@ -478,9 +485,9 @@ export function DomainPractice() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h2 className="text-sm md:text-base font-semibold text-text-primary [text-wrap:balance]">
-                            {domain.name}
+                            {(domain.nameZh ?? domain.name)}
                           </h2>
-                          <p className="text-xs md:text-sm text-text-muted">{domain.questionCount} questions</p>
+                          <p className="text-xs md:text-sm text-text-muted">{domain.questionCount} 題</p>
                         </div>
                       </div>
                       <ArrowRight
@@ -491,7 +498,7 @@ export function DomainPractice() {
                     {showMastery && (
                       <div className="w-full animate-fade-in">
                         <div className="flex items-center justify-between gap-2 mb-1.5">
-                          <span className="text-[11px] uppercase tracking-wide text-text-muted">Mastery</span>
+                          <span className="text-[11px] uppercase tracking-wide text-text-muted">熟練度</span>
                           <span className="font-mono text-xs font-semibold tabular-nums text-text-primary">{mastery}%</span>
                         </div>
                         <div className="h-1 w-full overflow-hidden rounded-full bg-text-muted/15" role="presentation">
@@ -511,7 +518,7 @@ export function DomainPractice() {
                 button competing with the domain grid above it. */}
             <div className="flex justify-center pt-1">
               <Button onClick={goHome} variant="ghost" size="sm">
-                Back to home
+                返回首頁
               </Button>
             </div>
           </Card>
@@ -525,9 +532,9 @@ export function DomainPractice() {
               <UnlockCTA
                 onSignIn={() => goToLogin(navigate, location)}
                 location="domain_practice_wall"
-                title="Unlock spaced repetition and saved mastery"
-                body="Practice free as a guest, no account needed. Sign in to save per-domain mastery and unlock spaced repetition, which repeats the questions you get wrong."
-                ctaLabel="Sign in to save progress"
+                title="啟用間隔複習並儲存熟練度"
+                body="訪客可免費練習，無須帳戶。登入即可儲存各領域熟練度，並透過間隔複習加強錯題。"
+                ctaLabel="登入以儲存進度"
                 noTopMargin
               />
             </div>
@@ -545,17 +552,17 @@ export function DomainPractice() {
             <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-text-primary mb-2">
               {cert.shortName} · {domains[selectedDomain!]}
             </h1>
-            <p className="text-sm md:text-base text-text-muted mb-6 md:mb-8">Configure your practice session</p>
+            <p className="text-sm md:text-base text-text-muted mb-6 md:mb-8">設定本次練習</p>
 
             <div className="flex items-center justify-between mb-8">
               <span className="text-text-primary font-medium" id="question-count-label">
-                Number of questions:
+                練習題數：
               </span>
               <div className="flex items-center gap-3 md:gap-4" role="group" aria-labelledby="question-count-label">
                 <button
                   onClick={() => setQuestionCount(Math.max(MIN_PRACTICE_QUESTIONS, questionCount - PRACTICE_QUESTION_STEP))}
                   disabled={questionCount <= MIN_PRACTICE_QUESTIONS}
-                  aria-label="Decrease question count"
+                  aria-label="減少題數"
                   className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center bg-bg-dark hover:bg-bg-card-hover text-text-primary text-xl md:text-2xl font-bold rounded-full transition-[background-color,transform] duration-gentle ease-press active:scale-[0.97] active:duration-press disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                   −
@@ -566,7 +573,7 @@ export function DomainPractice() {
                 <button
                   onClick={() => setQuestionCount(Math.min(MAX_PRACTICE_QUESTIONS, questionCount + PRACTICE_QUESTION_STEP))}
                   disabled={questionCount >= MAX_PRACTICE_QUESTIONS}
-                  aria-label="Increase question count"
+                  aria-label="增加題數"
                   className="w-11 h-11 md:w-12 md:h-12 flex items-center justify-center bg-bg-dark hover:bg-bg-card-hover text-text-primary text-xl md:text-2xl font-bold rounded-full transition-[background-color,transform] duration-gentle ease-press active:scale-[0.97] active:duration-press disabled:opacity-30 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                   +
@@ -577,11 +584,11 @@ export function DomainPractice() {
             <div className="bg-bg-dark rounded-lg p-4 mb-8">
               {user ? (
                 <p className="text-sm text-text-muted">
-                  <span className="text-text-primary font-semibold">Smart Practice:</span> Questions you've gotten wrong will appear more frequently. Questions you consistently get right will appear less often.
+                  <span className="text-text-primary font-semibold">適性練習：</span> 答錯的題目會更常出現，持續答對的題目則會降低出現頻率。
                 </p>
               ) : (
                 <p className="text-sm text-text-muted">
-                  <span className="text-text-primary font-semibold">Guest mode:</span> your results will not be saved. Sign in to save per-domain mastery and unlock spaced repetition, which repeats the questions you get wrong.
+                  <span className="text-text-primary font-semibold">訪客模式：</span> 結果不會儲存。登入即可追蹤各領域熟練度，並使用間隔複習加強錯題。
                 </p>
               )}
             </div>
@@ -599,7 +606,7 @@ export function DomainPractice() {
                 variant="secondary"
                 className="flex-1"
               >
-                Back
+                返回
               </Button>
               <Button
                 onClick={startPractice}
@@ -607,9 +614,9 @@ export function DomainPractice() {
                 className="flex-1"
                 arrow
                 loading={loading}
-                loadingText="Loading questions..."
+                loadingText="正在載入題目…"
               >
-                Start practice
+                開始練習
               </Button>
             </div>
           </Card>
@@ -620,6 +627,7 @@ export function DomainPractice() {
 
   if (effectiveScreen === 'results') {
     const currentResult = questionResults[selectedQuestionIndex]
+    const missedCount = questionResults.filter(result => !result.isCorrect).length
     
     return (
       <div className="p-4 md:p-8">
@@ -631,19 +639,19 @@ export function DomainPractice() {
             )}
             {/* Summary Header */}
             <Card padding="md" className="text-center mb-4 animate-enter">
-              <h1 className="text-2xl md:text-3xl font-semibold text-text-primary mb-3">Practice session complete!</h1>
+              <h1 className="text-2xl md:text-3xl font-semibold text-text-primary mb-3">本次練習完成！</h1>
               <p className="text-lg md:text-xl text-text-muted">
-                You got <span className="text-success font-bold">{correctCount}/{results.length}</span> correct ({Math.round((correctCount / results.length) * 100)}%)
+                本次答對 <span className="text-success font-bold">{correctCount}/{results.length}</span>，正確率（{Math.round((correctCount / results.length) * 100)}%）
               </p>
             </Card>
 
             {/* Question Number Grid */}
             <Card padding="sm" className="mb-4">
-              <h2 className="text-xs md:text-sm font-semibold text-text-muted mb-2 text-center">Questions:</h2>
+              <h2 className="text-xs md:text-sm font-semibold text-text-muted mb-2 text-center">題數：</h2>
               <div className="grid grid-cols-[repeat(auto-fit,minmax(32px,32px))] md:grid-cols-[repeat(auto-fit,minmax(36px,36px))] gap-0.5 md:gap-1 justify-center">
                 {questionResults.map((result, idx) => {
-                  const stateLabel = result.isCorrect ? 'correct' : 'incorrect'
-                  const ariaLabel = `Question ${idx + 1}: ${stateLabel}`
+                  const stateLabel = result.isCorrect ? '答對' : '答錯'
+                  const ariaLabel = `第 ${idx + 1} 題: ${stateLabel}`
                   return (
                     <button
                       key={idx}
@@ -683,19 +691,24 @@ export function DomainPractice() {
               <UnlockCTA
                 onSignIn={() => goToLogin(navigate, location)}
                 location="practice_results"
-                title="Don't lose this progress"
-                body="This session's results were not saved. Create a free account to track per-domain mastery and get spaced repetition focused on what you got wrong."
-                ctaLabel="Sign in to save progress"
+                title="保留這次學習成果"
+                body="本次進度尚未儲存至雲端；錯題本會保留在目前瀏覽器。免費建立帳戶即可追蹤領域熟練度，並使用適性間隔複習。"
+                ctaLabel="登入以儲存進度"
               />
             )}
 
             {/* Action Buttons */}
             <div className="flex flex-col md:flex-row gap-4 mt-6">
               <Button onClick={goHome} variant="secondary" className="flex-1">
-                Back to home
+                返回首頁
               </Button>
+              {missedCount > 0 && (
+                <a href={`/${cert.provider}/${cert.code}/wrong-answers`} className={buttonClass({ variant: 'secondary', className: 'flex-1 text-center' })}>
+                  查看錯題本
+                </a>
+              )}
               <Button onClick={() => selectDomain(selectedDomain!)} variant="primary" className="flex-1">
-                Practice again
+                再次練習
               </Button>
             </div>
           </div>
@@ -708,7 +721,7 @@ export function DomainPractice() {
       <div className="p-4 md:p-8">
           <div className="max-w-3xl mx-auto">
           {/* Header. Centered title until the first answer; once there's
-              progress to save, it becomes title-left / "End session"-right so
+              progress to save, it becomes title-left / "結束練習"-right so
               the escape hatch never overlaps or cramps the title (it stays
               clear down to 320px, unlike a centered title with a side button).
               The button is gated on >=1 answered: before that there's nothing
@@ -723,7 +736,7 @@ export function DomainPractice() {
                 onClick={() => setShowEndConfirm(true)}
                 className="shrink-0 text-sm text-text-muted hover:text-text-primary transition-colors whitespace-nowrap"
               >
-                End session
+                結束練習
               </button>
             )}
           </div>
@@ -732,7 +745,7 @@ export function DomainPractice() {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-text-muted text-sm">
-                Question {currentIndex + 1} of {questions.length}
+                <span>{`第 ${currentIndex + 1} 題，共 ${questions.length} 題`}</span>
               </span>
             </div>
             {/* Advance when the current question is answered (showFeedback), so
@@ -744,15 +757,15 @@ export function DomainPractice() {
           {/* Question */}
           <Card className="mb-3">
             <h2 className="cc-question-stem text-base md:text-lg text-text-primary mb-4 md:mb-5">
-              {currentQuestion.question}
+              <span lang="en">{currentQuestion.question}</span>
               {currentType === 'multi' && (
-                <span className="text-text-primary font-semibold ml-2">(Select {Array.isArray(currentQuestion.answer) ? currentQuestion.answer.length : MAX_MULTI_ANSWER})</span>
+                <span className="text-text-primary font-semibold ml-2">（請選擇 {Array.isArray(currentQuestion.answer) ? currentQuestion.answer.length : MAX_MULTI_ANSWER})</span>
               )}
               {currentType === 'ordering' && (
-                <span className="text-text-primary font-semibold ml-2">(Put in order)</span>
+                <span className="text-text-primary font-semibold ml-2">（請依序排列）</span>
               )}
               {currentType === 'matching' && (
-                <span className="text-text-primary font-semibold ml-2">(Match each item)</span>
+                <span className="text-text-primary font-semibold ml-2">（請完成各項配對）</span>
               )}
             </h2>
 
@@ -822,10 +835,10 @@ export function DomainPractice() {
                 <div className="mb-3 text-xs md:text-sm text-text-muted">
                   {Array.isArray(userAnswer) && userAnswer.length > 0 ? (
                     <span className="text-text-primary font-medium" aria-live="polite" aria-atomic="true">
-                      {userAnswer.length}/{requiredCount} answers selected
+                      <span>{`${userAnswer.length}/${requiredCount} 個答案已選取`}</span>
                     </span>
                   ) : (
-                    <span>Select {requiredCount} answers</span>
+                    <span>{`請選擇 ${requiredCount} 個答案`}</span>
                   )}
                 </div>
               )
@@ -838,7 +851,7 @@ export function DomainPractice() {
                 <>
                   {multiAnswerWarning && selectedCount < requiredCount && (
                     <Alert tone="warning" role="alert" className="mb-3 text-sm">
-                      Select {requiredCount} answers to continue. You have {selectedCount} of {requiredCount} selected.
+                      請選擇 {requiredCount} 個答案以繼續。目前已選 {selectedCount}/{requiredCount} 個。
                     </Alert>
                   )}
                   {/* Enabled even when incomplete: a silently-disabled button left
@@ -852,7 +865,7 @@ export function DomainPractice() {
                     variant="primary"
                     fullWidth
                   >
-                    Submit answer
+                    送出答案
                   </Button>
                 </>
               )
@@ -873,20 +886,20 @@ export function DomainPractice() {
                     <div className="mb-3 text-xs md:text-sm text-text-muted">
                       {selectedCount > 0 ? (
                         <span className="text-text-primary font-medium" aria-live="polite" aria-atomic="true">
-                          {selectedCount}/{leftCount} matched
+                          <span>{`${selectedCount}/${leftCount} 已配對`}</span>
                         </span>
                       ) : (
-                        <span>Match all {leftCount} items</span>
+                        <span>{`請完成所有 ${leftCount} 個配對`}</span>
                       )}
                     </div>
                   ) : !touched && (
-                    <div className="mb-3 text-xs md:text-sm text-text-muted">Reorder the steps to set your answer.</div>
+                    <div className="mb-3 text-xs md:text-sm text-text-muted">調整步驟順序以設定答案。</div>
                   )}
                   {multiAnswerWarning && !complete && (
                     <Alert tone="warning" role="alert" className="mb-3 text-sm">
                       {currentType === 'matching'
-                        ? `Match all ${leftCount} items to continue. You have ${selectedCount} of ${leftCount} matched.`
-                        : 'Reorder the steps to set your answer before submitting.'}
+                        ? `請完成所有 ${leftCount} 個配對以繼續。目前已配對 ${selectedCount}/${leftCount} 個。`
+                        : '送出前請先調整步驟順序。'}
                     </Alert>
                   )}
                   {/* Enabled even when incomplete (see the multi-answer note above):
@@ -900,7 +913,7 @@ export function DomainPractice() {
                     variant="primary"
                     fullWidth
                   >
-                    Submit answer
+                    送出答案
                   </Button>
                 </>
               )
@@ -910,7 +923,7 @@ export function DomainPractice() {
               <Alert tone={isCorrect ? 'success' : 'danger'} role="status" className="mt-4 p-4 animate-enter">
                 <div className={`font-semibold mb-2 flex items-center gap-2 text-sm md:text-base ${isCorrect ? 'text-success' : 'text-danger'}`}>
                   {isCorrect ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : <X className="w-4 h-4 md:w-5 md:h-5" />}
-                  <p>{isCorrect ? 'Correct!' : 'Incorrect'}</p>
+                  <p>{isCorrect ? '答對！' : '答錯'}</p>
                 </div>
                 
                 {/* Raw key echo only for single/multi. Ordering/matching show
@@ -919,12 +932,12 @@ export function DomainPractice() {
                 {!isCorrect && (currentType === 'single' || currentType === 'multi') && (
                   <div className="mb-2 text-xs md:text-sm">
                     <p className="text-danger font-medium mb-1">
-                      Your answer: {currentQuestion.isMultiAnswer
+                      你的答案： {currentQuestion.isMultiAnswer
                         ? (Array.isArray(userAnswer) ? userAnswer.join(', ') : '')
                         : userAnswer}
                     </p>
                     <p className="text-success font-medium">
-                      Correct answer: {Array.isArray(currentQuestion.answer)
+                      正確答案： {Array.isArray(currentQuestion.answer)
                         ? currentQuestion.answer.join(', ')
                         : currentQuestion.answer}
                     </p>
@@ -933,10 +946,10 @@ export function DomainPractice() {
                 
                 {currentQuestion.explanation && (
                   <div className="border-t border-text-muted/20 pt-3 mt-3">
-                    <p className="text-text-muted text-xs md:text-sm font-medium mb-1">Explanation:</p>
+                    <p className="text-text-muted text-xs md:text-sm font-medium mb-1">解析：</p>
                     <div className="text-text-muted text-xs md:text-sm space-y-2 leading-relaxed">
                       {currentQuestion.explanation.split('\n').filter(Boolean).map((para, i) => (
-                        <p key={i}>{para}</p>
+                        <p lang="en" key={i}>{para}</p>
                       ))}
                     </div>
                   </div>
@@ -948,14 +961,14 @@ export function DomainPractice() {
             <div className="mt-4 pt-3 border-t border-text-muted/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
               <span className="text-xs text-text-muted font-mono">{currentQuestion.id}</span>
               <span className="text-[10px] text-text-muted">
-                Found an error?{' '}
+                發現錯誤？{' '}
                 <a 
                   href={buildGitHubIssueUrl(currentQuestion.id)}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-text-primary underline underline-offset-2 hover:text-text-primary/70"
                 >
-                  Report on GitHub
+                  在 GitHub 回報問題
                 </a>
               </span>
             </div>
@@ -963,7 +976,7 @@ export function DomainPractice() {
 
           {showFeedback && (
             <Button onClick={nextQuestion} variant="primary" fullWidth>
-              {currentIndex < questions.length - 1 ? 'Next question' : 'Finish session'}
+              {currentIndex < questions.length - 1 ? '下一題' : '完成練習'}
             </Button>
           )}
 
@@ -972,50 +985,50 @@ export function DomainPractice() {
               mis-tap permanently disabled a safety prompt (bug 20). */}
           <Modal
             isOpen={pendingLeaveUrl !== null}
-            title={pendingLeaveUrl === SIGN_OUT_SENTINEL ? 'Sign out?' : 'Leave practice?'}
+            title={pendingLeaveUrl === SIGN_OUT_SENTINEL ? '確定要登出嗎？' : '要離開練習嗎？'}
             onClose={() => setPendingLeaveUrl(null)}
           >
             <div className="space-y-4">
               <p className="text-text-primary">
-                Your practice session is still in progress. If you{' '}
+                本次練習尚未結束。如果你{' '}
                 {pendingLeaveUrl === SIGN_OUT_SENTINEL ? 'sign out' : 'leave this page'}{' '}
                 now, the answers from this session will not be saved.
               </p>
               <div className="flex gap-4 mt-6">
                 <Button onClick={() => setPendingLeaveUrl(null)} variant="secondary" className="flex-1">
-                  Keep practicing
+                  繼續練習
                 </Button>
                 <Button onClick={confirmPracticeLeave} variant="danger" className="flex-1">
-                  {pendingLeaveUrl === SIGN_OUT_SENTINEL ? 'Sign out' : 'Leave practice'}
+                  {pendingLeaveUrl === SIGN_OUT_SENTINEL ? '登出' : '離開練習'}
                 </Button>
               </div>
             </div>
           </Modal>
 
-          {/* End-session-early confirm. Unlike "Leave practice", this SAVES the
+          {/* End-session-early confirm. Unlike "離開練習", this SAVES the
               answered questions and goes to results. (M3 [B]) */}
           <Modal
             isOpen={showEndConfirm}
-            title="End this session?"
+            title="要結束本次練習嗎？"
             onClose={() => setShowEndConfirm(false)}
           >
             <div className="space-y-4">
               <p className="text-text-primary">
-                You've answered {questionResults.length} of {questions.length} questions.
-                {user
-                  ? ' They will be saved and your results shown.'
-                  : ' Your results will be shown (sign in to save progress).'}
+                <span>{`已作答 ${questionResults.length}/${questions.length} 題。`}</span>
+                <span>{user
+                  ? ' 系統會儲存並顯示結果。'
+                  : ' 將顯示本次結果；登入後可儲存進度。'}</span>
               </p>
               <div className="flex gap-4 mt-6">
                 <Button onClick={() => setShowEndConfirm(false)} variant="secondary" className="flex-1">
-                  Keep practicing
+                  繼續練習
                 </Button>
                 <Button
                   onClick={() => { setShowEndConfirm(false); void finishPractice() }}
                   variant="primary"
                   className="flex-1"
                 >
-                  End &amp; see results
+                  結束並查看結果
                 </Button>
               </div>
             </div>
@@ -1027,7 +1040,7 @@ export function DomainPractice() {
 
   return (
     <div className="flex-1 flex items-center justify-center">
-      <p className="text-text-muted">Something went wrong. Please refresh the page.</p>
+      <p className="text-text-muted">發生問題，請重新整理頁面。</p>
     </div>
   )
 }

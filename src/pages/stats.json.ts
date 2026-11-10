@@ -9,7 +9,7 @@
  * logic. Contains zero PII — aggregated figures only.
  */
 import type { APIRoute } from 'astro'
-import snapshot from '../lib/generated/stats-snapshot.json'
+import { statsSnapshot as snapshot } from '../lib/statsSnapshot'
 
 export const GET: APIRoute = () =>
   new Response(JSON.stringify(snapshot, null, 2), {

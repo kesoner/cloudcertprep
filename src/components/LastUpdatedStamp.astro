@@ -1,6 +1,6 @@
 ---
 /**
- * LastUpdatedStamp.astro — a small muted "Last updated" / alignment line.
+ * LastUpdatedStamp.astro — a small muted "最後更新" / alignment line.
  *
  * Derives the month + year from the `lastmod` prop (an ISO YYYY-MM-DD content-
  * change date from the freshness ledger, src/data/bank-lastmod.json) so a pure
@@ -10,7 +10,7 @@
  *
  * When an `examGuideVersion` is supplied (e.g. 'AIF-C01 (1.1, April 2026)'),
  * the stamp renders an exam-guide alignment statement:
- *   "✓ Aligned to the <CERT_CODE> exam guide (version <version>). Last verified <Month Year>."
+ *   "✓ 對照指南：<CERT_CODE> 考試指南 (version <version>). Last verified <Month Year>."
  * The leading "✓" is a literal UTF-8 check-mark character, not an icon
  * component. The `examGuideVersion` string is
  * parsed into its code (everything before " (") and version (inside the
@@ -18,7 +18,7 @@
  * back to rendering the whole string as the code with no version parens (used
  * by CLF-C02, whose AWS guide publishes no version number).
  *
- * When an `examGuideUrl` is supplied, the phrase "exam guide" becomes an
+ * When an `examGuideUrl` is supplied, the phrase "考試指南" becomes an
  * outbound `rel="noopener"` link to the official AWS guide — an authoritative
  * citation / E-E-A-T signal.
  *
@@ -31,11 +31,11 @@ interface Props {
   /**
    * Optional exam-guide version label, e.g. 'AIF-C01 (1.1, April 2026)' or a
    * bare code like 'CLF-C02' when the guide carries no version. When provided,
-   * the stamp renders the "✓ Aligned to the <code> exam guide …" line.
+   * the stamp renders the "✓ 對照指南：<code> 考試指南 …" line.
    */
   examGuideVersion?: string
   /**
-   * Optional official AWS exam-guide URL. When provided, "exam guide" renders
+   * Optional official AWS exam-guide URL. When provided, "考試指南" renders
    * as an outbound link to it.
    */
   examGuideUrl?: string
@@ -56,12 +56,12 @@ const { examGuideVersion, examGuideUrl, lastmod } = Astro.props
 function toMonthYear(iso?: string): string {
   if (iso && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
     const [year, month] = iso.split('-').map(Number)
-    return new Date(year, month - 1, 1).toLocaleDateString('en-US', {
+    return new Date(year, month - 1, 1).toLocaleDateString('zh-TW', {
       month: 'long',
       year: 'numeric',
     })
   }
-  return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  return new Date().toLocaleDateString('zh-TW', { month: 'long', year: 'numeric' })
 }
 const monthYear = toMonthYear(lastmod)
 
@@ -75,21 +75,21 @@ const version = match ? match[2] : undefined
 <p class="text-xs text-text-muted">
   {examGuideVersion ? (
     <>
-      {'✓ Aligned to the '}{certCode}{' '}
+      {'✓ 對照指南：'}{certCode}{' '}
       {examGuideUrl ? (
         <a
           href={examGuideUrl}
           target="_blank"
           rel="noopener"
           class="underline hover:text-text-primary rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark"
-        >exam guide</a>
+        >考試指南</a>
       ) : (
-        'exam guide'
+        '考試指南'
       )}
-      {version ? ` (version ${version})` : ''}
-      {`. Last verified ${monthYear}.`}
+      {version ? `（版本 ${version}）` : ''}
+      {`。最後確認：${monthYear}。`}
     </>
   ) : (
-    `Last updated: ${monthYear}`
+    `最後更新：${monthYear}`
   )}
 </p>

@@ -67,6 +67,8 @@ import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from '
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve, relative, sep } from 'node:path'
 
+import { SITE_URL } from './site-config.mjs'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DIST = resolve(__dirname, '../dist')
 const BASELINE = resolve(__dirname, 'seo-head-baseline.json')
@@ -262,6 +264,10 @@ for (const file of files) {
   current[route] = snapshotPage(html)
 }
 
+// Parameterize only the configured origin; all remaining metadata stays locked.
+for (const route of Object.keys(current)) {
+  current[route] = JSON.parse(JSON.stringify(current[route]).split(SITE_URL).join('__SITE_ORIGIN__'))
+}
 const currentKeys = Object.keys(current).sort()
 const currentSorted = Object.fromEntries(currentKeys.map((k) => [k, current[k]]))
 

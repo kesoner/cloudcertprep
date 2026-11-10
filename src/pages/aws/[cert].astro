@@ -36,7 +36,7 @@ import {
 import { SITE_URL } from '../../lib/seo-data'
 import { getCertLastmod } from '../../lib/bankFreshness'
 import { serializeJsonLd } from '../../lib/jsonld'
-import snapshot from '../../lib/generated/stats-snapshot.json'
+import { statsSnapshot as snapshot } from '../../lib/statsSnapshot'
 import CertSpecPanel from '../../components/landing/CertSpecPanel.astro'
 import { LEVEL_ACCENT_HEX, LEVEL_ACCENT_RGB, LEVEL_ACCENT_UI_HEX } from '../../lib/levelAccent'
 import { getCollection, type CollectionEntry } from 'astro:content'
@@ -73,12 +73,12 @@ const levelLabel = getLevelLabel(cert.level)
 // Per-cert SEO. Active certs get SERP-friendly specifics (question count,
 // year); coming-soon certs avoid promising practice content they don't ship.
 const title = isActive
-  ? `Free ${cert.name} Practice Exam · ${totalQuestionsLabel}+ Qs`
-  : `${cert.name} (${cert.shortName}) Practice Exams · Coming Soon · CloudCertPrep`
+  ? `${cert.shortName} 免費模擬測驗 · ${totalQuestionsLabel}+ 道練習題`
+  : `${cert.shortName} 模擬測驗 · 即將推出 · CloudCertPrep-zh`
 
 const description = isActive
-  ? `Free ${cert.name} (${cert.shortName}) practice exams: ${totalQuestionsLabel}+ questions with explanations, plus a ${cert.examQuestionCount}-question timed mock. No signup, no ads.`
-  : `${cert.name} (${cert.shortName}) practice exams are coming soon to CloudCertPrep. Watch the GitHub repository to be notified at launch.`
+  ? `${cert.name}（${cert.shortName}）免費練習：${totalQuestionsLabel}+ 道英文題目附解析，另提供 ${cert.examQuestionCount} 題計時模擬測驗。繁體中文介面，無須註冊。`
+  : `${cert.name}（${cert.shortName}）題庫建置中。歡迎在 GitHub 追蹤開發進度。`
 
 const canonical = `${SITE_URL}/aws/${cert.code}`
 
@@ -102,12 +102,12 @@ const robots = isCertNoindex(cert) ? 'noindex' : 'index, follow'
 // mono trail in the hero keeps the compact short code for wayfinding.
 const breadcrumbItems = getActiveProviders().length > 1
   ? [
-      { label: 'Home', to: '/' },
+      { label: '首頁', to: '/' },
       { label: providerLabel, to: `/${cert.provider}` },
       { label: cert.name },
     ]
   : [
-      { label: 'Home', to: '/' },
+      { label: '首頁', to: '/' },
       { label: cert.name },
     ]
 
@@ -127,14 +127,14 @@ const bankLastmod = getCertLastmod(cert.code)
 const courseJsonLd = serializeJsonLd({
   '@context': 'https://schema.org',
   '@type': 'Course',
-  name: `${cert.name} (${cert.shortName}) Practice Exam`,
+  name: `${cert.name} (${cert.shortName}) 模擬測驗`,
   description: `Free practice exams and domain practice for the ${cert.name} (${cert.shortName}) certification. ${cert.examQuestionCount} questions in ${examMinutes} minutes, scored 100 to 1000.`,
   provider: { '@id': `${SITE_URL}/#organization` },
   url: `${SITE_URL}${certPath}`,
-  inLanguage: 'en',
+  inLanguage: 'zh-Hant',
   isAccessibleForFree: true,
   educationalLevel: levelLabel,
-  teaches: cert.domains.map(d => d.name).join(', '),
+  teaches: cert.domains.map(d => (d.nameZh ?? d.name)).join(', '),
   dateModified: bankLastmod,
   ...(enrollment > 0 ? { totalHistoricalEnrollment: enrollment } : {}),
   about: {
@@ -174,7 +174,7 @@ const certForIsland = {
   passingScore: cert.passingScore,
   domains: cert.domains.map(d => ({
     id: d.id,
-    name: d.name,
+    name: (d.nameZh ?? d.name),
     questionCount: d.questionCount,
     slug: getCertDomainSlug(cert, d.id),
   })),
@@ -188,18 +188,11 @@ const certForIsland = {
 // spaced query while reading naturally (the verbatim "clf c02 ..." weave was
 // awkward in a sentence/H2). BODY COPY ONLY — never the <title>/<meta>
 // (R16.5). Coming-soon certs target nothing.
-const CERT_SECONDARY_KEYWORD: Record<string, string> = {
-  'clf-c02': 'CLF-C02 practice exam',
-  'aif-c01': 'AIF-C01 practice exam',
-}
-const secondaryKeyword = isActive ? CERT_SECONDARY_KEYWORD[cert.code] : undefined
 
 // Guest hero lede. When a secondary keyword exists, lead with it (mirroring the
 // Domain_Landing's "Looking for {primaryKeyword}?" opener); otherwise keep the
 // generic platform line.
-const heroLede = secondaryKeyword
-  ? `Looking for a free ${secondaryKeyword}? Practice realistic ${providerLabel} exam questions with adaptive domain mastery, randomized exams, and unlimited free attempts.`
-  : `Practice realistic ${providerLabel} exam questions with adaptive domain mastery, randomized exams, and unlimited free attempts.`
+const heroLede = `透過 ${totalQuestionsLabel}+ 道英文練習題，熟悉 ${cert.shortName} 的考試主題。繁體中文操作介面，提供詳細解析、領域練習與不限次數的免費模擬測驗。`
 
 // DSv6 wayfinding: the exam-UI mockup is the HOME page's exclusive hero
 // signature. Cert hubs show the exam blueprint (CertSpecPanel: domain weights
@@ -218,7 +211,7 @@ const levelAccentUi = LEVEL_ACCENT_UI_HEX[cert.level]
 // Active certs only (coming-soon certs have no published domain landings).
 const domainLinks = isActive
   ? cert.domains.map(d => ({
-      name: d.name,
+      name: (d.nameZh ?? d.name),
       questionCount: d.questionCount,
       href: `/${cert.provider}/${cert.code}/${getCertDomainSlug(cert, d.id)}`,
     }))
@@ -264,7 +257,7 @@ const latestPosts = (taggedPosts.length > 0 ? taggedPosts : allPosts).slice(0, 2
         <div class="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-10 items-center">
           <div class="stagger max-w-xl">
             <nav aria-label="Breadcrumb" class="font-mono text-[12px] tracking-wide text-[#8B95A3]">
-              <a href="/" class="hover:text-[#F4F6F8] transition-colors duration-200">Home</a>
+              <a href="/" class="hover:text-[#F4F6F8] transition-colors duration-200">首頁</a>
               <span class="mx-2 text-white/25">›</span>
               <span class="text-[#C9D2DC]">{cert.shortName}</span>
             </nav>
@@ -274,7 +267,7 @@ const latestPosts = (taggedPosts.length > 0 ? taggedPosts : allPosts).slice(0, 2
             </p>
 
             <h1 class="font-display mt-3 text-[2rem] leading-[1.05] md:text-[2.5rem] lg:text-[3rem] font-bold tracking-[-0.025em] text-[#F4F6F8]">
-              Free {cert.name} <span class="whitespace-nowrap">({cert.shortName})</span> Practice Exams
+              免費 {cert.name} <span class="whitespace-nowrap">({cert.shortName})</span> 模擬測驗
             </h1>
 
             <p class="mt-5 text-lg md:text-xl leading-relaxed text-[#9AA6B2]">
@@ -290,13 +283,13 @@ const latestPosts = (taggedPosts.length > 0 ? taggedPosts : allPosts).slice(0, 2
                   data-cc-param-location="cert_landing_hero"
                   data-cc-param-cert={cert.code}
                 >
-                  Start practice exam<span class="chev" aria-hidden="true">→</span>
+                  開始模擬測驗<span class="chev" aria-hidden="true">→</span>
                 </a>
                 <a
                   href="#domains"
                   class="inline-flex min-h-[48px] items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-base font-medium text-[#F4F6F8] transition-[border-color,background-color,transform] duration-gentle ease-press hover:border-white/40 hover:bg-white/5 active:scale-[0.97] active:duration-press focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0E1116]"
                 >
-                  Practice by domain
+                  依領域練習
                 </a>
               </div>
             )}
@@ -306,10 +299,10 @@ const latestPosts = (taggedPosts.length > 0 ? taggedPosts : allPosts).slice(0, 2
                 facts rendered twice side by side; hide this strip there. */}
             {!isComingSoon && (
               <ul class="mt-10 grid grid-cols-2 gap-x-6 gap-y-2 sm:hidden list-none font-mono text-[13px] tracking-wide text-[#8B95A3]">
-                <li class="whitespace-nowrap">{cert.examQuestionCount} questions</li>
-                <li class="whitespace-nowrap">{examMinutes} minutes</li>
-                <li class="whitespace-nowrap">pass {cert.passingScore}/1000</li>
-                <li class="whitespace-nowrap">{totalQuestionsLabel}+ question bank</li>
+                <li class="whitespace-nowrap">{cert.examQuestionCount} 題</li>
+                <li class="whitespace-nowrap">{examMinutes} 分鐘</li>
+                <li class="whitespace-nowrap">通過門檻 {cert.passingScore}/1000</li>
+                <li class="whitespace-nowrap">{totalQuestionsLabel}+ 道題庫</li>
               </ul>
             )}
 
@@ -338,13 +331,12 @@ const latestPosts = (taggedPosts.length > 0 ? taggedPosts : allPosts).slice(0, 2
               pages (Home -> Cert -> Domain crawl path). Active certs only. */}
           {domainLinks.length > 0 && (
             <section id="domains" data-reveal>
-              <p class="kicker" aria-hidden="true">Practice by domain</p>
+              <p class="kicker" aria-hidden="true">依領域練習</p>
               <h2 class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-2">
-                Practice {cert.shortName} by exam domain
+                依考試領域練習 {cert.shortName}
               </h2>
               <p class="text-lead mb-8">
-                Focused question sets for every exam domain, with instant feedback on each answer.
-                The percentage is that domain's share of the real exam.
+                針對各考試領域集中練習，每題即時提供回饋。百分比表示該領域在正式考試中的比重。
               </p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {cert.domains.map(d => (
@@ -354,14 +346,14 @@ const latestPosts = (taggedPosts.length > 0 ? taggedPosts : allPosts).slice(0, 2
                     style={`--halo-color: ${levelGlow}`}
                   >
                     <span class="flex items-baseline justify-between gap-4">
-                      <span class="text-base md:text-lg font-semibold text-text-primary">{d.name}</span>
+                      <span class="text-base md:text-lg font-semibold text-text-primary">{(d.nameZh ?? d.name)}</span>
                       <span class="font-mono text-[12px] text-text-muted whitespace-nowrap">{Math.round(d.examProportion * 100)}%</span>
                     </span>
                     <span class="h-1 w-full overflow-hidden rounded-full bg-border-hairline/60">
                       <span class="block h-full rounded-full" style={`width: ${Math.round(d.examProportion * 100)}%; background-color: ${levelAccentUi}`}></span>
                     </span>
                     <span class="flex items-center justify-between text-sm text-text-muted">
-                      <span>{d.questionCount}+ practice questions</span>
+                      <span>{d.questionCount}+ 道練習題</span>
                       <span class="feature-arrow text-text-primary group-hover:translate-x-1 group-focus-visible:translate-x-1" aria-hidden="true">→</span>
                     </span>
                   </a>
@@ -380,15 +372,15 @@ const latestPosts = (taggedPosts.length > 0 ? taggedPosts : allPosts).slice(0, 2
           {/* Latest from the blog (audit W13) */}
           {latestPosts.length > 0 && (
             <section data-reveal>
-              <p class="kicker" aria-hidden="true">Guides</p>
-              <h2 class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-8">Latest from the blog</h2>
+              <p class="kicker" aria-hidden="true">學習指南</p>
+              <h2 class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-8">最新學習文章</h2>
               <div class="grid grid-cols-1 gap-6">
                 {latestPosts.map((post: CollectionEntry<'blog'>) => (
                   <PostCard data={post.data} slug={post.data.slug} />
                 ))}
               </div>
               <p class="mt-6">
-                <a href="/blog" class="chev-link text-sm md:text-base font-medium text-text-primary underline underline-offset-4 hover:text-text-primary/70">Read all articles<span class="chev" aria-hidden="true">›</span></a>
+                <a href="/blog" class="chev-link text-sm md:text-base font-medium text-text-primary underline underline-offset-4 hover:text-text-primary/70">閱讀所有文章<span class="chev" aria-hidden="true">›</span></a>
               </p>
             </section>
           )}

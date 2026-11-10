@@ -8,7 +8,7 @@ const FIRST_LINK = '#site-header a[href="/aws/clf-c02/practice-exam"]'
 // island, so under load the click can land before onClick attaches; retry until
 // the panel's first link appears (idempotent - guard skips if already open).
 async function openDesktopMenu(page: Page) {
-  const trigger = page.getByRole('button', { name: 'Practice', exact: true })
+  const trigger = page.getByRole('button', { name: "練習", exact: true })
   await expect(trigger).toBeVisible({ timeout: 10000 })
   await expect(async () => {
     if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click()
@@ -18,12 +18,12 @@ async function openDesktopMenu(page: Page) {
 }
 
 async function openDrawer(page: Page) {
-  const toggle = page.getByRole('button', { name: 'Toggle menu' })
+  const toggle = page.getByRole('button', { name: "切換選單" })
   await expect(async () => {
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click()
-    await expect(page.getByRole('dialog', { name: 'Menu' })).toBeVisible({ timeout: 1000 })
+    await expect(page.getByRole('dialog', { name: "選單" })).toBeVisible({ timeout: 1000 })
   }).toPass({ timeout: 15000 })
-  return page.getByRole('dialog', { name: 'Menu' })
+  return page.getByRole('dialog', { name: "選單" })
 }
 
 test('desktop: opens, lists cert x mode links, Escape + outside-click close', async ({ page }) => {
@@ -34,9 +34,10 @@ test('desktop: opens, lists cert x mode links, Escape + outside-click close', as
   const panel = page.locator('#site-header')
   await expect(panel.locator('a[href$="/practice-exam"]')).toHaveCount(2)
   await expect(panel.locator('a[href$="/domain-practice"]')).toHaveCount(2)
+  await expect(panel.locator('a[href$="/wrong-answers"]')).toHaveCount(2)
   await expect(panel.locator('a[href="/aws/clf-c02/practice-exam"]')).toBeVisible()
   await expect(panel.locator('a[href="/aws/aif-c01/domain-practice"]')).toBeVisible()
-  await expect(panel.getByRole('link', { name: 'Browse all certifications' })).toHaveAttribute('href', '/#certifications')
+  await expect(panel.getByRole('link', { name: "瀏覽所有證照" })).toHaveAttribute('href', '/#certifications')
 
   // Escape closes and returns focus to the trigger (disclosure pattern)
   await page.keyboard.press('Escape')
@@ -54,28 +55,30 @@ test('mobile: accordion expands to cert x mode links', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
   const drawer = await openDrawer(page)
-  const acc = drawer.getByRole('button', { name: 'Practice', exact: true })
+  const acc = drawer.getByRole('button', { name: "練習", exact: true })
   await expect(acc).toHaveAttribute('aria-expanded', 'false')
   await acc.click()
   await expect(acc).toHaveAttribute('aria-expanded', 'true')
   await expect(drawer.locator('a[href="/aws/clf-c02/practice-exam"]')).toBeVisible()
   await expect(drawer.locator('a[href="/aws/aif-c01/domain-practice"]')).toBeVisible()
+  await expect(drawer.locator('a[href="/aws/clf-c02/wrong-answers"]')).toBeVisible()
 })
 
-test('logged-out: menu shows the two modes and NO Dashboard link', async ({ page }) => {
+test('logged-out: menu includes local mistake review and NO Dashboard link', async ({ page }) => {
   await page.goto('/')
   await openDesktopMenu(page)
   const panel = page.locator('#site-header')
   await expect(panel.locator('a[href$="/practice-exam"]')).toHaveCount(2)
-  await expect(panel.getByRole('link', { name: 'Dashboard' })).toHaveCount(0)
+  await expect(panel.getByRole('link', { name: /錯題本/ })).toHaveCount(2)
+  await expect(panel.getByRole('link', { name: "學習總覽" })).toHaveCount(0)
 })
 
 test('mobile hamburger: available on the exam start screen AND during the active exam', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/aws/clf-c02/practice-exam')
-  const burger = page.getByRole('button', { name: 'Toggle menu' })
+  const burger = page.getByRole('button', { name: "切換選單" })
   await expect(burger).toBeVisible({ timeout: 10000 })
-  await page.getByRole('button', { name: 'Start exam', exact: true }).click()
+  await page.getByRole('button', { name: "開始測驗", exact: true }).click()
   await page.waitForFunction(() => document.body.dataset.examActive === 'true', { timeout: 25000 })
   // bug 13: the mobile menu affordance stays available DURING the active exam
   // (any nav routes through the leave-guard confirm); it used to be hidden.
@@ -85,7 +88,7 @@ test('mobile hamburger: available on the exam start screen AND during the active
 test('mobile hamburger: available throughout domain practice', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/aws/clf-c02/domain-practice')
-  await expect(page.getByRole('button', { name: 'Toggle menu' })).toBeVisible({ timeout: 10000 })
+  await expect(page.getByRole('button', { name: "切換選單" })).toBeVisible({ timeout: 10000 })
 })
 
 async function axeViolations(page: Page) {
@@ -112,7 +115,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
     const drawer = await openDrawer(page)
-    await drawer.getByRole('button', { name: 'Practice', exact: true }).click()
+    await drawer.getByRole('button', { name: "練習", exact: true }).click()
     await expect(drawer.locator('a[href="/aws/clf-c02/practice-exam"]')).toBeVisible()
     const v = await axeViolations(page)
     expect(v, `violations:\n${v.join('\n')}`).toEqual([])
@@ -148,7 +151,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/')
     const drawer = await openDrawer(page)
-    await drawer.getByRole('button', { name: 'Practice', exact: true }).click()
+    await drawer.getByRole('button', { name: "練習", exact: true }).click()
     await page.waitForTimeout(400)
     await page.screenshot({ path: `${SHOTS}/practice-menu-mobile-${theme}.png` })
   })

@@ -53,7 +53,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 function StripSkeleton() {
   return (
     <Shell>
-      <p className="sr-only" role="status">Loading your progress</p>
+      <p className="sr-only" role="status">正在載入學習進度</p>
       <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between md:gap-8" aria-hidden="true">
         <div className="min-w-0 flex-1 animate-pulse">
           <div className="h-3 w-28 rounded bg-text-muted/15" />
@@ -135,7 +135,7 @@ function Strip(props: DomainProgressStripProps) {
           <p className="flex items-center gap-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-text-muted">
             {/* Brand DASH, not a colored dot (which reads as paused/status). */}
             <span className="h-0.5 w-[18px] rounded-full bg-brand" aria-hidden="true" />
-            Your progress
+            你的學習進度
           </p>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="font-mono text-3xl font-semibold tabular-nums leading-none text-text-primary">
@@ -149,7 +149,7 @@ function Strip(props: DomainProgressStripProps) {
             aria-valuenow={mastery}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-valuetext={`${mastery}% mastery`}
+            aria-valuetext={`${mastery}% 熟練度`}
             aria-label={`${domainName} mastery`}
           >
             <div
@@ -166,10 +166,10 @@ function Strip(props: DomainProgressStripProps) {
 
         <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
           {/* Secondary, not brand: the prerendered hero already shows an orange
-              'Start practicing' CTA to the same destination just above, so two
+              '開始練習' CTA to the same destination just above, so two
               orange primaries within ~150px is one too many. */}
           <a href={domainPracticeHref} className={`group ${buttonClass({ variant: 'secondary', size: 'md' })}`}>
-            {started ? 'Keep practicing' : 'Practice this domain'}
+            {started ? '繼續練習' : '練習這個領域'}
             <ArrowRight
               className="ml-1.5 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
               aria-hidden="true"
@@ -180,7 +180,7 @@ function Strip(props: DomainProgressStripProps) {
             className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full px-4 text-sm font-medium text-text-muted transition-colors duration-200 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Your {certShortName} dashboard
+            你的 {certShortName} 學習總覽
           </a>
         </div>
       </div>

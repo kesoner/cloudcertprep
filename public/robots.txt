@@ -73,4 +73,4 @@ Disallow: /history
 Disallow: /*/practice-exam
 Disallow: /*/domain-practice
 
-Sitemap: https://www.cloudcertprep.io/sitemap.xml
+Sitemap: https://xuyuzu.online/sitemap.xml

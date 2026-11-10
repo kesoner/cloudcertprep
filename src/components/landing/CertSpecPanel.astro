@@ -42,7 +42,7 @@ const totalQuestions = getCertTotalQuestions(cert.code)
     <div class="flex items-center justify-between border-b border-white/10 px-5 py-3">
       <div class="flex items-center gap-2">
         <span class="font-mono text-[11px] uppercase tracking-[0.18em]" style={`color: ${accent};`}>{cert.shortName}</span>
-        <span class="text-[12px] text-[#8B95A3]">Exam blueprint</span>
+        <span class="text-[12px] text-[#8B95A3]">考試概覽</span>
       </div>
       <span class="font-mono text-[12px] text-[#C9D2DC]">{cert.domains.length} domains</span>
     </div>
@@ -53,7 +53,7 @@ const totalQuestions = getCertTotalQuestions(cert.code)
         {cert.domains.map(d => (
           <div>
             <div class="flex items-baseline justify-between gap-4">
-              <span class="text-[14px] font-medium leading-snug text-[#F4F6F8]">{d.name}</span>
+              <span class="text-[14px] font-medium leading-snug text-[#F4F6F8]">{(d.nameZh ?? d.name)}</span>
               <span class="font-mono text-[12px] text-[#C9D2DC] whitespace-nowrap">{Math.round(d.examProportion * 100)}%</span>
             </div>
             <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
@@ -72,10 +72,10 @@ const totalQuestions = getCertTotalQuestions(cert.code)
     {/* Exam facts footer */}
     <div class="border-t border-white/10 px-5 py-3">
       <ul class="flex flex-wrap items-center gap-x-3 gap-y-1 list-none font-mono text-[12px] text-[#8B95A3] [&>li+li]:before:content-['·'] [&>li+li]:before:mr-3 [&>li+li]:before:text-white/25">
-        <li class="whitespace-nowrap">{cert.examQuestionCount} questions</li>
+        <li class="whitespace-nowrap">{cert.examQuestionCount} 題</li>
         <li class="whitespace-nowrap">{examMinutes} min</li>
         <li class="whitespace-nowrap">pass {cert.passingScore}/1000</li>
-        <li class="whitespace-nowrap">{totalQuestions.toLocaleString('en-US')}+ bank</li>
+        <li class="whitespace-nowrap">{totalQuestions.toLocaleString('en-US')}+ 道題庫</li>
       </ul>
     </div>
   </div>

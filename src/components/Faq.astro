@@ -32,7 +32,7 @@ interface Props {
   entries?: SimpleEntry[]
   /** Heading id used by aria-labelledby (defaults to "faq-heading"). */
   headingId?: string
-  /** Visible heading text (defaults to "Frequently asked questions"). */
+  /** Visible heading text (defaults to "常見問題"). */
   headingLabel?: string
   /** Heading type scale, to match the host page's other section H2s. Default is
    *  the large editorial scale used by home + cert hubs; denser pages (domain
@@ -45,7 +45,7 @@ const {
   genericOnly,
   entries: customEntries,
   headingId = 'faq-heading',
-  headingLabel = 'Frequently asked questions',
+  headingLabel = '常見問題',
   headingClass = 'font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em]',
 } = Astro.props
 
@@ -86,12 +86,12 @@ const chevron = '<polyline points="6 9 12 15 18 9"></polyline>'
       on home + cert hubs; text-xl/2xl on the denser domain landings) so the FAQ
       always matches its neighbors instead of out-ranking or under-ranking them. */}
   <div class="mb-8 md:mb-10">
-    <p class="kicker" aria-hidden="true">FAQ</p>
+    <p class="kicker" aria-hidden="true">常見問題</p>
     <h2 id={headingId} class={`${headingClass} text-text-primary`}>
       {headingLabel}
     </h2>
     <p class="mt-3 text-base leading-relaxed text-text-muted max-w-2xl [text-wrap:pretty]">
-      Something not covered? <a href="https://github.com/nastaso/cloudcertprep/issues" target="_blank" rel="noopener noreferrer" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">Open an issue</a> and we will answer it.
+      還有其他疑問？ <a href="https://github.com/nastaso/cloudcertprep/issues" target="_blank" rel="noopener noreferrer" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">提出問題</a> 我們會協助解答。
     </p>
   </div>
 

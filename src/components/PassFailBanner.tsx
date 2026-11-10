@@ -18,7 +18,7 @@ interface PassFailBannerProps {
  * circle. Status colour is communicated entirely through the small badge,
  * keeping visual weight balanced and consistent across the app.
  *
- * Domain Practice's instant per-question red/green flash is intentionally
+ * 領域練習's instant per-question red/green flash is intentionally
  * untouched: that is a micro-interaction, this is a persistent summary.
  */
 export function PassFailBanner({ passed, scaledScore, percent }: PassFailBannerProps) {
@@ -26,10 +26,10 @@ export function PassFailBanner({ passed, scaledScore, percent }: PassFailBannerP
   const badgeClasses = passed
     ? 'bg-success/15 text-success'
     : 'bg-danger/15 text-danger'
-  const badgeLabel = passed ? 'PASSED' : 'FAILED'
+  const badgeLabel = passed ? '通過' : '未通過'
   const subtitle = passed
-    ? 'Congratulations! You passed the exam.'
-    : 'Keep practicing. You can do this!'
+    ? '恭喜你通過本次模擬測驗！'
+    : '繼續練習，逐步熟悉每個觀念！'
 
   return (
     <div

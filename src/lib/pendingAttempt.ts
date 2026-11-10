@@ -155,7 +155,7 @@ export function consumePendingAttemptSavedNotice(): string | null {
 
 /**
  * Record that the guest explicitly asked to save THIS attempt, by clicking the
- * results-screen "Sign in to save this attempt" CTA. flushPendingAttempt only
+ * results-screen "登入以儲存本次測驗" CTA. flushPendingAttempt only
  * writes the snapshot to an account when this intent is present AND names the
  * same cert, so a passive INITIAL_SESSION / TOKEN_REFRESHED or an unrelated
  * person's sign-in on a shared device can never adopt it.
@@ -170,7 +170,7 @@ export function markPendingAttemptSaveIntent(certCode: string): void {
 
 /**
  * True when a save intent is currently set, WITHOUT consuming it. The exam
- * island reads this to decide whether to show its "Saving your attempt..."
+ * island reads this to decide whether to show its "正在儲存本次測驗…"
  * loader: PR-3 gated the actual flush on the intent, so a stale, no-intent
  * pending attempt no longer saves and must not show a spurious spinner either.
  * Peek-only so this read never disarms the real flush. (item 4b)

@@ -1,4 +1,5 @@
 ---
+import { SITE_URL } from '../lib/seo-data'
 /**
  * /account - interactive page body island. Noindexed (signed-in app route).
  * Static Astro chrome comes from BaseLayout; AppIsland renders only the body.
@@ -8,9 +9,9 @@ import AppIsland from '../components/AppIsland.tsx'
 ---
 
 <BaseLayout
-  title="Account · CloudCertPrep"
-  description="Manage your CloudCertPrep account: export your data or delete your account."
-  canonical="https://www.cloudcertprep.io/account"
+  title="帳戶 · CloudCertPrep-zh"
+  description="Manage your CloudCertPrep-zh account: export your data or delete your account."
+  canonical={SITE_URL + "/account"}
   robots="noindex"
   noscriptDirectory={true}
 >

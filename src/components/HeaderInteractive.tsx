@@ -111,7 +111,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
       <button
         onClick={() => (mobileMenuOpen ? closeMobileMenu() : setMobileMenuOpen(true))}
         className="md:hidden inline-flex items-center justify-center w-11 h-11 text-on-header hover:bg-on-header/10 rounded-full transition-colors active:scale-[0.92]"
-        aria-label="Toggle menu"
+        aria-label="切換選單"
         aria-expanded={mobileMenuOpen}
         aria-controls={mobileMenuOpen ? 'mobile-menu' : undefined}
       >
@@ -136,13 +136,13 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
             href="/about"
             className="hdr-link hidden lg:inline-block text-on-header font-medium transition-colors text-sm rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-on-header focus-visible:ring-offset-2 focus-visible:ring-offset-header-bg"
           >
-            About
+            關於我們
           </a>
           <a
             href="/blog"
             className="hdr-link hidden lg:inline-block text-on-header font-medium transition-colors text-sm rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-on-header focus-visible:ring-offset-2 focus-visible:ring-offset-header-bg"
           >
-            Blog
+            學習文章
           </a>
           <a
             href={GITHUB_REPO_URL}
@@ -150,7 +150,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
             rel="noopener noreferrer"
             onClick={() => trackEvent('github_click', { location: 'header' })}
             className="inline-flex items-center justify-center w-11 h-11 text-on-header/80 hover:text-on-header transition-colors rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-on-header"
-            aria-label="View source on GitHub"
+            aria-label="在 GitHub 查看原始碼"
           >
             <Github className="w-5 h-5" aria-hidden="true" />
           </a>
@@ -160,7 +160,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
             `cc-authed`. History/Account/theme/Sign out now live inside the user
             menu instead of as flat top-level links. */}
         <UserMenu />
-        {/* Hide the header 'Sign in' on the login page itself (it would point to
+        {/* Hide the header '登入' on the login page itself (it would point to
             the page the user is already on). */}
         {initialPathname !== '/login' && (
           <Button
@@ -176,7 +176,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
             size="sm"
             className="cc-auth-out whitespace-nowrap"
           >
-            Sign in
+            登入
           </Button>
         )}
       </div>
@@ -191,7 +191,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
         <>
           <button
             type="button"
-            aria-label="Close menu"
+            aria-label="關閉選單"
             className={`md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] cursor-default ${drawerClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
             onClick={closeMobileMenu}
           />
@@ -201,16 +201,16 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
             id="mobile-menu"
             role="dialog"
             aria-modal="true"
-            aria-label="Menu"
+            aria-label="選單"
             tabIndex={-1}
             className={`md:hidden fixed top-0 right-0 bottom-0 w-72 bg-bg-card shadow-2xl z-[101] flex flex-col overflow-y-auto ${drawerClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'}`}
           >
             <div className="flex items-center justify-between p-4 border-b border-text-muted/20">
-              <h2 className="text-lg font-semibold text-text-primary">Menu</h2>
+              <h2 className="text-lg font-semibold text-text-primary">選單</h2>
               <button
                 onClick={closeMobileMenu}
                 className="inline-flex items-center justify-center w-11 h-11 text-text-muted hover:text-text-primary hover:bg-bg-dark rounded-full transition-colors active:scale-[0.92]"
-                aria-label="Close menu"
+                aria-label="關閉選單"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
@@ -230,7 +230,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                 className="px-4 py-3 text-text-primary hover:bg-bg-dark rounded-xl transition-colors active:scale-[0.98] font-medium flex items-center gap-3"
               >
                 <Home className="w-5 h-5 text-text-muted" aria-hidden="true" />
-                Home
+                首頁
               </a>
               <a
                 href="/about"
@@ -238,7 +238,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                 className="px-4 py-3 text-text-primary hover:bg-bg-dark rounded-xl transition-colors active:scale-[0.98] font-medium flex items-center gap-3"
               >
                 <Info className="w-5 h-5 text-text-muted" aria-hidden="true" />
-                About
+                關於我們
               </a>
               <a
                 href="/blog"
@@ -246,7 +246,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                 className="px-4 py-3 text-text-primary hover:bg-bg-dark rounded-xl transition-colors active:scale-[0.98] font-medium flex items-center gap-3"
               >
                 <BookOpen className="w-5 h-5 text-text-muted" aria-hidden="true" />
-                Blog
+                學習文章
               </a>
               {isAuthed && (
                 <a
@@ -255,7 +255,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                   className="px-4 py-3 text-text-primary hover:bg-bg-dark rounded-xl transition-colors active:scale-[0.98] font-medium flex items-center gap-3"
                 >
                   <History className="w-5 h-5 text-text-muted" aria-hidden="true" />
-                  Exam history
+                  測驗紀錄
                 </a>
               )}
               {isAuthed && (
@@ -265,7 +265,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                   className="px-4 py-3 text-text-primary hover:bg-bg-dark rounded-xl transition-colors active:scale-[0.98] font-medium flex items-center gap-3"
                 >
                   <UserCircle className="w-5 h-5 text-text-muted" aria-hidden="true" />
-                  Account
+                  帳戶
                 </a>
               )}
               <a
@@ -288,7 +288,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                 {theme === 'dark'
                   ? <Sun className="w-5 h-5 text-text-muted" aria-hidden="true" />
                   : <Moon className="w-5 h-5 text-text-muted" aria-hidden="true" />}
-                {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                <span>{theme === 'dark' ? '淺色模式' : '深色模式'}</span>
               </button>
             </nav>
 
@@ -302,7 +302,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                   variant="secondary"
                   fullWidth
                 >
-                  Sign out
+                  登出
                 </Button>
               ) : (
                 <Button
@@ -314,7 +314,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                   variant="primary"
                   fullWidth
                 >
-                  Sign in
+                  登入
                 </Button>
               )}
             </div>
@@ -330,7 +330,7 @@ export default function HeaderInteractive({ initialPathname }: { initialPathname
                 className="flex items-center justify-center gap-2 text-text-muted hover:text-text-primary transition-colors text-sm"
               >
                 <Heart className="w-4 h-4 text-danger" aria-hidden="true" />
-                Support this project
+                贊助原作者 Alex
               </a>
             </div>
           </div>

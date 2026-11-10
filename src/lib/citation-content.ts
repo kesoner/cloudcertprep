@@ -12,10 +12,9 @@ export function buildHomeFirstParagraph(clfCount: number, aifCount: number): str
   const clf = clfCount.toLocaleString('en-US')
   const aif = aifCount.toLocaleString('en-US')
   return (
-    `${clf}+ AWS Cloud Practitioner and ${aif}+ AWS Certified AI Practitioner practice questions. ` +
-    `Full-length timed mock exams, domain-by-domain practice with adaptive spaced repetition, ` +
-    `and progress tracking. No signup required, no ads. ` +
-    `MIT licensed and publicly auditable on GitHub.`
+    `收錄 ${clf}+ AWS Cloud Practitioner 與 ${aif}+ AWS Certified AI Practitioner 練習題。` +
+    `提供完整計時模擬測驗、領域練習、適性間隔複習（spaced repetition）與進度追蹤。` +
+    `不必註冊，沒有廣告。採用 MIT 授權（MIT licensed），原始碼可在 GitHub 公開檢視（publicly auditable on GitHub）。`
   )
 }
 
@@ -27,8 +26,7 @@ export function buildHomeMetaDescription(clfCount: number, aifCount: number): st
   // citation guard asserts it); "spaced repetition" + the count regexes are
   // still satisfied by the home first paragraph (buildHomeFirstParagraph).
   return (
-    `Free open-source AWS certification practice exams: ${clf}+ Cloud Practitioner (CLF-C02) and ` +
-    `${aif}+ AI Practitioner (AIF-C01) questions. No signup, no ads.`
+    `免費 AWS 證照練習平台：${clf}+ CLF-C02 與 ${aif}+ AIF-C01 題目，計時模擬測驗、領域練習與詳細解析，不必註冊。Free open-source AWS certification practice exams.`
   )
 }
 

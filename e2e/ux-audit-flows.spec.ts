@@ -20,26 +20,26 @@ const PENDING = {
 
 test('P0-3: expired-link banner shows, strips params, dismisses', async ({ page }) => {
   await page.goto('/?error=access_denied&error_code=otp_expired')
-  await expect(page.getByText('That link has expired')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText('連結已過期')).toBeVisible({ timeout: 10000 })
   await page.waitForTimeout(400)
   expect(new URL(page.url()).searchParams.has('error')).toBeFalsy()
-  await page.getByRole('button', { name: 'Dismiss' }).click()
-  await expect(page.getByText('That link has expired')).toBeHidden()
+  await page.getByRole('button', { name: "關閉提示" }).click()
+  await expect(page.getByText('連結已過期')).toBeHidden()
 })
 
 test('P0-3: email_unverified does NOT trigger the home banner', async ({ page }) => {
   await page.goto('/?error=email_unverified')
   await page.waitForTimeout(1500)
-  await expect(page.getByText('That link has expired')).toHaveCount(0)
+  await expect(page.getByText('連結已過期')).toHaveCount(0)
 })
 
 test('P0-2: verified=1 welcome card (direct, no auth)', async ({ page }) => {
   await page.goto('/?verified=1')
-  await expect(page.getByText('Your email is confirmed')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText('電子郵件已驗證完成。')).toBeVisible({ timeout: 10000 })
   // No real session here (direct visit, not a confirm redirect): the card must
   // NOT falsely claim "You are signed in" and must offer a Sign in path.
   await expect(page.getByText('You are signed in')).toHaveCount(0)
-  await expect(page.getByRole('link', { name: 'Sign in', exact: true })).toBeVisible({ timeout: 10000 })
+  await expect(page.getByRole('link', { name: "登入", exact: true })).toBeVisible({ timeout: 10000 })
 })
 
 test('P1-4: persistent Practice menu trigger in header on key routes', async ({ page }) => {
@@ -47,7 +47,7 @@ test('P1-4: persistent Practice menu trigger in header on key routes', async ({ 
     await page.goto(route)
     // Practice is now a disclosure menu (button) present on every route; the
     // ux-audit-practice-menu spec covers its contents.
-    await expect(page.getByRole('button', { name: 'Practice', exact: true }).first()).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('button', { name: "練習", exact: true }).first()).toBeVisible({ timeout: 10000 })
   }
 })
 
@@ -57,13 +57,13 @@ test('P1-4: Practice is the first item in the mobile drawer', async ({ page }) =
   // Open robustly: under load the header island may not have attached its onClick
   // yet, so retry the toggle until aria-expanded flips (idempotent - the guard
   // skips the click once it is already open, so it never toggles back closed).
-  const toggle = page.getByRole('button', { name: 'Toggle menu' })
+  const toggle = page.getByRole('button', { name: "切換選單" })
   await expect(async () => {
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click()
-    await expect(page.getByRole('dialog', { name: 'Menu' })).toBeVisible({ timeout: 1000 })
+    await expect(page.getByRole('dialog', { name: "選單" })).toBeVisible({ timeout: 1000 })
   }).toPass({ timeout: 15000 })
-  const drawer = page.getByRole('dialog', { name: 'Menu' })
-  await expect(drawer.getByRole('button', { name: 'Practice', exact: true })).toBeVisible()
+  const drawer = page.getByRole('dialog', { name: "選單" })
+  await expect(drawer.getByRole('button', { name: "練習", exact: true })).toBeVisible()
 })
 
 test('P1-6: guest result rehydrates after the login round-trip (marker set)', async ({ page }) => {
@@ -75,8 +75,8 @@ test('P1-6: guest result rehydrates after the login round-trip (marker set)', as
   // The results screen (not the start screen) is the proof of rehydrate: it has
   // a "Retake exam" button the start screen lacks. Review is hidden because a
   // rehydrated snapshot carries no Question objects.
-  await expect(page.getByRole('button', { name: /Retake exam/i })).toBeVisible({ timeout: 15000 })
-  await expect(page.getByRole('button', { name: 'Review questions' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /重新測驗/i })).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "檢視題目" })).toHaveCount(0)
 })
 
 test('P1-6: fresh visit (no marker) shows START, not an old result', async ({ page }) => {
@@ -87,9 +87,9 @@ test('P1-6: fresh visit (no marker) shows START, not an old result', async ({ pa
   await page.goto('/aws/clf-c02/practice-exam')
   // Without the marker there is no rehydrate: the START screen shows (its "Start
   // exam" button), never the results screen ("Retake exam").
-  await expect(page.getByRole('button', { name: 'Start exam', exact: true })).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "開始測驗", exact: true })).toBeVisible({ timeout: 15000 })
   await page.waitForTimeout(1500)
-  await expect(page.getByRole('button', { name: /Retake exam/i })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /重新測驗/i })).toHaveCount(0)
 })
 
 test('P1-8: no British spelling in rendered funnel pages', async ({ page }) => {
@@ -103,8 +103,8 @@ test('P1-8: no British spelling in rendered funnel pages', async ({ page }) => {
 test('P2-12: about + contribute closing CTA + #certifications anchor resolves', async ({ page }) => {
   for (const route of ['/about', '/contribute']) {
     await page.goto(route)
-    await expect(page.getByRole('link', { name: /Start practicing free/i })).toBeVisible()
-    const browse = page.getByRole('link', { name: /Browse certifications/i })
+    await expect(page.getByRole('link', { name: /免費開始練習/i })).toBeVisible()
+    const browse = page.getByRole('link', { name: /瀏覽證照/i })
     await expect(browse).toBeVisible()
     await expect(browse).toHaveAttribute('href', '/#certifications')
   }

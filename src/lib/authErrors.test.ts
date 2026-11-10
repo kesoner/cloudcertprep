@@ -4,7 +4,7 @@ import { authErrorMessage } from './authErrors'
 describe('authErrorMessage', () => {
   it('hides account existence on sign-in (invalid credentials)', () => {
     const msg = authErrorMessage(new Error('Invalid login credentials'), 'sign-in')
-    expect(msg).toMatch(/incorrect email or password/i)
+    expect(msg).toMatch(/電子郵件或密碼有誤/)
     expect(msg).not.toMatch(/invalid login credentials/i)
   })
 
@@ -25,24 +25,24 @@ describe('authErrorMessage', () => {
   it('keeps captcha errors actionable', () => {
     expect(
       authErrorMessage(new Error('captcha verification process failed'), 'sign-in'),
-    ).toMatch(/verification challenge/i)
+    ).toMatch(/驗證未通過/)
   })
 
   it('keeps rate-limit errors actionable', () => {
     expect(authErrorMessage(new Error('Email rate limit exceeded'), 'sign-up')).toMatch(
-      /too many attempts/i,
+      /嘗試次數過多/,
     )
     expect(
       authErrorMessage(
         new Error('For security purposes, you can only request this after 60 seconds.'),
         'sign-in',
       ),
-    ).toMatch(/too many attempts/i)
+    ).toMatch(/嘗試次數過多/)
   })
 
   it('keeps network errors actionable', () => {
     expect(authErrorMessage(new TypeError('Failed to fetch'), 'sign-in')).toMatch(
-      /network error/i,
+      /網路連線發生問題/,
     )
   })
 
@@ -50,12 +50,12 @@ describe('authErrorMessage', () => {
     const policy = 'Password should be at least 6 characters.'
     expect(authErrorMessage(new Error(policy), 'sign-up')).toBe(policy)
     expect(authErrorMessage(new Error(policy), 'sign-in')).toMatch(
-      /incorrect email or password/i,
+      /電子郵件或密碼有誤/,
     )
   })
 
   it('falls back to generic copy for unknown values', () => {
-    expect(authErrorMessage('not-an-error', 'sign-in')).toMatch(/incorrect email or password/i)
-    expect(authErrorMessage(undefined, 'sign-up')).toMatch(/could not create an account/i)
+    expect(authErrorMessage('not-an-error', 'sign-in')).toMatch(/電子郵件或密碼有誤/)
+    expect(authErrorMessage(undefined, 'sign-up')).toMatch(/無法使用這些資料建立帳戶/)
   })
 })

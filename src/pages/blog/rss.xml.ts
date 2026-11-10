@@ -1,3 +1,4 @@
+import { SITE_URL } from '../../lib/seo-data'
 /**
  * RSS feed for the blog (/blog/rss.xml).
  *
@@ -17,13 +18,13 @@ export async function GET(context: APIContext) {
     (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) =>
       b.data.date.getTime() - a.data.date.getTime(),
   )
-  const site = context.site ?? new URL('https://www.cloudcertprep.io')
+  const site = context.site ?? new URL(SITE_URL)
   const selfHref = new URL('/blog/rss.xml', site).href
 
   return rss({
-    title: 'CloudCertPrep Blog',
+    title: 'CloudCertPrep-zh Blog',
     description:
-      'Guides, exam-format breakdowns, and study strategy for AWS certification exams from the CloudCertPrep team.',
+      'CloudCertPrep-zh 收錄的 AWS 學習文章，原文與著作歸原作者所有。',
     site,
     // `format: 'file'` serves posts at /blog/slug with no trailing slash, so
     // item links must match (issue #71) or they 404 via the canonical redirect.

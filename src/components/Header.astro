@@ -46,7 +46,7 @@ const { showNav = true, sticky = true, overlay = false, noAuthedFrost = false } 
 // load delay on cert pages and a flash on every navigation.
 const pathname = Astro.url.pathname
 
-const PLATFORM_TAGLINE = 'AWS Certification Exam Prep'
+const PLATFORM_TAGLINE = 'AWS 證照備考'
 
 // Inline lucide icon paths (lucide-react is React-only).
 const cloudPath = 'M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z'
@@ -70,7 +70,7 @@ const checkPath = 'M20 6 9 17l-5-5'
           (previously a visible subheader) so the chrome reads as a clean
           single-wordmark (premium) while screen readers and crawlers still get
           the descriptive context. (audit-reconciliation: tagline → aria-label) */}
-      <a href="/" class="flex items-center gap-2 md:gap-3 group" aria-label={`CloudCertPrep, ${PLATFORM_TAGLINE}, home`}>
+      <a href="/" class="flex items-center gap-2 md:gap-3 group" aria-label={`CloudCertPrep-zh, ${PLATFORM_TAGLINE}，首頁`}>
         {/* Brand mark: white tile + orange cloud + white check — the live
             cloudcertprep.io mark, preserved on the navy bar for brand
             continuity. The tile stays white in both themes (the header is
@@ -91,9 +91,9 @@ const checkPath = 'M20 6 9 17l-5-5'
             the line-box centres geometrically, but the cap-height block sits
             ~1px high (descender space reserved at the bottom), so the visible
             letters read high against the tile without it. The
-            accessible/visible string stays "CloudCertPrep" verbatim. */}
+            accessible/visible string stays "CloudCertPrep-zh" verbatim. */}
         <span class="font-display text-base md:text-lg text-on-header tracking-tight leading-none translate-y-[2px]">
-          <span class="font-medium">Cloud</span><span class="font-semibold">CertPrep</span>
+          <span class="font-medium">Cloud</span><span class="font-semibold">CertPrep-zh</span>
         </span>
       </a>
 

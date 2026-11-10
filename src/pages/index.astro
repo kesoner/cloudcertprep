@@ -46,9 +46,9 @@ const activeCerts = getSortedCerts()
 // out of the ItemList JSON-LD below and out of the sitemap).
 const comingSoonCerts = getSortedCerts().filter(c => c.status === 'coming-soon')
 
-const title = 'Free AWS Certification Practice Exams · CloudCertPrep'
+const title = '免費 AWS 證照練習與模擬測驗 · CloudCertPrep-zh'
 const description = buildHomeMetaDescription(clfCount, aifCount)
-const canonical = 'https://www.cloudcertprep.io/'
+const canonical = SITE_URL + '/'
 
 // Locked citation content (R16.4-R16.8). HOME_H1 renders as the single page
 // <h1>; the lede (buildHomeFirstParagraph) carries the locked phrases
@@ -60,7 +60,7 @@ const homeFirstParagraph = buildHomeFirstParagraph(clfCount, aifCount)
 // Latest blog posts. The home page is the highest-authority page on the site,
 // so body-linking /blog (not just via the Header island) opens a crawl path and
 // passes link equity into the content cluster. Mirrors the proven cert-landing
-// "Latest from the blog" block. Non-draft posts only (drafts also show when
+// "最新學習文章" block. Non-draft posts only (drafts also show when
 // PUBLIC_PREVIEW_DRAFTS is set, for branch previews), newest first.
 const latestPosts = (await getCollection('blog'))
   .filter((post: CollectionEntry<'blog'>) => includeDrafts || !post.data.draft)
@@ -71,7 +71,7 @@ const latestPosts = (await getCollection('blog'))
 const itemListJsonLd = serializeJsonLd({
   '@context': 'https://schema.org',
   '@type': 'ItemList',
-  name: 'AWS Certification Practice Exams',
+  name: 'AWS 證照模擬測驗',
   numberOfItems: activeCerts.length,
   itemListElement: activeCerts.map((cert, i) => ({
     '@type': 'ListItem',
@@ -90,7 +90,7 @@ const softwareAppJsonLd = serializeJsonLd({
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
   '@id': `${SITE_URL}/#app`,
-  name: 'CloudCertPrep',
+  name: 'CloudCertPrep-zh',
   description: `Free, open-source AWS certification practice platform. ${totalQuestions.toLocaleString('en-US')}+ practice questions across ${activeCerts.length} active certifications, with timed mock exams, adaptive spaced repetition, and domain mastery analytics.`,
   url: `${SITE_URL}/`,
   applicationCategory: 'EducationalApplication',
@@ -118,10 +118,10 @@ const softwareAppJsonLd = serializeJsonLd({
     <div id="home-guest-hero" class="cc-auth-out">
       <HeroStage
         h1={HOME_H1}
-        subline={`Pass your AWS exam with ${totalQuestions.toLocaleString('en-US')}+ exam-realistic practice questions. Every answer explained, free forever, no signup.`}
+        subline={`透過 ${totalQuestions.toLocaleString('zh-TW')}+ 道練習題，循序準備 AWS 證照。每題皆附解析，免費使用，無須註冊。`}
         ctaHref={`/${defaultCert.provider}/${defaultCert.code}/practice-exam`}
-        ctaLabel="Start practicing free"
-        metrics={[`${totalQuestions.toLocaleString('en-US')}+ questions`, `${activeCerts.length} certifications`, '100% free', 'No ads']}
+        ctaLabel="免費開始練習"
+        metrics={[`${totalQuestions.toLocaleString('zh-TW')}+ 道練習題`, `${activeCerts.length} 項證照`, '完全免費', '沒有廣告']}
       />
     </div>
   )}
@@ -141,19 +141,19 @@ const softwareAppJsonLd = serializeJsonLd({
                 On a first-ever signed-in home visit the pre-paint script below
                 swaps the text in place (bug 6) - no CSS display toggle, which
                 collided with .kicker's own `display`. */}
-            <p class="kicker" id="cc-hero-kicker">Welcome back</p>
+            <p class="kicker" id="cc-hero-kicker">歡迎回來</p>
             <h1 class="font-display mt-3 text-3xl md:text-4xl lg:text-5xl font-bold tracking-[-0.025em] text-text-primary">
-              Ready when you are.
+              準備好了，就開始吧。
             </h1>
             <p class="mt-4 max-w-2xl text-base md:text-lg leading-relaxed text-text-muted" id="cc-hero-subline">
-              Pick up your prep where you left off. Head to your dashboard, or jump straight into practice.
+              接續上次的學習進度。前往學習總覽，或直接開始練習。
             </p>
             <div class="mt-8 flex flex-wrap gap-3">
               <a href={`/${defaultCert.provider}/${defaultCert.code}`} class={buttonClass({ variant: 'brand', size: 'md' })}>
-                Go to your {defaultCert.shortName} dashboard
+                前往 {defaultCert.shortName} 學習總覽
               </a>
               <a href="#certifications" class={buttonClass({ variant: 'secondary', size: 'md' })}>
-                Browse certifications
+                瀏覽證照
               </a>
             </div>
           </div>
@@ -164,12 +164,12 @@ const softwareAppJsonLd = serializeJsonLd({
               data) so it paints in the first frame, no flash. */}
           <div>
             <div class="rounded-2xl border border-border-hairline bg-bg-card shadow-card p-6">
-              <p class="kicker">Jump back in</p>
+              <p class="kicker">接續學習</p>
               <div class="mt-4 space-y-2">
                 {[
-                  { href: `/${defaultCert.provider}/${defaultCert.code}/practice-exam`, label: 'Mock exam', sub: 'Full-length, timed, scored' },
-                  { href: `/${defaultCert.provider}/${defaultCert.code}/domain-practice`, label: 'Domain practice', sub: 'One domain, instant feedback' },
-                  { href: '/history', label: 'Exam history', sub: 'Review your past attempts' },
+                  { href: `/${defaultCert.provider}/${defaultCert.code}/practice-exam`, label: '模擬測驗', sub: '完整計時測驗與評分' },
+                  { href: `/${defaultCert.provider}/${defaultCert.code}/domain-practice`, label: '領域練習', sub: '專注單一領域，即時查看回饋' },
+                  { href: '/history', label: '測驗紀錄', sub: '回顧過往測驗結果' },
                 ].map((item) => (
                   <a
                     href={item.href}
@@ -202,7 +202,7 @@ const softwareAppJsonLd = serializeJsonLd({
           var hdr = document.getElementById('site-header')
           if (hdr) hdr.removeAttribute('data-overlay')
           // First home view for a FRESHLY-created account: greet as new, not
-          // "Welcome back" (bug 6). Read the stored session user and key the
+          // "歡迎回來" (bug 6). Read the stored session user and key the
           // "greeted" flag on the account id + its age, so a brand-new account
           // gets the welcome even on a browser where a DIFFERENT account was used
           // before (the old device-only flag failed that case), and an existing
@@ -225,8 +225,8 @@ const softwareAppJsonLd = serializeJsonLd({
                 localStorage.setItem('cc_home_greeted', greeted.join(','))
                 var k = document.getElementById('cc-hero-kicker')
                 var s = document.getElementById('cc-hero-subline')
-                if (k) k.textContent = 'Welcome to CloudCertPrep'
-                if (s) s.textContent = 'Your account is ready. Head to your dashboard, or jump straight into practice.'
+                if (k) k.textContent = '歡迎使用 CloudCertPrep-zh'
+                if (s) s.textContent = '帳戶已準備完成。前往學習總覽，或直接開始練習。'
               }
             }
           } catch (e) { /* private mode / parse error: fall back to the default greeting */ }
@@ -243,7 +243,7 @@ const softwareAppJsonLd = serializeJsonLd({
         // dispatches `cc:session-resolved` once useAuth resolves (token persisted,
         // user known); re-run apply() then. It is idempotent and reads
         // user.created_at from the now-present token, so a brand-new account gets
-        // the first-login greeting and a returning one keeps "Welcome back". The
+        // the first-login greeting and a returning one keeps "歡迎回來". The
         // header-overlay half is already covered by CSS (index.css
         // html.cc-authed header[data-overlay]); apply() also drops [data-overlay].
         window.addEventListener('cc:session-resolved', apply)
@@ -270,16 +270,16 @@ const softwareAppJsonLd = serializeJsonLd({
         </section>
 
         {/* Cert tile row - editorial card grid with art headers. id anchors
-            the "Browse certifications" CTAs on /about and /contribute (P2-12).
-            scroll-mt-20 keeps the "Pick a certification" heading clear of the
+            the "瀏覽證照" CTAs on /about and /contribute (P2-12).
+            scroll-mt-20 keeps the "選擇你的目標證照" heading clear of the
             sticky header when these anchors land here (bug 5). */}
         <section id="certifications" data-reveal class="scroll-mt-20">
-          <p class="kicker" aria-hidden="true">Certifications</p>
+          <p class="kicker" aria-hidden="true">證照課程</p>
           <h2 class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-2">
-            Pick a certification
+            選擇你的目標證照
           </h2>
           <p class="text-lead mb-8">
-            Full-length mock exams and domain practice for every certification.
+            依照證照選擇完整模擬測驗或分領域練習，循序累積實力。
           </p>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {activeCerts.map(cert => <CertTile cert={cert} />)}
@@ -295,15 +295,15 @@ const softwareAppJsonLd = serializeJsonLd({
             page to /blog. */}
         {latestPosts.length > 0 && (
           <section data-reveal>
-            <p class="kicker" aria-hidden="true">Guides</p>
-            <h2 class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-8">Latest from the blog</h2>
+            <p class="kicker" aria-hidden="true">學習指南</p>
+            <h2 class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-8">最新學習文章</h2>
             <div class="grid grid-cols-1 gap-6">
               {latestPosts.map((post: CollectionEntry<'blog'>) => (
                 <PostCard data={post.data} slug={post.data.slug} />
               ))}
             </div>
             <p class="mt-6">
-              <a href="/blog" class="chev-link text-sm md:text-base font-medium text-link hover:underline underline-offset-4">Read all articles<span class="chev" aria-hidden="true">›</span></a>
+              <a href="/blog" class="chev-link text-sm md:text-base font-medium text-link hover:underline underline-offset-4">閱讀所有文章<span class="chev" aria-hidden="true">›</span></a>
             </p>
           </section>
         )}

@@ -38,9 +38,9 @@ interface UnlockCTAProps {
 export function UnlockCTA({
   onSignIn,
   location,
-  title = 'Unlock all features',
-  body = 'Sign in to unlock domain practice, adaptive spaced repetition, and review your exam attempt history.',
-  ctaLabel = 'Sign in / Sign up',
+  title = '啟用學習追蹤',
+  body = '登入即可使用適性間隔複習、儲存領域進度，並回顧測驗紀錄。',
+  ctaLabel = '登入 / 註冊',
   noTopMargin = false,
 }: UnlockCTAProps) {
   function handleClick() {

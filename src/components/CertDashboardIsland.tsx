@@ -37,6 +37,7 @@ import type { DomainProgress } from '../types'
 
 /** Minimal domain shape needed by the dashboard sidebar. */
 interface CertDomainProp {
+  nameZh?: string
   id: number
   name: string
   questionCount: number
@@ -244,14 +245,14 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
 
   return (
     <div className="max-w-6xl mx-auto pt-6 md:pt-10 pb-16 md:pb-24 space-y-8 md:space-y-10 stagger" aria-busy={dataLoading}>
-        {dataLoading && <p className="sr-only" role="status">Loading your dashboard</p>}
+        {dataLoading && <p className="sr-only" role="status">正在載入學習總覽</p>}
         {/* Page header: mono kicker + tracked h1 (DSv6 ladder, hero-scale) */}
         <header>
           <p className="flex items-center gap-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.22em] text-text-muted">
             {/* Brand DASH, not a level-colored dot: a colored status dot reads as
                 "paused/warning"; the dash matches the sitewide .kicker eyebrow. */}
             <span className="h-0.5 w-[22px] rounded-full bg-brand" aria-hidden="true" />
-            {levelLabel ? `${levelLabel} · ` : ''}Your dashboard
+            {levelLabel ? `${levelLabel} · ` : ''}你的學習總覽
           </p>
           <h1 className="mt-3 text-3xl md:text-4xl font-semibold tracking-[-0.025em] text-text-primary">
             {cert.name} <span className="text-text-muted">({cert.shortName})</span>
@@ -267,38 +268,38 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
             role="alert"
             className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
           >
-            <span>We could not load your latest progress. Check your connection and try again.</span>
+            <span>無法載入最新進度，請檢查網路後再試。</span>
             <button
               type="button"
               onClick={() => { setDataError(false); setDataLoading(true); setReloadKey(k => k + 1) }}
               className="inline-flex min-h-[44px] flex-shrink-0 items-center justify-center gap-2 rounded-full border border-danger/40 px-5 text-sm font-medium text-danger transition-colors duration-200 hover:bg-danger/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40"
             >
               <RotateCw className="h-4 w-4" aria-hidden="true" />
-              Try again
+              再試一次
             </button>
           </Alert>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {dataLoading ? (
               <>
-                <SkeletonStatTile label="Questions practiced" />
-                <SkeletonStatTile label="Accuracy" />
-                <SkeletonStatTile label="Practice exams" />
-                <SkeletonStatTile label="Best score" />
+                <SkeletonStatTile label="已練習題數" />
+                <SkeletonStatTile label="正確率" />
+                <SkeletonStatTile label="模擬測驗" />
+                <SkeletonStatTile label="最高分數" />
               </>
             ) : (
               <>
-                <StatTile label="Questions practiced" value={questionsPracticed.toLocaleString('en-US')} suffix={`/ ${bankTotal.toLocaleString('en-US')}`} />
-                <StatTile label="Accuracy" value={String(accuracy)} suffix="%" hint="correct / answered" />
-                <StatTile label="Practice exams" value={String(examCount)} hint="completed, all-time" />
+                <StatTile label="已練習題數" value={questionsPracticed.toLocaleString('en-US')} suffix={`/ ${bankTotal.toLocaleString('en-US')}`} />
+                <StatTile label="正確率" value={String(accuracy)} suffix="%" hint="correct / answered" />
+                <StatTile label="模擬測驗" value={String(examCount)} hint="completed, all-time" />
                 {/* Empty state: scaled scores start at 100, so a literal 0 is
                     misleading (HALO-CRITIQUE P1). Placeholder + the one next
                     action instead. */}
                 <StatTile
-                  label="Best score"
+                  label="最高分數"
                   value={bestScore > 0 ? bestScore.toLocaleString('en-US') : 'N/A'}
                   suffix={bestScore > 0 ? `/ ${(1000).toLocaleString('en-US')}` : undefined}
-                  hint={bestScore > 0 ? 'scaled score' : 'Take your first practice exam to set a baseline'}
+                  hint={bestScore > 0 ? '換算分數' : '完成第一次模擬測驗，了解目前程度'}
                 />
               </>
             )}
@@ -308,7 +309,7 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
         {/* Practice Modes: the two primary actions, full-width prominent cards. */}
         <section>
           <h2 className="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-4">
-            Start practicing
+            開始練習
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <a
@@ -320,14 +321,14 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
                 <FileText className="w-5 h-5 text-text-primary" aria-hidden="true" />
               </span>
               <h3 className="mt-4 text-lg md:text-xl font-semibold tracking-[-0.01em] text-text-primary">
-                Practice exam
+                模擬測驗
                 <ArrowRight
                   className="ml-1.5 inline-block w-4 h-4 align-[-2px] text-text-primary/50 transition-[transform,color] duration-200 group-hover:translate-x-1 group-hover:text-text-primary"
                   aria-hidden="true"
                 />
               </h3>
               <p className="mt-2 text-sm text-text-muted leading-relaxed">
-                Full-length, timed, scored exactly like the real exam.
+                完整計時測驗，熟悉正式考試的評分與節奏。
               </p>
               <p className="mt-3 font-mono text-[12px] tracking-wide text-text-muted">
                 {cert.examQuestionCount} questions · {examMinutes} min · pass {cert.passingScore}/1000
@@ -343,17 +344,17 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
                 <Target className="w-5 h-5 text-text-primary" aria-hidden="true" />
               </span>
               <h3 className="mt-4 text-lg md:text-xl font-semibold tracking-[-0.01em] text-text-primary">
-                Domain practice
+                領域練習
                 <ArrowRight
                   className="ml-1.5 inline-block w-4 h-4 align-[-2px] text-text-primary/50 transition-[transform,color] duration-200 group-hover:translate-x-1 group-hover:text-text-primary"
                   aria-hidden="true"
                 />
               </h3>
               <p className="mt-2 text-sm text-text-muted leading-relaxed">
-                One domain at a time, with instant feedback and explanations.
+                一次專注一個領域，即時查看回饋與解析。
               </p>
               <p className="mt-3 font-mono text-[12px] tracking-wide text-text-muted">
-                spaced repetition · targets your weak areas
+                間隔複習 · 加強需要練習的領域
               </p>
             </a>
           </div>
@@ -365,12 +366,12 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
         {!dataError && (
         <section>
           <h2 className="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-1">
-            Domain mastery
+            領域熟練度
           </h2>
           {/* Clarify the metric: the headline % is correct-out-of-the-full-bank
               (so '8%' next to '30 correct' of 384 isn't read as wrong). */}
           <p className="text-sm text-text-muted mb-4">
-            The percentage is how much of each domain's full question bank you have answered correctly.
+            百分比代表你在該領域完整題庫中，已答對的題目比例。
           </p>
           {/* NEXT UP: one card, one action (Growth Build 2 / H2). Unstarted
               domains outrank low-mastery ones and are phrased "not practiced
@@ -387,12 +388,12 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
           ) : nextAction && nextDomain && (
             <div className="mb-4 bg-bg-card border border-border-hairline rounded-2xl shadow-card p-5 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-muted">Next up</p>
+                <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em] text-text-muted">下一步</p>
                 <p className="mt-1.5 text-text-primary font-medium">
                   {nextAction.kind === 'unstarted' ? (
-                    <>You have not practiced <span className="font-semibold">{nextDomain.name}</span> yet</>
+                    <>尚未練習 <span className="font-semibold">{(nextDomain.nameZh ?? nextDomain.name)}</span></>
                   ) : (
-                    <>Weakest domain: <span className="font-semibold">{nextDomain.name}</span> ({nextAction.percent}%)</>
+                    <>較弱的領域： <span className="font-semibold">{(nextDomain.nameZh ?? nextDomain.name)}</span> ({nextAction.percent}%）</>
                   )}
                 </p>
               </div>
@@ -401,7 +402,7 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
                 onClick={() => trackEvent('weakest_domain_cta_clicked', { surface: 'dashboard', variant: nextAction.kind })}
                 className="inline-flex min-h-[44px] flex-shrink-0 items-center justify-center rounded-full bg-cta px-6 text-sm font-medium text-on-cta transition-colors duration-200 hover:bg-cta-hover"
               >
-                Practice this domain
+                練習這個領域
               </a>
             </div>
           )}
@@ -434,12 +435,12 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
                 <a
                   key={domain.id}
                   href={`${certPath}/${domain.slug}`}
-                  aria-label={`${domain.name}, ${mastery}% mastery`}
+                  aria-label={`${(domain.nameZh ?? domain.name)}, ${mastery}% 熟練度`}
                   className="group block bg-bg-card shadow-card hover:shadow-card-hover hover:-translate-y-0.5 border border-border-hairline rounded-2xl p-5 md:p-6 transition-[background-color,border-color,box-shadow,transform] duration-200 hover:bg-bg-card-hover hover:border-text-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <h3 className="text-base font-semibold tracking-[-0.01em] leading-snug text-text-primary">
-                      {domain.name}
+                      {(domain.nameZh ?? domain.name)}
                       <ArrowRight
                         className="ml-1.5 inline-block w-4 h-4 align-[-2px] text-text-primary/50 transition-[transform,color] duration-200 group-hover:translate-x-1 group-hover:text-text-primary"
                         aria-hidden="true"
@@ -455,8 +456,8 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
                     aria-valuenow={mastery}
                     aria-valuemin={0}
                     aria-valuemax={100}
-                    aria-valuetext={`${mastery}% mastery`}
-                    aria-label={`${domain.name} mastery`}
+                    aria-valuetext={`${mastery}% 熟練度`}
+                    aria-label={`${(domain.nameZh ?? domain.name)} mastery`}
                   >
                     <div
                       className="h-full w-full origin-left transition-transform duration-settle ease-out"
@@ -464,7 +465,7 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
                     />
                   </div>
                   <p className="mt-2.5 font-mono text-[12px] text-text-muted">
-                    {attempted} of {domain.questionCount} practiced · {correct} correct
+                    {attempted}/{domain.questionCount} practiced · {correct} correct
                   </p>
                 </a>
               )
@@ -479,14 +480,14 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary">
-              Recent attempts
+              近期測驗
             </h2>
             {recentAttempts.length > 0 && (
               <a
                 href="/history"
                 className="group text-text-primary hover:text-text-primary/70 text-xs md:text-sm font-medium inline-flex items-center gap-1"
               >
-                View all{' '}
+                查看全部{' '}
                 <ArrowRight
                   className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
                   aria-hidden="true"
@@ -512,13 +513,13 @@ function CertDashboard({ cert }: { cert: CertDashboardCert }) {
             </div>
           ) : recentAttempts.length === 0 ? (
             <div className="bg-bg-card rounded-2xl border border-border-hairline p-8 md:p-10 text-center">
-              <p className="text-text-primary font-medium">No attempts yet</p>
-              <p className="mt-1 text-sm text-text-muted">Take your first practice exam to start tracking your progress.</p>
+              <p className="text-text-primary font-medium">尚無測驗紀錄</p>
+              <p className="mt-1 text-sm text-text-muted">完成第一次模擬測驗，即可開始追蹤進度。</p>
               <a
                 href={`${certPath}/practice-exam`}
                 className="mt-5 inline-flex min-h-[44px] items-center justify-center rounded-full bg-cta px-6 text-sm font-medium text-on-cta transition-colors duration-200 hover:bg-cta-hover"
               >
-                Start a practice exam
+                開始模擬測驗
               </a>
             </div>
           ) : (

@@ -1,7 +1,7 @@
 // App-wide constants - single source of truth for repeated values.
 // Cert-specific values (question count, time, pass score) live in data/certifications.ts.
 
-export const APP_NAME = 'CloudCertPrep'
+export const APP_NAME = 'CloudCertPrep-zh'
 
 export const MIN_VALID_EXAM_SECONDS = 60
 export const MAX_MULTI_ANSWER = 2

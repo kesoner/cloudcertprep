@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
-import { getSupabase } from '../lib/supabase'
+import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
 import { validatePassword, isPasswordStrongEnough } from '../lib/validation'
 import { trackEvent } from '../lib/analytics'
 import { useSEO } from '../hooks/useSEO'
@@ -40,7 +40,7 @@ export function Login() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [signUpSuccess, setSignUpSuccess] = useState(false)
-  // Resend-confirmation state for the "Check your email" card (P0-1). The
+  // Resend-confirmation state for the "請查看你的電子郵件" card (P0-1). The
   // cooldown throttles repeat sends to match Supabase's resend rate limit.
   const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent'>('idle')
   const [resendCooldown, setResendCooldown] = useState(0) // seconds remaining
@@ -56,10 +56,10 @@ export function Login() {
 
   // Title varies by auth mode; canonical=null since auth pages are noindex.
   useSEO({
-    title: isForgotPassword ? 'Reset password · CloudCertPrep'
-      : isSignUp ? 'Sign up · CloudCertPrep'
-      : 'Sign in · CloudCertPrep',
-    description: 'Sign in to CloudCertPrep to track your cloud certification practice exam history and progress.',
+    title: isForgotPassword ? '重設密碼 · CloudCertPrep-zh'
+      : isSignUp ? '註冊 · CloudCertPrep-zh'
+      : '登入 · CloudCertPrep-zh',
+    description: '登入 CloudCertPrep-zh，追蹤證照練習紀錄與學習進度。',
     canonical: null,
   })
   const [email, setEmail] = useState('')
@@ -72,7 +72,7 @@ export function Login() {
     if (typeof window === 'undefined') return ''
     const params = new URLSearchParams(window.location.search)
     return params.get('error') === 'email_unverified'
-      ? 'Your Google account email is not verified. Please verify it at https://myaccount.google.com and try again.'
+      ? 'Google 帳戶的電子郵件尚未驗證。請至 https://myaccount.google.com 完成驗證後重試。'
       : ''
   })
   const [success, setSuccess] = useState('')
@@ -110,7 +110,9 @@ export function Login() {
   // they fill the form keeps the first sign-in click instant. (useAuth itself
   // skips Supabase for logged-out visitors with no `?code=` callback, so this
   // page is responsible for its own warm-up.)
-  useEffect(() => { void getSupabase() }, [])
+  useEffect(() => {
+    if (isSupabaseConfigured) void getSupabase()
+  }, [])
 
   // Tick the resend cooldown down to zero, then re-enable the resend button.
   useEffect(() => {
@@ -119,7 +121,7 @@ export function Login() {
     return () => window.clearInterval(id)
   }, [resendCooldown])
 
-  // Same, for the forgot-password "Send reset link" button.
+  // Same, for the forgot-password "寄送重設連結" button.
   useEffect(() => {
     if (resetCooldown <= 0) return
     const id = window.setInterval(() => setResetCooldown(s => Math.max(0, s - 1)), 1000)
@@ -127,7 +129,7 @@ export function Login() {
   }, [resetCooldown])
 
   // Re-arm the captcha when the reset cooldown ends (transition to 0), so a
-  // follow-up "Send reset link" has a fresh single-use token. This keeps the
+  // follow-up "寄送重設連結" has a fresh single-use token. This keeps the
   // challenge hidden DURING the wait (bug 3: no second Turnstile on the normal
   // single send) while still allowing a working resend. Gated on the forgot
   // mode so it never re-challenges the sign-in form.
@@ -144,7 +146,7 @@ export function Login() {
     setError('')
 
     if (hasCaptcha && !captchaToken) {
-      setError('Please complete the verification challenge below.')
+      setError('請完成下方驗證。')
       return
     }
 
@@ -154,7 +156,7 @@ export function Login() {
       const supabase = await getSupabase()
       if (isSignUp) {
         if (!acceptedTerms) {
-          setError('You must accept the Terms of Service and Privacy Policy to sign up.')
+          setError('註冊前請先同意服務條款與隱私權政策。')
           setLoading(false)
           return
         }
@@ -230,7 +232,7 @@ export function Login() {
       })
       if (error) throw error
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'GitHub sign-in failed')
+      setError(err instanceof Error ? err.message : 'GitHub 登入失敗')
       setLoading(false)
     }
   }
@@ -247,7 +249,7 @@ export function Login() {
       })
       if (error) throw error
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Google sign-in failed')
+      setError(err instanceof Error ? err.message : 'Google 登入失敗')
       setLoading(false)
     }
   }
@@ -258,7 +260,7 @@ export function Login() {
     setSuccess('')
 
     if (hasCaptcha && !captchaToken) {
-      setError('Please complete the verification challenge below.')
+      setError('請完成下方驗證。')
       return
     }
 
@@ -272,14 +274,14 @@ export function Login() {
       })
 
       if (error) throw error
-      setSuccess('Check your email for a reset link')
+      setSuccess('請查看電子郵件中的密碼重設連結')
       setResetCooldown(RESEND_COOLDOWN_SECONDS)
       // Do NOT re-arm the captcha here. The token is now consumed, but the
       // button is on its cooldown so no token is needed until it ends -
       // re-challenging now is the visible "Turnstile twice" bug (bug 3). A fresh
       // token is re-armed when the cooldown expires (effect below).
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : '發生錯誤，請稍後重試')
       resetCaptcha() // re-arm so the user can retry after a failed send
     } finally {
       setLoading(false)
@@ -356,7 +358,7 @@ export function Login() {
           <div className="hidden md:flex flex-col justify-center space-y-6 md:pr-6 lg:pr-8 md:min-h-[718px] xl:min-h-[758px]">
               <div>
                 <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary mb-3">
-                  Free AWS certification practice exams
+                  免費 AWS 證照練習平台
                 </h1>
               </div>
 
@@ -366,8 +368,8 @@ export function Login() {
                     <BookOpen className="w-5 h-5 text-brand" aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-text-primary font-semibold mb-1">{getActiveTotalQuestions().toLocaleString('en-US')}+ practice questions</h2>
-                    <p className="text-text-muted text-sm">Up to date with the latest exam guides, across multiple AWS certifications</p>
+                    <h2 className="text-text-primary font-semibold mb-1">{getActiveTotalQuestions().toLocaleString('en-US')}+ 道練習題</h2>
+                    <p className="text-text-muted text-sm">涵蓋多項 AWS 證照，依考試指南設計練習內容</p>
                   </div>
                 </div>
 
@@ -376,8 +378,8 @@ export function Login() {
                     <FileText className="w-5 h-5 text-brand" aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-text-primary font-semibold mb-1">Full-length practice exams</h2>
-                    <p className="text-text-muted text-sm">Timed exams in the same format as the real thing</p>
+                    <h2 className="text-text-primary font-semibold mb-1">完整模擬測驗</h2>
+                    <p className="text-text-muted text-sm">透過計時測驗，熟悉正式考試的作答節奏</p>
                   </div>
                 </div>
 
@@ -386,8 +388,8 @@ export function Login() {
                     <Target className="w-5 h-5 text-brand" aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-text-primary font-semibold mb-1">Domain practice</h2>
-                    <p className="text-text-muted text-sm">Practice one domain at a time with instant feedback</p>
+                    <h2 className="text-text-primary font-semibold mb-1">領域練習</h2>
+                    <p className="text-text-muted text-sm">每次專注一個領域，作答後立即查看回饋</p>
                   </div>
                 </div>
 
@@ -396,8 +398,8 @@ export function Login() {
                     <TrendingUp className="w-5 h-5 text-brand" aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-text-primary font-semibold mb-1">Progress tracking</h2>
-                    <p className="text-text-muted text-sm">Monitor your scores across all domains and review past attempts</p>
+                    <h2 className="text-text-primary font-semibold mb-1">學習進度追蹤</h2>
+                    <p className="text-text-muted text-sm">掌握各領域成績，隨時回顧過往測驗</p>
                   </div>
                 </div>
 
@@ -406,8 +408,8 @@ export function Login() {
                     <CheckCircle className="w-5 h-5 text-brand" aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-text-primary font-semibold mb-1">100% free</h2>
-                    <p className="text-text-muted text-sm">No hidden fees, no premium tiers, no paywalls, no ads</p>
+                    <h2 className="text-text-primary font-semibold mb-1">完全免費</h2>
+                    <p className="text-text-muted text-sm">沒有隱藏費用、付費等級、使用門檻或廣告</p>
                   </div>
                 </div>
               </div>
@@ -432,14 +434,14 @@ export function Login() {
           {signUpSuccess ? (
             <div className="text-center">
               <Mail className="w-12 h-12 text-brand mx-auto mb-4" aria-hidden="true" />
-              <h2 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-2">Check your email</h2>
+              <h2 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-2">請查看你的電子郵件</h2>
               <p className="text-text-muted text-sm leading-relaxed mb-6">
-                We sent a verification link to <span className="text-text-primary font-medium">{email}</span>. Check your spam folder if you don't see it.
+                我們已寄送驗證連結至 <span className="text-text-primary font-medium">{email}</span>。若未收到，請查看垃圾郵件匣。
               </p>
 
               {resendState === 'sent' && (
                 <Alert tone="success" role="status" className="mb-4 text-left">
-                  Sent again. The new link is on its way. Check spam if you still don't see it.
+                  已重新寄送連結，若未收到，請查看垃圾郵件匣。
                 </Alert>
               )}
               {error && (
@@ -462,11 +464,11 @@ export function Login() {
                 variant="secondary"
                 fullWidth
                 loading={resendState === 'sending'}
-                loadingText="Sending..."
+                loadingText="寄送中…"
                 disabled={resendCooldown > 0}
                 className="mt-4 mb-3"
               >
-                {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend verification email'}
+                {resendCooldown > 0 ? `${resendCooldown} 秒後可重新寄送` : '重新寄送驗證郵件'}
               </Button>
 
               <button
@@ -474,7 +476,7 @@ export function Login() {
                 onClick={() => { setSignUpSuccess(false); setIsSignUp(true); setError(''); setResendState('idle'); setResendCooldown(0); setResendChallenge(false) }}
                 className="block w-full text-sm text-text-muted hover:text-text-primary transition-colors mb-4"
               >
-                Wrong email? Edit it
+                電子郵件有誤？重新編輯
               </button>
 
               <Button
@@ -482,18 +484,18 @@ export function Login() {
                 variant="ghost"
                 fullWidth
               >
-                Back to sign in
+                返回登入
               </Button>
             </div>
           ) : (
           <>
           <div className="text-center mb-6">
             <h2 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-2">
-              {isForgotPassword ? 'Reset password' : isSignUp ? 'Sign up' : 'Sign in'}
+              {isForgotPassword ? '重設密碼' : isSignUp ? '註冊' : '登入'}
             </h2>
             {isForgotPassword && (
               <p className="text-text-muted text-sm">
-                We'll send you a link to reset it
+                我們會寄送重設密碼連結給你
               </p>
             )}
           </div>
@@ -501,7 +503,7 @@ export function Login() {
           <form onSubmit={isForgotPassword ? handlePasswordReset : handleEmailAuth} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
-              Email
+              電子郵件
             </label>
             <Input
               id="email"
@@ -525,7 +527,7 @@ export function Login() {
               <div>
                 <div className="flex items-baseline justify-between mb-2 gap-3">
                   <label htmlFor="password" className="block text-sm font-medium text-text-primary">
-                    Password
+                    密碼
                   </label>
                   {/* Forgot-password lives next to the field it relates to (the
                       conventional spot), not orphaned below the submit button
@@ -536,7 +538,7 @@ export function Login() {
                       onClick={() => { setIsForgotPassword(true); setError(''); setSuccess('') }}
                       className="text-sm text-text-muted hover:text-text-primary transition-colors"
                     >
-                      Forgot password?
+                      忘記密碼？
                     </button>
                   )}
                 </div>
@@ -554,7 +556,7 @@ export function Login() {
                 <>
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-primary mb-2">
-                    Confirm Password
+                    確認密碼
                   </label>
                   <PasswordInput
                     id="confirmPassword"
@@ -562,7 +564,7 @@ export function Login() {
                     onChange={setConfirmPassword}
                     required
                     autoComplete="new-password"
-                    placeholder="Re-enter your password"
+                    placeholder="再次輸入密碼"
                   />
                 </div>
 
@@ -575,10 +577,10 @@ export function Login() {
                     className="mt-1 w-4 h-4 rounded border-text-muted/30 accent-brand flex-shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
                   />
                   <label htmlFor="acceptedTerms" className="text-text-muted text-sm leading-relaxed cursor-pointer">
-                    I agree to the{' '}
-                    <Link to="/terms" className="text-text-primary hover:underline" target="_blank" rel="noopener noreferrer">Terms</Link>
+                    我同意{' '}
+                    <Link to="/terms" className="text-text-primary hover:underline" target="_blank" rel="noopener noreferrer">服務條款</Link>
                     {' '}and{' '}
-                    <Link to="/privacy" className="text-text-primary hover:underline" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>
+                    <Link to="/privacy" className="text-text-primary hover:underline" target="_blank" rel="noopener noreferrer">隱私權政策</Link>
                   </label>
                 </div>
                 </>
@@ -602,7 +604,7 @@ export function Login() {
             variant="primary"
             fullWidth
             loading={loading}
-            loadingText="Loading..."
+            loadingText="載入中…"
             disabled={
               // NOT gated on the Turnstile token: the security boundary is
               // Supabase verifying the token server-side, so disabling the
@@ -617,8 +619,8 @@ export function Login() {
             }
           >
             {isForgotPassword
-              ? (resetCooldown > 0 ? `Resend in ${resetCooldown}s` : 'Send reset link')
-              : isSignUp ? 'Sign up' : 'Sign in'}
+              ? (resetCooldown > 0 ? `Resend in ${resetCooldown}s` : '寄送重設連結')
+              : isSignUp ? '註冊' : '登入'}
           </Button>
 
           {/* Error rendered below the submit button so it never shoves the
@@ -646,17 +648,17 @@ export function Login() {
             className="text-text-muted hover:text-text-primary transition-colors text-sm"
           >
             {isForgotPassword 
-              ? 'Back to sign in' 
+              ? '返回登入'
               : isSignUp 
-              ? 'Already have an account? Sign in' 
-              : "Don't have an account? Sign up"}
+              ? '已經有帳戶？登入'
+              : "還沒有帳戶？註冊"}
           </button>
 
           {!isForgotPassword && (
             <>
               <div className="my-4 flex items-center">
                 <div className="flex-1 border-t border-text-muted/30"></div>
-                <span className="px-4 text-text-muted text-sm">or</span>
+                <span className="px-4 text-text-muted text-sm">或</span>
                 <div className="flex-1 border-t border-text-muted/30"></div>
               </div>
 
@@ -676,7 +678,7 @@ export function Login() {
                 }
                 className="mb-3"
               >
-                Continue with Google
+                使用 Google 繼續
               </Button>
 
               <Button
@@ -688,7 +690,7 @@ export function Login() {
                 leftIcon={<Github className="w-5 h-5" />}
                 className="mb-3"
               >
-                Continue with GitHub
+                使用 GitHub 繼續
               </Button>
 
               {/* Quieter than the bordered OAuth buttons: on the login page the
@@ -701,7 +703,7 @@ export function Login() {
                 variant="ghost"
                 fullWidth
               >
-                Continue as guest
+                以訪客身分繼續
               </Button>
 
             </>

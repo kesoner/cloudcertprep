@@ -48,17 +48,17 @@ function restStub(rows: unknown[]) {
 
 /** Start the exam and wait until the timed exam screen is active. */
 async function startExam(page: Page) {
-  await page.getByRole('button', { name: 'Start exam', exact: true }).click()
+  await page.getByRole('button', { name: "開始測驗", exact: true }).click()
   await page.waitForFunction(() => document.body.dataset.examActive === 'true', { timeout: 25000 })
 }
 
 /** Submit the active exam (zero answers = guaranteed fail) -> results screen. */
 async function submitExam(page: Page) {
-  await page.getByRole('button', { name: 'Submit exam' }).first().click()
-  const dialog = page.getByRole('dialog', { name: 'Ready to submit?' })
+  await page.getByRole('button', { name: "交卷" }).first().click()
+  const dialog = page.getByRole('dialog', { name: "確定要交卷嗎？" })
   await expect(dialog).toBeVisible()
-  await dialog.getByRole('button', { name: 'Submit for grading' }).click()
-  await expect(page.getByRole('button', { name: 'Retake exam' })).toBeVisible({ timeout: 15000 })
+  await dialog.getByRole('button', { name: "交卷並評分" }).click()
+  await expect(page.getByRole('button', { name: "重新測驗" })).toBeVisible({ timeout: 15000 })
 }
 
 test('dashboard NEXT UP names the weakest practiced domain with a deep link', async ({ page }) => {
@@ -72,8 +72,8 @@ test('dashboard NEXT UP names the weakest practiced domain with a deep link', as
   })
   await page.goto(CERT_URL)
 
-  await expect(page.getByText('Weakest domain:')).toBeVisible({ timeout: 15000 })
-  const cta = page.getByRole('link', { name: 'Practice this domain' })
+  await expect(page.getByText('較弱的領域：')).toBeVisible({ timeout: 15000 })
+  const cta = page.getByRole('link', { name: "練習這個領域" })
   await expect(cta).toHaveAttribute('href', '/aws/clf-c02/domain-practice?domain=3')
 })
 
@@ -88,9 +88,9 @@ test('an unstarted domain outranks a weak practiced one and is not called weakes
   })
   await page.goto(CERT_URL)
 
-  await expect(page.getByText('You have not practiced')).toBeVisible({ timeout: 15000 })
-  await expect(page.getByText('Weakest domain:')).toHaveCount(0)
-  const cta = page.getByRole('link', { name: 'Practice this domain' })
+  await expect(page.getByText(/^尚未練習/)).toBeVisible({ timeout: 15000 })
+  await expect(page.getByText('較弱的領域：')).toHaveCount(0)
+  const cta = page.getByRole('link', { name: "練習這個領域" })
   await expect(cta).toHaveAttribute('href', '/aws/clf-c02/domain-practice?domain=3')
 })
 
@@ -98,10 +98,10 @@ test('zero-data dashboard: Best score N/A + baseline hint, NEXT UP points at the
   await seedSession(page) // default stub: every REST read returns []
   await page.goto(CERT_URL)
 
-  await expect(page.getByText('Take your first practice exam to set a baseline')).toBeVisible({ timeout: 15000 })
+  await expect(page.getByText("完成第一次模擬測驗，了解目前程度")).toBeVisible({ timeout: 15000 })
   await expect(page.getByText('N/A')).toBeVisible()
-  await expect(page.getByText('You have not practiced')).toBeVisible()
-  const cta = page.getByRole('link', { name: 'Practice this domain' })
+  await expect(page.getByText(/^尚未練習/)).toBeVisible()
+  const cta = page.getByRole('link', { name: "練習這個領域" })
   await expect(cta).toHaveAttribute('href', '/aws/clf-c02/domain-practice?domain=1')
 })
 
@@ -109,12 +109,12 @@ test('signed-in FAIL results link "Practice your weakest domain" into domain pra
   await seedSession(page)
   await page.goto(EXAM_URL)
   // Auth must be resolved so the results screen sees a signed-in user.
-  await expect(page.getByRole('button', { name: 'Account menu' }).first()).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "帳戶選單" }).first()).toBeVisible({ timeout: 15000 })
 
   await startExam(page)
   await submitExam(page) // zero answers -> fail
 
-  const practiceCta = page.getByRole('link', { name: /Practice your weakest domain/ })
+  const practiceCta = page.getByRole('link', { name: /加強較弱的領域/ })
   await expect(practiceCta).toBeVisible()
   // All domains tie at 0% on an all-blank submit; the tiebreak is the first
   // domain in cert order.
@@ -126,6 +126,6 @@ test('guest FAIL results keep UnlockCTA and do NOT show the weakest-domain link'
   await startExam(page)
   await submitExam(page)
 
-  await expect(page.getByRole('link', { name: /Practice your weakest domain/ })).toHaveCount(0)
-  await expect(page.getByText('Sign in to target your weak domains')).toBeVisible()
+  await expect(page.getByRole('link', { name: /加強較弱的領域/ })).toHaveCount(0)
+  await expect(page.getByText("登入以加強較弱的領域")).toBeVisible()
 })

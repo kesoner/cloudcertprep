@@ -28,17 +28,20 @@
  * not position, but preserving order keeps the emitted HTML stable.
  */
 
+import { SITE_URL } from './seo-data'
+
 export const websiteNode = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'CloudCertPrep',
-  alternateName: 'Free open-source AWS certification practice exams',
-  url: 'https://www.cloudcertprep.io/',
+  name: 'CloudCertPrep-zh',
+  alternateName: 'kesoner 的自用繁體中文 fork',
+  url: SITE_URL + '/',
   description:
-    'Free, open-source AWS certification practice exams with full-length mock exams, domain practice, adaptive spaced repetition, and progress tracking. MIT licensed.',
-  inLanguage: 'en',
+    'kesoner 自用的繁體中文 fork。原專案 CloudCertPrep 由 Alex Santonastaso 建立與維護，採用 MIT 授權。',
+  inLanguage: 'zh-Hant',
   author: { '@id': 'https://www.cloudcertprep.io/#author' },
-  publisher: { '@id': 'https://www.cloudcertprep.io/#organization' },
+  publisher: { '@type': 'Person', name: 'kesoner', url: 'https://github.com/kesoner' },
+  isBasedOn: { '@type': 'SoftwareSourceCode', name: 'CloudCertPrep', codeRepository: 'https://github.com/nastaso/cloudcertprep' },
 } as const
 
 export const organizationNode = {

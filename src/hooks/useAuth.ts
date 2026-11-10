@@ -23,6 +23,8 @@ interface AuthState {
   loading: boolean
 }
 
+// A stable server snapshot prevents repeated hydration checks from restarting.
+const SERVER_SNAPSHOT: AuthState = { user: null, loading: true }
 let state: AuthState = { user: null, loading: true }
 const listeners = new Set<() => void>()
 let initialised = false
@@ -298,7 +300,7 @@ function subscribe(cb: () => void) {
 }
 
 function getSnapshot(): AuthState { return state }
-function getServerSnapshot(): AuthState { return { user: null, loading: true } }
+function getServerSnapshot(): AuthState { return SERVER_SNAPSHOT }
 
 interface UseAuthValue {
   user: User | null

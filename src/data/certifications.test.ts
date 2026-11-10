@@ -220,10 +220,10 @@ describe('getProviderLabel', () => {
 describe('getLevelLabel', () => {
   it('returns display labels for every known cert level', () => {
     const expected: Record<CertLevel, string> = {
-      foundational: 'Foundational',
-      associate: 'Associate',
-      professional: 'Professional',
-      specialty: 'Specialty',
+      foundational: '基礎級',
+      associate: '助理級',
+      professional: '專業級',
+      specialty: '專項級',
     }
 
     for (const [level, label] of Object.entries(expected)) {

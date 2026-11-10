@@ -36,12 +36,13 @@ import { useSignOut } from '../hooks/useSignOut'
 import { storePendingAttempt, consumePendingAttemptSavedNotice, markPendingAttemptSaveIntent, PENDING_ATTEMPT_SAVED_EVENT, peekPendingAttempt, hasPendingAttemptSaveIntent, type PendingAttempt } from '../lib/pendingAttempt'
 import { getProviderLabel } from '../data/certifications'
 import { findNextDomainAction } from '../lib/domainStats'
+import { recordWrongAnswer, resolveWrongAnswer } from '../lib/wrongAnswers'
 
 type ExamScreen = 'start' | 'exam' | 'results' | 'review'
 
 // Marker set when a guest leaves the RESULTS screen toward /login, so returning
-// via "Continue as guest" re-shows that result instead of a fresh start screen
-// (P1-6). sessionStorage survives the full reload that "Continue as guest" does.
+// via "以訪客身分繼續" re-shows that result instead of a fresh start screen
+// (P1-6). sessionStorage survives the full reload that "以訪客身分繼續" does.
 const RESUME_RESULTS_KEY = 'cc_resume_results'
 
 /**
@@ -111,7 +112,7 @@ function ExamQuestionGrid({
           isAnswered ? 'answered' : 'not answered',
           isFlagged ? 'flagged for review' : null,
         ].filter(Boolean).join(', ')
-        const ariaLabel = `Question ${idx + 1}, ${stateLabel}`
+        const ariaLabel = `第 ${idx + 1} 題, ${stateLabel}`
         return (
           <button
             key={idx}
@@ -148,7 +149,7 @@ export function MockExam() {
   const [answers, setAnswers] = useState<Map<number, QuestionState>>(new Map())
   const [showEndModal, setShowEndModal] = useState(false)
   const [showQuestionNav, setShowQuestionNav] = useState(false)
-  // Pending in-app leave target. When set, the custom "Leave the exam?" modal
+  // Pending in-app leave target. When set, the custom "要離開測驗嗎？" modal
   // is shown (replacing the un-stylable native dialog for intercepted nav).
   const [pendingLeaveUrl, setPendingLeaveUrl] = useState<string | null>(null)
   // Pending EXTERNAL link target (e.g. the header GitHub icon) clicked during
@@ -200,10 +201,10 @@ export function MockExam() {
   // canonical note below), so none is canonical-eligible.
   const examMinutes = Math.round(cert.examTimeSeconds / 60)
   const pageTitle = screen === 'exam'
-    ? `Question ${currentIndex + 1} of ${cert.examQuestionCount} · CloudCertPrep`
-    : screen === 'results' ? 'Exam results · CloudCertPrep'
-    : screen === 'review' ? 'Review exam · CloudCertPrep'
-    : `${cert.shortName} Practice Exam · ${cert.examQuestionCount} Questions, ${examMinutes} Min, Free · CloudCertPrep`
+    ? `第 ${currentIndex + 1} 題，共 ${cert.examQuestionCount} 題 · CloudCertPrep-zh`
+    : screen === 'results' ? '測驗結果 · CloudCertPrep-zh'
+    : screen === 'review' ? '測驗檢討 · CloudCertPrep-zh'
+    : `${cert.shortName} 模擬測驗 · ${cert.examQuestionCount} 題，${examMinutes} 分鐘，免費 · CloudCertPrep-zh`
   // Per-cert canonical so each cert's practice exam ranks for its own
   // keyword space (e.g. /aws/aif-c01/practice-exam vs /aws/clf-c02/practice-exam).
   // NOTE: this route ships robots=noindex (set on the Astro shell), so it must
@@ -213,7 +214,7 @@ export function MockExam() {
   // Google renders the island JS. (M0d)
   useSEO({
     title: pageTitle,
-    description: `Free ${cert.examQuestionCount}-question ${cert.shortName} practice exam, ${examMinutes}-minute timer, scaled scoring (${cert.passingScore}/1000 to pass), exact ${cert.shortName} exam format. Open-source MIT-licensed alternative to paid AWS practice platforms. No signup needed.`,
+    description: `免費 ${cert.shortName} 模擬測驗，${cert.examQuestionCount} 題、${examMinutes} 分鐘，通過門檻 ${cert.passingScore}/1000。繁體中文介面與英文題庫，無須註冊。`,
     canonical: null,
   })
 
@@ -223,7 +224,7 @@ export function MockExam() {
 
   // Warm the question-bank chunks as soon as the intro screen mounts.
   // Landing on /practice-exam is a strong start signal, and the banks are the
-  // multi-second wait behind "Loading questions..." on mobile (CLF ~1.3 MB raw
+  // multi-second wait behind "正在載入題目…" on mobile (CLF ~1.3 MB raw
   // across 4 domain chunks). Dynamic-import caching dedupes this with the
   // startExam() call, which stays authoritative and retries on failure
   // (same pattern as DomainPractice's selection preload).
@@ -267,8 +268,8 @@ export function MockExam() {
   // Intercept anchor clicks during the exam (the static header logo, nav
   // links, breadcrumb, cert switcher, footer links). One delegated capture
   // listener covers them all DRY-ly, with no per-link wiring. Same-origin
-  // navigation routes through the "Leave the exam?" modal; NEW-TAB/external
-  // links (header GitHub icon) route through a lighter "Open external link?"
+  // navigation routes through the "要離開測驗嗎？" modal; NEW-TAB/external
+  // links (header GitHub icon) route through a lighter "要開啟外部連結嗎？"
   // confirm: nothing is lost (the exam tab keeps running) but the timer does
   // not pause, so an accidental click should not silently pull focus away
   // (Alex, 2026-06-13). Modified clicks (cmd/ctrl/middle) pass through
@@ -305,7 +306,7 @@ export function MockExam() {
   // 14 + 15). The flush races this island's remount, so check the one-shot flag
   // now AND listen for the saved event in case the flush lands after mount; the
   // flag is consumed exactly once, so this navigates a single time.
-  // While the just-signed-in flush is in flight, show a "Saving..." state on the
+  // While the just-signed-in flush is in flight, show a "儲存中…" state on the
   // start screen instead of flashing the bare exam intro before the redirect.
   const [savingToHistory, setSavingToHistory] = useState(false)
   useEffect(() => {
@@ -351,7 +352,7 @@ export function MockExam() {
   }, [savingToHistory])
 
   // Rehydrate a guest's just-finished attempt after a /login round-trip (P1-6).
-  // "Continue as guest" reloads the exam route, remounting this island at the
+  // "以訪客身分繼續" reloads the exam route, remounting this island at the
   // START screen with the in-memory results gone. Only when the guest explicitly
   // left the RESULTS screen toward login (RESUME_RESULTS_KEY) AND a still-valid
   // snapshot exists for THIS cert do we re-show the results summary, so a
@@ -398,7 +399,7 @@ export function MockExam() {
       setAnswers(new Map())
       setCurrentIndex(0)
       // Reset transient modal / notice flags so a retake starts clean. A manual
-      // submit leaves showEndModal=true; without this the "Ready to submit?"
+      // submit leaves showEndModal=true; without this the "確定要交卷嗎？"
       // modal re-opens over question 1 of the retake (and a reflex "Submit for
       // grading" instantly grades the fresh exam 0/total). (item 1)
       setShowEndModal(false)
@@ -421,7 +422,7 @@ export function MockExam() {
       window.scrollTo(0, 0)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to load questions'
-      setLoadError(`Could not start the exam. ${msg}. Please check your connection and try again.`)
+      setLoadError(`無法開始測驗。${msg}。請檢查網路後重試。`)
       logError('MockExam.startExam', err)
     } finally {
       setLoading(false)
@@ -541,6 +542,13 @@ export function MockExam() {
       domainScores[String(domain.id)] = getDomainScore(results, domain.id)
     }
 
+    // Retain canonical option keys so the local review survives answer shuffles.
+    // Guest and short attempts can use the same browser-local mistake set.
+    for (const result of results) {
+      if (result.isCorrect) resolveWrongAnswer(cert.code, result.questionId)
+      else recordWrongAnswer(cert.code, result.questionId, result.originalUserAnswer)
+    }
+
     try {
       // Only save to database if user is logged in AND exam took at least 60 seconds
       if (!isGuest && user && !isTooShort) {
@@ -600,7 +608,7 @@ export function MockExam() {
         }
       } else if (isGuest && !isTooShort) {
         // Guests hold results only in this island's memory, but the results
-        // screen promises "Sign in to save this attempt". Snapshot the
+        // screen promises "登入以儲存本次測驗". Snapshot the
         // finished attempt so it survives the trip through /login; useAuth
         // flushes it to Supabase once the sign-in resolves.
         storePendingAttempt({
@@ -626,14 +634,14 @@ export function MockExam() {
         })
       } else if (!isGuest && isTooShort) {
         // Signed in, but the run was too short to count as a real attempt, so
-        // nothing is persisted. The results screen still renders a full score, so
+        // nothing is persisted. 結果 screen still renders a full score, so
         // surface an explicit "not saved" notice rather than dropping it silently
         // (the guest path at least has its own sign-in CTA). (item 2)
         setTooShortNotSaved(true)
       }
     } catch (error: unknown) {
       logError('MockExam.submitExam', error)
-      setSubmitError('Your results could not be saved. You can still review your answers.')
+      setSubmitError('無法儲存成績，仍可檢視答案。')
     }
 
     // Always show results even if save failed
@@ -672,7 +680,7 @@ export function MockExam() {
   if (savingToHistory && (screen === 'start' || screen === 'results')) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
-        <LoadingSpinner text="Saving your attempt..." />
+        <LoadingSpinner text="正在儲存本次測驗…" />
       </div>
     )
   }
@@ -682,11 +690,12 @@ export function MockExam() {
       <div className="p-4 md:p-8">
         <div className="max-w-2xl mx-auto">
           <Card padding="lg">
-            <h1 className="text-2xl md:text-3xl font-semibold text-text-primary mb-3 md:mb-4">{cert.shortName} Practice Exam</h1>
-            <p className="text-sm md:text-base text-text-muted mb-6 md:mb-8">{cert.examQuestionCount} questions, {Math.round(cert.examTimeSeconds / 60)} minutes. No answer feedback during exam.</p>
+            <h1 className="text-2xl md:text-3xl font-semibold text-text-primary mb-3 md:mb-4">{cert.shortName} 模擬測驗</h1>
+            <p className="mb-5 text-sm leading-relaxed text-text-muted">繁體中文介面 · 英文題庫（題幹、選項與解析保留英文）</p>
+            <p className="text-sm md:text-base text-text-muted mb-6 md:mb-8">{cert.examQuestionCount} 題，{Math.round(cert.examTimeSeconds / 60)} 分鐘。測驗期間不顯示答案回饋。</p>
 
             <div className="bg-bg-dark rounded-xl p-4 md:p-6 mb-6 md:mb-8">
-              <h2 className="text-lg md:text-xl font-semibold text-text-primary mb-3 md:mb-4">Domain breakdown</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-text-primary mb-3 md:mb-4">各領域表現</h2>
               {(() => {
                 const targets = getExamDomainTargets(cert)
                 return (
@@ -696,13 +705,13 @@ export function MockExam() {
                         3-line wraps. Use a compact "16 · 24%" row with a single
                         clarifying caption instead. */}
                     <div className="md:hidden">
-                      <p className="mb-2 text-right text-[11px] uppercase tracking-wide text-text-muted">Questions · % of exam</p>
+                      <p className="mb-2 text-right text-[11px] uppercase tracking-wide text-text-muted">題數 · 考試比重</p>
                       {/* text-[13px] so the longer AIF domain names ("Security,
                           Compliance, and Governance") fit on one line on a phone. */}
                       <ul className="space-y-2 text-[13px]">
                         {cert.domains.map(d => (
                           <li key={d.id} className="flex items-baseline justify-between gap-3">
-                            <span className="min-w-0 text-text-muted">{d.name}</span>
+                            <span className="min-w-0 text-text-muted">{(d.nameZh ?? d.name)}</span>
                             <span className="shrink-0 font-mono tabular-nums whitespace-nowrap font-medium text-text-primary">
                               {targets[d.id]}<span className="ml-1.5 font-normal text-text-muted">· {Math.round(d.examProportion * 100)}%</span>
                             </span>
@@ -713,11 +722,11 @@ export function MockExam() {
                     {/* Desktop: aligned columns under their headers (bug 10). */}
                     <div className="hidden md:grid grid-cols-[1fr_auto_auto] items-baseline gap-x-8 text-base">
                       <span aria-hidden="true" />
-                      <span className="justify-self-end pb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">Questions</span>
+                      <span className="justify-self-end pb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">題目</span>
                       <span className="justify-self-end pb-1.5 text-[11px] font-medium uppercase tracking-wide text-text-muted">% of exam</span>
                       {cert.domains.map(d => (
                         <Fragment key={d.id}>
-                          <span className="py-1 text-text-muted">{d.name}</span>
+                          <span className="py-1 text-text-muted">{(d.nameZh ?? d.name)}</span>
                           <span className="py-1 justify-self-end font-mono tabular-nums font-medium text-text-primary">{targets[d.id]}</span>
                           <span className="py-1 justify-self-end font-mono tabular-nums text-text-muted">{Math.round(d.examProportion * 100)}%</span>
                         </Fragment>
@@ -731,7 +740,7 @@ export function MockExam() {
             <Alert tone="warning" className="mb-6 md:mb-8">
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-warning flex-shrink-0" />
-                <p className="text-sm md:text-base text-warning font-medium">Once started, the timer cannot be paused</p>
+                <p className="text-sm md:text-base text-warning font-medium">開始後無法暫停計時</p>
               </div>
             </Alert>
 
@@ -742,9 +751,9 @@ export function MockExam() {
               </Alert>
             )}
 
-            {/* flex-col-reverse on mobile so the PRIMARY 'Start exam' (last in
+            {/* flex-col-reverse on mobile so the PRIMARY '開始測驗' (last in
                 DOM, kept right on desktop) stacks on TOP when the row wraps -
-                the primary action should lead, not the 'Back to home' escape. */}
+                the primary action should lead, not the '返回首頁' escape. */}
             <div className="flex flex-col-reverse md:flex-row gap-3 md:gap-4">
               <Button
                 onClick={goHome}
@@ -753,7 +762,7 @@ export function MockExam() {
                 size="lg"
                 className="flex-1"
               >
-                Back to home
+                返回首頁
               </Button>
               <Button
                 onClick={startExam}
@@ -762,9 +771,9 @@ export function MockExam() {
                 className="flex-1"
                 arrow
                 loading={loading}
-                loadingText="Loading questions..."
+                loadingText="正在載入題目…"
               >
-                Start exam
+                開始測驗
               </Button>
             </div>
           </Card>
@@ -786,9 +795,9 @@ export function MockExam() {
               <UnlockCTA
                 onSignIn={() => goToLogin(navigate, location)}
                 location="mock_exam_start"
-                title="Save your score and progress"
-                body="Guest mode is fully functional, but your score, time, and per-domain breakdown will not be saved to your history."
-                ctaLabel="Sign in to save this attempt"
+                title="儲存分數與學習進度"
+                body="訪客可使用完整測驗功能，但分數、耗時與各領域結果不會儲存至歷史紀錄。"
+                ctaLabel="登入以儲存本次測驗"
                 noTopMargin
               />
             </div>
@@ -804,7 +813,7 @@ export function MockExam() {
       // top consistently; mx-auto keeps it horizontally centered (bug 16).
       <div className="flex-1 px-4 pt-6 md:pt-8 pb-12">
         <div className="max-w-2xl mx-auto w-full space-y-5 animate-enter">
-          <h1 className="sr-only">{cert.shortName} Exam Results</h1>
+          <h1 className="sr-only">{cert.shortName} 測驗結果</h1>
 
           <PassFailBanner
             passed={results!.passed}
@@ -828,7 +837,7 @@ export function MockExam() {
                   correctCount: results!.correctCount,
                   totalQuestions: results!.totalQuestions,
                 })}
-                label="Share my result"
+                label="分享我的成果"
                 analytics={{
                   cert: cert.code,
                   authed: Boolean(user),
@@ -843,29 +852,29 @@ export function MockExam() {
           )}
           {tooShortNotSaved && (
             <Alert tone="warning">
-              This attempt was too short to be saved to your history.
+              本次測驗時間過短，未儲存至歷史紀錄。
             </Alert>
           )}
 
           <Card padding="lg" className="space-y-6">
             <Alert tone="info" className="mb-6">
               <p className="text-sm text-text-muted">
-                <span className="font-semibold text-text-primary">{getProviderLabel(cert.provider)} Scaled Scoring:</span> Scores range from 100-1000, where 100 is the minimum (0% correct) and 1000 is the maximum (100% correct). You need {cert.passingScore}+ to pass.
+                <span className="font-semibold text-text-primary">{getProviderLabel(cert.provider)} 換算評分：</span> 換算分數介於 100 至 1000 分。0% 正確率對應 100 分，100% 對應 1000 分。通過門檻為 {cert.passingScore} 分以上。
               </p>
             </Alert>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <p className="text-text-muted text-sm mb-1">Pass mark</p>
+                <p className="text-text-muted text-sm mb-1">通過門檻</p>
                 <p className="font-mono text-2xl font-semibold tabular-nums text-text-primary">{cert.passingScore}/1000</p>
               </div>
               <div>
-                <p className="text-text-muted text-sm mb-1">Time taken</p>
+                <p className="text-text-muted text-sm mb-1">耗時</p>
                 <p className="font-mono text-2xl font-semibold tabular-nums text-text-primary">{results!.timeTaken < 60 ? '<1m' : formatTotalTime(Math.round(results!.timeTaken / 60))}</p>
               </div>
             </div>
 
-            <h2 className="text-xl font-semibold text-text-primary mb-4">Domain breakdown</h2>
+            <h2 className="text-xl font-semibold text-text-primary mb-4">各領域表現</h2>
             <div className="space-y-4">
               {cert.domains.map(domain => {
                 const score = results!.domainScores[String(domain.id)] ?? 0
@@ -875,8 +884,8 @@ export function MockExam() {
                 return (
                   <div key={domain.id} className="flex items-center justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <p className="text-text-primary font-medium">{domain.name}</p>
-                      <p className="font-mono text-[12px] text-text-muted">{correct}/{domainQuestions.length} correct</p>
+                      <p className="text-text-primary font-medium">{(domain.nameZh ?? domain.name)}</p>
+                      <p className="font-mono text-[12px] text-text-muted">{correct}/{domainQuestions.length} 題答對</p>
                     </div>
                     <span className={`font-mono text-xl font-semibold tabular-nums ${score < 60 ? 'text-danger' : score < 80 ? 'text-warning' : 'text-success'}`}>
                       {score}%
@@ -903,22 +912,27 @@ export function MockExam() {
                 // passive/unrelated sign-in on a shared device never adopts it.
                 markPendingAttemptSaveIntent(cert.code)
                 // Remember to re-show this result if the guest returns via
-                // "Continue as guest" instead of signing in (P1-6).
+                // "以訪客身分繼續" instead of signing in (P1-6).
                 try { sessionStorage.setItem(RESUME_RESULTS_KEY, cert.code) } catch { /* ignore */ }
                 goToLogin(navigate, location)
               }}
               location="exam_results"
-              title={results!.passed ? 'Sign in to save this win' : 'Sign in to target your weak domains'}
+              title={results!.passed ? '登入以保存這次成果' : '登入以加強較弱的領域'}
               body={
                 results!.passed
-                  ? 'Create a free account to save this attempt, track your score over time, and keep your per-domain breakdown.'
-                  : 'Create a free account to save this attempt and get adaptive practice focused on the domains you scored lowest in.'
+                  ? '免費建立帳戶即可儲存本次成績、追蹤分數變化，並保留各領域分析。'
+                  : '免費建立帳戶即可儲存本次成績，並透過適性練習加強較弱的領域。'
               }
-              ctaLabel="Sign in to save this attempt"
+              ctaLabel="登入以儲存本次測驗"
             />
           )}
 
           <div className="mt-6 space-y-3">
+            {results!.questionResults.some(result => !result.isCorrect) && (
+              <a href={`/${cert.provider}/${cert.code}/wrong-answers`} className={buttonClass({ variant: 'secondary', fullWidth: true })}>
+                查看 {results!.questionResults.filter(result => !result.isCorrect).length} 道錯題
+              </a>
+            )}
             {/* Signed-in FAIL: route the moment of highest motivation straight
                 into targeted domain practice (M5; guests get the adaptive
                 UnlockCTA above instead). Weakest here is THIS exam's per-domain
@@ -939,7 +953,7 @@ export function MockExam() {
                   onClick={() => trackEvent('weakest_domain_cta_clicked', { surface: 'exam_results', variant: weakest!.kind })}
                   className={buttonClass({ variant: 'brand', fullWidth: true })}
                 >
-                  Practice your weakest domain: {weakestDomain.name}
+                  加強較弱的領域： {(weakestDomain.nameZh ?? weakestDomain.name)}
                 </a>
               ) : null
             })()}
@@ -959,12 +973,12 @@ export function MockExam() {
                 variant="primary"
                 fullWidth
               >
-                Review questions
+                檢視題目
               </Button>
             )}
             <div className="flex gap-4">
               <Button onClick={goHome} variant="secondary" className="flex-1">
-                Back to home
+                返回首頁
               </Button>
               <Button
                 onClick={() => {
@@ -974,7 +988,7 @@ export function MockExam() {
                 variant="secondary"
                 className="flex-1"
               >
-                Retake exam
+                重新測驗
               </Button>
             </div>
 
@@ -988,13 +1002,13 @@ export function MockExam() {
               onClick={() => trackEvent('donate_click', { location: 'results' })}
               className="block rounded-2xl border border-border-hairline bg-bg-card p-5 text-center transition-colors duration-200 hover:border-text-muted/40"
             >
-              <p className="text-sm font-semibold text-text-primary">CloudCertPrep is free, and stays free.</p>
+              <p className="text-sm font-semibold text-text-primary">喜歡原專案的話，請支持 Alex。</p>
               <p className="mt-1 text-sm text-text-muted">
-                It runs on Ko-fi tips, not ads. If this helped you study, you can buy me a coffee.
+                本 fork 僅供 kesoner 自用與雲端架構實作。若想贊助，請直接支持原作者 Alex。
               </p>
               <span className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-text-primary">
                 <Heart className="w-4 h-4 text-danger" fill="currentColor" aria-hidden="true" />
-                Buy me a coffee
+                請作者喝杯咖啡
               </span>
             </a>
           </div>
@@ -1013,7 +1027,7 @@ export function MockExam() {
         {/* Visually-hidden page heading so the active exam's outline starts at
             h1 (the exam) -> h2 (the question) instead of opening on an orphan h2.
             Screen-reader only; no visual change. */}
-        <h1 className="sr-only">{cert.shortName} Practice Exam</h1>
+        <h1 className="sr-only">{cert.shortName} 模擬測驗</h1>
         {/* In-page exam toolbar: slim, neutral (NOT a second orange gradient),
             so it reads as a subordinate toolbar under the site header rather
             than a second heavy header bar. Sticks to the top while scrolling.
@@ -1023,10 +1037,10 @@ export function MockExam() {
           <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <span className="text-text-primary text-sm md:text-base font-medium whitespace-nowrap">
-                Question {currentIndex + 1} of {questions.length}
+                <span>{`第 ${currentIndex + 1} 題，共 ${questions.length} 題`}</span>
               </span>
               <span className="text-text-muted text-xs hidden sm:inline whitespace-nowrap">
-                {answeredCount} answered
+                <span>{`已作答 ${answeredCount} 題`}</span>
               </span>
             </div>
             <div className="flex items-center gap-3 md:gap-4">
@@ -1036,11 +1050,11 @@ export function MockExam() {
                   timer.seconds < TIMER_PULSE_THRESHOLD ? 'text-warning animate-pulse' : 'text-text-primary'
                 }`}
               >
-                {formatTime(timer.seconds)}
+                <span>{formatTime(timer.seconds)}</span>
               </div>
               <TimerAnnouncer seconds={timer.seconds} />
               <Button onClick={() => setShowEndModal(true)} variant="secondary" size="sm">
-                Submit exam
+                交卷
               </Button>
             </div>
           </div>
@@ -1070,9 +1084,11 @@ export function MockExam() {
             >
               <span className="flex items-center gap-2">
                 <LayoutGrid className="w-4 h-4" aria-hidden="true" />
-                View all questions
+                查看所有題目
               </span>
-              <span className="font-mono text-xs text-text-muted tabular-nums">{answeredCount}/{questions.length}</span>
+              <span className="font-mono text-xs text-text-muted tabular-nums">
+                <span>{`${answeredCount}/${questions.length}`}</span>
+              </span>
             </Button>
 
             <Card className="mb-3">
@@ -1083,15 +1099,15 @@ export function MockExam() {
                   question stem forces an early break with a big trailing gap (reads
                   as "wrapped wrong"). Body-length text wants greedy wrapping. */}
               <h2 className="cc-question-stem text-base md:text-lg text-text-primary mb-4 md:mb-5">
-                {currentQuestion.question}
+                <span lang="en">{currentQuestion.question}</span>
                 {currentType === 'multi' && (
-                  <span className="text-text-primary font-semibold ml-2">(Select {Array.isArray(currentQuestion.answer) ? currentQuestion.answer.length : MAX_MULTI_ANSWER})</span>
+                  <span className="text-text-primary font-semibold ml-2">（請選擇 {Array.isArray(currentQuestion.answer) ? currentQuestion.answer.length : MAX_MULTI_ANSWER})</span>
                 )}
                 {currentType === 'ordering' && (
-                  <span className="text-text-primary font-semibold ml-2">(Put in order)</span>
+                  <span className="text-text-primary font-semibold ml-2">（請依序排列）</span>
                 )}
                 {currentType === 'matching' && (
-                  <span className="text-text-primary font-semibold ml-2">(Match each item)</span>
+                  <span className="text-text-primary font-semibold ml-2">（請完成各項配對）</span>
                 )}
               </h2>
 
@@ -1143,10 +1159,10 @@ export function MockExam() {
                   <div className="mb-3 text-xs md:text-sm text-text-muted">
                     {Array.isArray(currentState?.userAnswer) && currentState.userAnswer.length > 0 ? (
                       <span className="text-text-primary font-medium">
-                        {currentState.userAnswer.length}/{requiredCount} answers selected
+                        <span>{`${currentState.userAnswer.length}/${requiredCount} 個答案已選取`}</span>
                       </span>
                     ) : (
-                      <span>Select {requiredCount} answers</span>
+                      <span>{`請選擇 ${requiredCount} 個答案`}</span>
                     )}
                   </div>
                 )
@@ -1158,9 +1174,9 @@ export function MockExam() {
                 return (
                   <div className="mb-3 text-xs md:text-sm text-text-muted">
                     {selectedCount > 0 ? (
-                      <span className="text-text-primary font-medium">{selectedCount}/{leftCount} matched</span>
+                      <span className="text-text-primary font-medium"><span>{`${selectedCount}/${leftCount} 已配對`}</span></span>
                     ) : (
-                      <span>Match all {leftCount} items</span>
+                      <span>{`請完成所有 ${leftCount} 個配對`}</span>
                     )}
                   </div>
                 )
@@ -1176,7 +1192,7 @@ export function MockExam() {
                 }`}
               >
                 <Flag className={`w-4 h-4 md:w-5 md:h-5 ${currentState?.flagged ? 'fill-warning' : ''}`} aria-hidden="true" />
-                <span className="font-medium text-xs md:text-sm">{currentState?.flagged ? 'Flagged for review' : 'Flag for review'}</span>
+                <span className="font-medium text-xs md:text-sm">{currentState?.flagged ? '已標記稍後檢查' : '標記稍後複習'}</span>
               </button>
             </Card>
 
@@ -1188,15 +1204,15 @@ export function MockExam() {
                 className="flex-1"
                 leftIcon={<ArrowLeft className="w-5 h-5" aria-hidden="true" />}
               >
-                Previous
+                上一題
               </Button>
               {currentIndex === questions.length - 1 ? (
                 <Button onClick={() => setShowEndModal(true)} variant="primary" className="flex-1">
-                  Submit exam
+                  交卷
                 </Button>
               ) : (
                 <Button onClick={nextQuestion} variant="secondary" className="flex-1" arrow>
-                  Next
+                  下一題
                 </Button>
               )}
             </div>
@@ -1205,7 +1221,7 @@ export function MockExam() {
             {/* Question Grid Sidebar */}
             <div className="hidden lg:block w-64 flex-shrink-0">
             <div className="sticky top-24 bg-bg-card rounded-xl p-4 shadow-card">
-              <h3 className="text-sm font-semibold text-text-primary mb-3">Questions</h3>
+              <h3 className="text-sm font-semibold text-text-primary mb-3">題目</h3>
               <ExamQuestionGrid
                 questions={questions}
                 answers={answers}
@@ -1214,10 +1230,10 @@ export function MockExam() {
               />
               {/* Legend: the grid's colors were previously unexplained. */}
               <ul className="mt-4 pt-3 border-t border-border-hairline/60 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] text-text-muted list-none p-0 m-0">
-                <li className="flex items-center gap-1.5"><span className="h-3 w-3 flex-shrink-0 rounded-sm bg-brand/30" aria-hidden="true" /> Answered</li>
-                <li className="flex items-center gap-1.5"><span className="h-3 w-3 flex-shrink-0 rounded-sm bg-bg-dark border border-border-hairline" aria-hidden="true" /> Unanswered</li>
-                <li className="flex items-center gap-1.5"><span className="h-3 w-3 flex-shrink-0 rounded-sm ring-2 ring-inset ring-brand" aria-hidden="true" /> Current</li>
-                <li className="flex items-center gap-1.5"><Flag className="h-3 w-3 flex-shrink-0 text-warning fill-warning" aria-hidden="true" /> Flagged</li>
+                <li className="flex items-center gap-1.5"><span className="h-3 w-3 flex-shrink-0 rounded-sm bg-brand/30" aria-hidden="true" /> 已作答</li>
+                <li className="flex items-center gap-1.5"><span className="h-3 w-3 flex-shrink-0 rounded-sm bg-bg-dark border border-border-hairline" aria-hidden="true" /> 未作答</li>
+                <li className="flex items-center gap-1.5"><span className="h-3 w-3 flex-shrink-0 rounded-sm ring-2 ring-inset ring-brand" aria-hidden="true" /> 目前題目</li>
+                <li className="flex items-center gap-1.5"><Flag className="h-3 w-3 flex-shrink-0 text-warning fill-warning" aria-hidden="true" /> 已標記</li>
               </ul>
             </div>
             </div>
@@ -1225,11 +1241,11 @@ export function MockExam() {
         </div>
 
         {/* Question Navigation Modal (Mobile/Tablet) */}
-        <Modal isOpen={showQuestionNav} title="Questions" onClose={() => setShowQuestionNav(false)}>
+        <Modal isOpen={showQuestionNav} title="題目" onClose={() => setShowQuestionNav(false)}>
           <div className="space-y-4">
             <div className="flex items-center justify-between text-sm text-text-muted mb-4">
-              <span>Answered: {answeredCount}/{questions.length}</span>
-              <span>Flagged: {flaggedCount}</span>
+              <span>{`已作答： ${answeredCount}/${questions.length}`}</span>
+              <span>已標記： {flaggedCount}</span>
             </div>
             <ExamQuestionGrid
               questions={questions}
@@ -1242,30 +1258,30 @@ export function MockExam() {
         </Modal>
 
         {/* Final submit confirm + summary - opened by both the toolbar and the
-            last-question "Submit exam" buttons. Shows answered/flagged/
+            last-question "交卷" buttons. Shows answered/flagged/
             unanswered counts + the unanswered warning before the irreversible
-            "Submit for grading". (Replaces the removed review screen, whose job
+            "交卷並評分". (Replaces the removed review screen, whose job
             the question sidebar/modal navigator already covered.) */}
-        <Modal isOpen={showEndModal} title="Ready to submit?" onClose={() => setShowEndModal(false)}>
+        <Modal isOpen={showEndModal} title="確定要交卷嗎？" onClose={() => setShowEndModal(false)}>
           <div className="space-y-4">
-            <p className="text-text-primary">You have answered <span className="font-bold">{answeredCount}</span> of {questions.length} questions.</p>
-            <p className="text-text-primary"><span className="font-bold">{flaggedCount}</span> {flaggedCount === 1 ? 'question is' : 'questions are'} flagged for review.</p>
+            <p className="text-text-primary">已作答 <span className="font-bold">{answeredCount}</span> <span>{`/ ${questions.length} 題。`}</span></p>
+            <p className="text-text-primary"><span className="font-bold">{flaggedCount}</span> 題已標記稍後檢查。</p>
             {answeredCount < questions.length && (
               <p className="text-warning text-sm" role="alert">
-                <span className="font-semibold">{questions.length - answeredCount} unanswered</span> {questions.length - answeredCount === 1 ? 'question is' : 'questions are'} marked incorrect on submit.
+                <span className="font-semibold">{questions.length - answeredCount}</span> 題未作答，交卷後將視為答錯。
               </p>
             )}
             {loading ? (
               <div className="py-8">
-                <LoadingSpinner text="Submitting exam..." />
+                <LoadingSpinner text="正在交卷…" />
               </div>
             ) : (
               <div className="flex gap-4 mt-6">
                 <Button onClick={() => setShowEndModal(false)} variant="secondary" className="flex-1">
-                  Keep reviewing
+                  繼續檢查
                 </Button>
                 <Button onClick={handleSubmitExam} variant="primary" className="flex-1">
-                  Submit for grading
+                  交卷並評分
                 </Button>
               </div>
             )}
@@ -1279,18 +1295,18 @@ export function MockExam() {
             (mirrors the practice leave-modal, which has always done this). */}
         <Modal
           isOpen={pendingLeaveUrl !== null}
-          title={pendingLeaveUrl === SIGN_OUT_SENTINEL ? 'Sign out?' : 'Leave the exam?'}
+          title={pendingLeaveUrl === SIGN_OUT_SENTINEL ? '確定要登出嗎？' : '要離開測驗嗎？'}
           onClose={() => setPendingLeaveUrl(null)}
         >
           <div className="space-y-4">
             <p className="text-text-primary">
               {pendingLeaveUrl === SIGN_OUT_SENTINEL
-                ? 'Your exam is still in progress. If you sign out now, your current answers and timer will be lost and this attempt will not be saved.'
-                : 'Your exam is still in progress. If you leave this page now, your current answers and timer will be lost and this attempt will not be saved.'}
+                ? '測驗尚未結束。現在登出會失去目前答案與計時進度，本次測驗也不會儲存。'
+                : '測驗尚未結束。現在離開會失去目前答案與計時進度，本次測驗也不會儲存。'}
             </p>
             <div className="flex gap-4 mt-6">
               <Button onClick={() => setPendingLeaveUrl(null)} variant="secondary" className="flex-1">
-                Stay in exam
+                繼續測驗
               </Button>
               <Button
                 onClick={() => {
@@ -1307,7 +1323,7 @@ export function MockExam() {
                 variant="danger"
                 className="flex-1"
               >
-                {pendingLeaveUrl === SIGN_OUT_SENTINEL ? 'Sign out' : 'Leave exam'}
+                {pendingLeaveUrl === SIGN_OUT_SENTINEL ? '登出' : '離開測驗'}
               </Button>
             </div>
           </div>
@@ -1318,17 +1334,16 @@ export function MockExam() {
             e.g. the header GitHub icon should not silently steal focus. */}
         <Modal
           isOpen={pendingExternalUrl !== null}
-          title="Open external link?"
+          title="要開啟外部連結嗎？"
           onClose={() => setPendingExternalUrl(null)}
         >
           <div className="space-y-4">
             <p className="text-text-primary">
-              This link opens in a new tab. Your exam keeps running here and
-              the timer does not pause.
+              此連結會在新分頁開啟。測驗會繼續進行，計時不會暫停。
             </p>
             <div className="flex gap-4 mt-6">
               <Button onClick={() => setPendingExternalUrl(null)} variant="secondary" className="flex-1">
-                Stay focused
+                繼續專心作答
               </Button>
               <Button
                 onClick={() => {
@@ -1338,7 +1353,7 @@ export function MockExam() {
                 variant="primary"
                 className="flex-1"
               >
-                Open in new tab
+                在新分頁開啟
               </Button>
             </div>
           </div>
@@ -1366,7 +1381,7 @@ export function MockExam() {
           <div className="p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
               <Card padding="lg" className="text-center">
-                <p className="text-text-muted text-lg mb-6">No questions match the selected filters.</p>
+                <p className="text-text-muted text-lg mb-6">沒有符合篩選條件的題目。</p>
                 <Button
                   onClick={() => {
                     setReviewFilter('all')
@@ -1374,7 +1389,7 @@ export function MockExam() {
                   }}
                   variant="primary"
                 >
-                  Clear filters
+                  清除篩選
                 </Button>
               </Card>
             </div>
@@ -1388,7 +1403,7 @@ export function MockExam() {
 
     return (
     <div className="flex-1">
-      <h1 className="sr-only">{cert.shortName} Exam Review</h1>
+      <h1 className="sr-only">{cert.shortName} 測驗檢討</h1>
 
       <div className="p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
@@ -1397,7 +1412,7 @@ export function MockExam() {
               <div className="space-y-3">
                 {/* Filter Buttons */}
                 <div>
-                  <span className="text-text-muted text-xs md:text-sm font-medium mb-2 block">Filter:</span>
+                  <span className="text-text-muted text-xs md:text-sm font-medium mb-2 block">篩選：</span>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => {
@@ -1407,7 +1422,7 @@ export function MockExam() {
                       aria-pressed={reviewFilter === 'all'}
                       className={filterChipClass({ active: reviewFilter === 'all', surface: 'dark' })}
                     >
-                      All ({results.questionResults.length})
+                      全部（{results.questionResults.length})
                     </button>
                     <button
                       onClick={() => {
@@ -1422,7 +1437,7 @@ export function MockExam() {
                         incorrectCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     >
-                      Incorrect ({incorrectCount})
+                      答錯（{incorrectCount})
                     </button>
                     <button
                       onClick={() => {
@@ -1437,14 +1452,14 @@ export function MockExam() {
                         flaggedReviewCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     >
-                      Flagged ({flaggedReviewCount})
+                      已標記（{flaggedReviewCount})
                     </button>
                   </div>
                 </div>
 
                 {/* Domain Filter Buttons */}
                 <div>
-                  <span className="text-text-muted text-xs md:text-sm font-medium mb-2 block">Domain:</span>
+                  <span className="text-text-muted text-xs md:text-sm font-medium mb-2 block">領域：</span>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => {
@@ -1454,7 +1469,7 @@ export function MockExam() {
                       aria-pressed={reviewDomainFilter === null}
                       className={filterChipClass({ active: reviewDomainFilter === null, surface: 'dark' })}
                     >
-                      All Domains
+                      所有領域
                     </button>
                     {cert.domains.map(domain => (
                       <button
@@ -1466,7 +1481,7 @@ export function MockExam() {
                         aria-pressed={reviewDomainFilter === domain.id}
                         className={filterChipClass({ active: reviewDomainFilter === domain.id, surface: 'dark' })}
                       >
-                        {domain.name}
+                        {(domain.nameZh ?? domain.name)}
                       </button>
                     ))}
                   </div>
@@ -1474,14 +1489,14 @@ export function MockExam() {
 
                 {/* Question Number Grid */}
                 <div>
-                  <h2 className="text-xs md:text-sm font-semibold text-text-muted mb-2 text-center">Questions:</h2>
+                  <h2 className="text-xs md:text-sm font-semibold text-text-muted mb-2 text-center">題數：</h2>
                   <div className="grid grid-cols-[repeat(auto-fit,minmax(32px,32px))] md:grid-cols-[repeat(auto-fit,minmax(36px,36px))] gap-0.5 md:gap-1 justify-center">
                     {results.questionResults.map((result, idx) => {
                       const isCurrentQuestion = filteredQuestions[reviewQuestionIndex]?.questionId === result.questionId
                       const isInFilteredSet = filteredQuestions.some(fq => fq.questionId === result.questionId)
-                      const stateLabel = result.isCorrect ? 'correct' : 'incorrect'
-                      const flagLabel = result.wasFlagged ? ', flagged' : ''
-                      const ariaLabel = `Question ${idx + 1}: ${stateLabel}${flagLabel}`
+                      const stateLabel = result.isCorrect ? '答對' : '答錯'
+                      const flagLabel = result.wasFlagged ? '，已標記' : ''
+                      const ariaLabel = `第 ${idx + 1} 題: ${stateLabel}${flagLabel}`
 
                       return (
                         <button
@@ -1509,13 +1524,13 @@ export function MockExam() {
                   </div>
                   <div className="mt-3 flex items-center justify-center gap-4 text-xs text-text-muted">
                     <span className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded bg-success/15 border border-success/30"></span> Correct
+                      <span className="w-3 h-3 rounded bg-success/15 border border-success/30"></span> 答對
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded bg-danger/10 border border-danger/25"></span> Incorrect
+                      <span className="w-3 h-3 rounded bg-danger/10 border border-danger/25"></span> 答錯
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded bg-bg-dark ring-2 ring-warning"></span> Flagged
+                      <span className="w-3 h-3 rounded bg-bg-dark ring-2 ring-warning"></span> 已標記
                     </span>
                   </div>
                 </div>
@@ -1536,7 +1551,7 @@ export function MockExam() {
             </div>
 
             <Button onClick={() => setScreen('results')} variant="secondary" fullWidth>
-              Back to results
+              返回結果
             </Button>
           </div>
         </div>
@@ -1546,7 +1561,7 @@ export function MockExam() {
 
   return (
     <div className="min-h-screen bg-bg-dark flex items-center justify-center">
-      <p className="text-text-muted">Something went wrong. Please refresh the page.</p>
+      <p className="text-text-muted">發生問題，請重新整理頁面。</p>
     </div>
   )
 }
@@ -1566,8 +1581,8 @@ function TimerAnnouncer({ seconds }: { seconds: number }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessage(
         mins > 0
-          ? `${mins} minute${mins > 1 ? 's' : ''} remaining`
-          : `${secs} seconds remaining`,
+          ? `剩餘 ${mins} 分鐘`
+          : `剩餘 ${secs} 秒`,
       )
     }
   }, [seconds])

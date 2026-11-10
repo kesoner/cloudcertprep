@@ -4,9 +4,10 @@
 // `useSEO` hook.
 
 import { APP_NAME } from './constants'
-import { QUESTION_COUNTS, TOTAL_ACTIVE_QUESTIONS } from './generated/question-counts'
+import { TOTAL_ACTIVE_QUESTIONS } from './generated/question-counts'
+import { resolveSiteOrigin } from './site-origin.mjs'
 
-export const SITE_URL = 'https://www.cloudcertprep.io'
+export const SITE_URL = resolveSiteOrigin(import.meta.env.PUBLIC_SITE_URL)
 
 /**
  * Build a fully-qualified canonical URL from a site-relative path. Single
@@ -41,15 +42,15 @@ export interface SEOData {
  * metadata. Per-cert landings inject their own SEO via `useSEO` at render time.
  */
 export const DEFAULT_SEO: SEOData = {
-  title: `Free Cloud Certification Practice Exams · ${APP_NAME}`,
+  title: `免費雲端證照模擬測驗 · ${APP_NAME}`,
   description:
-    `Free, open-source AWS certification practice exams. ${TOTAL_QUESTIONS_LABEL} AWS Cloud Practitioner (CLF-C02) and AWS AI Practitioner (AIF-C01) practice questions. Timed mock exams, adaptive spaced repetition by domain, progress tracking. MIT-licensed alternative to paid AWS practice platforms. No signup, no ads.`,
+    `免費開源 AWS 證照練習平台，收錄 ${TOTAL_QUESTIONS_LABEL} 道英文題目，提供繁體中文介面、計時模擬測驗、適性領域練習及進度追蹤，無須註冊，沒有廣告。`,
   canonical: '/',
 }
 
 /**
  * FAQ data rendered both as a visible section on every page that mounts the
- * `FAQ` component AND as JSON-LD emitted alongside the visible markup. Google
+ * `常見問題` component AND as JSON-LD emitted alongside the visible markup. Google
  * requires the FAQ content be visible on the page for rich-result eligibility
  * having only the schema (without rendering) risks the snippet being
  * ignored or flagged as deceptive structured data.
@@ -64,10 +65,10 @@ export const DEFAULT_SEO: SEOData = {
 export type FAQCategory = 'general' | 'format' | 'strategy' | 'platform'
 
 export const FAQ_CATEGORY_LABEL: Record<FAQCategory, string> = {
-  general: 'General',
-  format: 'Exam format',
-  strategy: 'Study strategy',
-  platform: 'Platform & certifications',
+  general: '一般問題',
+  format: '測驗形式',
+  strategy: '學習策略',
+  platform: '平台與證照',
 }
 
 export const FAQ_CATEGORY_ORDER: FAQCategory[] = ['general', 'format', 'strategy', 'platform']
@@ -108,324 +109,152 @@ export interface FAQEntry {
 }
 
 export const FAQ_ENTRIES: FAQEntry[] = [
-  // ---------- Generic / platform-wide ----------
   {
-    question: 'Is CloudCertPrep really free?',
-    answer:
-      'Yes, 100% free with no hidden fees, premium tiers, paywalls, or ads. Every practice question, full-length mock exam, domain practice session, and progress tracker is completely free.',
+    question: 'CloudCertPrep-zh 真的完全免費嗎？',
+    answer: '是的，所有題目、模擬測驗、領域練習與進度追蹤皆免費，沒有隱藏費用、付費等級或廣告。',
     category: 'general',
   },
   {
-    question: 'Do I need to create an account?',
-    answer:
-      'No account is required to practice. Guest mode gives you full access to every practice question and mock exam. Creating a free account unlocks progress tracking, exam history, domain mastery analytics, and the spaced repetition algorithm in domain practice.',
+    question: '需要建立帳戶才能練習嗎？',
+    answer: '不需要。訪客可使用完整模擬測驗與領域練習。免費登入後，即可儲存進度、查看歷史紀錄，並使用適性間隔複習。',
     category: 'general',
   },
   {
-    question: 'Is CloudCertPrep open source?',
-    answer:
-      'Yes, CloudCertPrep is 100% open source under the MIT license. View the source, contribute new certifications or questions, report errors, or fork the project at https://github.com/nastaso/cloudcertprep. Community contributions are welcome; see CONTRIBUTING.md for the question schema and contribution workflow.',
+    question: '介面與題庫使用什麼語言？',
+    answer: '網站主要介面使用繁體中文。練習題的題幹、選項與解析目前保留英文，方便對照 AWS 官方術語；作答時會標示題庫語言。',
     category: 'general',
   },
   {
-    question: 'How does the domain practice spaced repetition work?',
-    answer:
-      'For signed-in users, domain practice uses an adaptive algorithm based on your answer history. Questions you get wrong are weighted higher and appear more often. Questions you get right are weighted lower and appear less. Once you build a correct streak on a question, it enters an exclusion window and is hidden until enough time passes. Roughly 20% of each session is reserved for unseen questions so you keep covering new material. Guest sessions use random selection only.',
+    question: 'CloudCertPrep-zh 有開放原始碼嗎？',
+    answer: '有，專案採用 MIT 授權。可在 https://github.com/nastaso/cloudcertprep 查看原始碼與原始題庫，並依 CONTRIBUTING.md 參與貢獻。',
+    category: 'general',
+  },
+  {
+    question: '間隔複習如何運作？',
+    answer: '登入後，領域練習會依作答歷史增加錯題的出現權重，降低熟悉題目的出現頻率。連續答對的題目會暫時排除，並保留約 20% 的名額給未見過的題目。訪客模式使用隨機選題。',
     category: 'strategy',
   },
   {
-    question: 'What certifications does CloudCertPrep support?',
-    answer:
-      'CloudCertPrep currently supports AWS Certified Cloud Practitioner (CLF-C02) and AWS Certified AI Practitioner (AIF-C01). Additional certifications, including AWS Solutions Architect Associate (SAA-C03), are planned. The platform is multi-cert by design and new certifications can be added by the community.',
+    question: '目前支援哪些證照？',
+    answer: '目前開放 CLF-C02 與 AIF-C01。SAA-C03 題庫仍在建置中，尚未開放完整練習。',
     category: 'platform',
   },
   {
-    question: 'Where can I report a wrong answer or bad question?',
-    answer:
-      'Open an issue on GitHub at https://github.com/nastaso/cloudcertprep/issues/new?template=report-question-error.yml. Each practice question shows a "Report on GitHub" link in its review footer that pre-fills the question ID, so the report is one click and a one-line description. Pull requests with corrections are welcome.',
+    question: '如何回報錯誤答案或題目？',
+    answer: '使用題目旁的 GitHub 回報連結，或前往 https://github.com/nastaso/cloudcertprep/issues 說明題目編號與問題，也歡迎透過 Pull Request 提出修正。',
     category: 'platform',
   },
   {
-    question: 'How can I contribute new questions or a new certification?',
-    answer:
-      'See CONTRIBUTING.md in the repository at https://github.com/nastaso/cloudcertprep. The question JSON schema is documented end-to-end. Pull requests adding questions, fixing existing ones, or proposing a new certification (use the issue template) are reviewed against the validator and merged when accurate. Contributors are credited in commit history.',
+    question: '如何新增題目或參與開發？',
+    answer: '請閱讀專案的 CONTRIBUTING.md。題庫使用 JSON 格式，貢獻內容會經過驗證與審查。也歡迎協助改善無障礙體驗、修正問題或新增學習內容。',
     category: 'platform',
   },
-
-  // ---------- AWS Certified Cloud Practitioner (CLF-C02) ----------
   {
-    question: 'What is the format of the AWS Cloud Practitioner practice exams?',
-    answer:
-      `Practice exams mirror the real AWS Cloud Practitioner (CLF-C02) exam: 65 multiple-choice and multiple-response questions in 90 minutes, scaled scoring from 100 to 1000 with a 700 passing threshold. With ${(QUESTION_COUNTS['clf-c02'] ?? 1050).toLocaleString()}+ questions in the pool, you get over 10^100 possible exam combinations.`,
+    question: 'CLF-C02 模擬測驗的形式是什麼？',
+    answer: '完整測驗為 65 題、90 分鐘，使用 100 至 1000 的換算分數，通過門檻為 700 分。此平台的分數僅供練習參考，並非官方評分結果。',
     category: 'format',
     certCode: 'clf-c02',
   },
   {
-    question: 'How accurate is this as an AWS Cloud Practitioner exam simulator?',
-    answer:
-      'Questions are written to match the difficulty, style, and topic distribution of the real CLF-C02 exam. The interface replicates the AWS testing experience: timed sessions, flagging, review screens, and scaled scoring. Questions are kept up to date with the 2026 exam guide and reviewed against AWS official documentation.',
+    question: 'CLF-C02 涵蓋哪些領域？',
+    answer: '雲端概念、安全與合規、雲端技術與服務，以及帳務、定價與支援。',
     category: 'format',
     certCode: 'clf-c02',
   },
   {
-    question: 'Is the AWS Cloud Practitioner exam hard?',
-    answer:
-      'CLF-C02 is the entry-level AWS certification and is designed for candidates new to AWS. The exam tests breadth (services, billing, security basics) rather than deep technical implementation. With consistent practice and review of explanations, most candidates pass on their first attempt.',
-    category: 'format',
-    certCode: 'clf-c02',
-    excludeFromLlms: true,
-  },
-  {
-    question: 'What is a good score on AWS Cloud Practitioner?',
-    answer:
-      'The passing score is 700 out of 1000 (scaled). 700 to 800 is passing, 800 to 900 is strong, and 900+ is excellent. Aim for 800+ on practice exams here before scheduling the real exam. That gives you a comfortable margin for exam-day variance.',
-    category: 'format',
-    certCode: 'clf-c02',
-    excludeFromLlms: true,
-  },
-  {
-    question: 'What is the AWS Cloud Practitioner pass rate?',
-    answer:
-      'AWS does not publish official pass rates for any certification, so any specific percentage you see online is an estimate, not an AWS figure. CLF-C02 is the entry-level exam and is widely regarded as the most approachable AWS certification: candidates who study the exam guide, practice consistently, and review explanations typically pass on their first attempt. Treat your scores on full-length practice exams here as the best available predictor: a steady 800+ signals you are ready.',
-    category: 'format',
-    certCode: 'clf-c02',
-    excludeFromLlms: true,
-  },
-  // Exam-realism cluster (R23.12). Mirrored in the FAQPage JSON-LD via Faq.astro.
-  {
-    question: 'How realistic are CloudCertPrep practice exams?',
-    answer:
-      'Very realistic. Our CLF-C02 mock exams mirror the real AWS Cloud Practitioner format: 65 questions in 90 minutes, scaled 100 to 1000 with a 700 pass mark. Questions match the difficulty, style, and domain weighting of the official exam guide, so practice scores closely track real exam-day performance.',
+    question: 'CLF-C02 題目有詳細解析嗎？',
+    answer: '有。每題解析說明正確答案的理由與其他選項的差異，幫助你理解概念，而非只記住答案。原始題庫與解析目前為英文。',
     category: 'format',
     certCode: 'clf-c02',
   },
   {
-    question: 'Are the practice questions aligned to the current exam guide?',
-    answer:
-      'Yes. Every CLF-C02 question is written against the current AWS Cloud Practitioner exam guide (CLF-C02) and mapped to its domains and task statements. The open-source bank is reviewed via GitHub pull request and updated whenever AWS revises the guide, so coverage stays aligned with what the real exam tests.',
+    question: 'CLF-C02 題目如何維護？',
+    answer: '題目依公開的 AWS 考試指南與文件撰寫，透過 GitHub Pull Request 進行審查。可使用題目旁的原始檔連結公開檢視與回報問題。',
     category: 'format',
     certCode: 'clf-c02',
   },
   {
-    question: 'Does every question have a detailed explanation?',
-    answer:
-      'Yes. Every CLF-C02 practice question ships with a full explanation covering why the correct answer is right and why each distractor is wrong. Explanations reference AWS concepts and documentation, so you learn the reasoning rather than memorizing answers. The entire bank is publicly auditable on GitHub under the MIT license.',
-    category: 'format',
-    certCode: 'clf-c02',
-  },
-  {
-    question: 'What is the best way to prepare for AWS Cloud Practitioner?',
-    // Flat `answer` is the JSON-LD source of truth (Schema.org Answer.text
-    // accepts plain text only). The visible FAQ uses `steps` instead for an
-    // <ol>-rendered version with the same content.
-    answer:
-      'In my experience, this is what works: (1) Watch a free video course to build foundational knowledge. The freeCodeCamp CLF-C02 course on YouTube is excellent: https://www.youtube.com/watch?v=NhDYbskXRgc. (2) Cross-reference the official AWS exam guide at https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02.html, which is kept updated by AWS. Pay close attention to in-scope versus out-of-scope services. (3) Use domain practice here to focus on weak areas with adaptive spaced repetition. (4) Take full-length practice exams to build pacing and stamina. After about a week of consistent practice with this method I finished the real exam in 20 minutes; the practice exams here prepare you well enough that the real one feels familiar.',
-    steps: {
-      intro: 'In my experience, this is what works:',
-      items: [
-        'Watch a free video course to build foundational knowledge. The freeCodeCamp CLF-C02 course on YouTube is excellent: https://www.youtube.com/watch?v=NhDYbskXRgc.',
-        'Cross-reference the official AWS exam guide at https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02.html, which is kept updated by AWS. Pay close attention to in-scope versus out-of-scope services.',
-        'Use domain practice here to focus on weak areas with adaptive spaced repetition.',
-        'Take full-length practice exams to build pacing and stamina.',
-      ],
-      outro: 'After about a week of consistent practice with this method I finished the real exam in 20 minutes; the practice exams here prepare you well enough that the real one feels familiar.',
-    },
+    question: '該如何準備 CLF-C02？',
+    answer: '先閱讀官方考試指南，了解各領域範圍，再透過領域練習加強不熟悉的主題。每次作答後閱讀解析，最後以完整計時模擬測驗練習配速。',
     category: 'strategy',
     certCode: 'clf-c02',
-    excludeFromLlms: true,
   },
-  // Cost / logistics cluster (audit K3 / W19). High-volume informational
-  // queries with "People also ask" SERP features; visible FAQ + FAQPage JSON-LD
-  // make them featured-snippet eligible. Body copy only — no competitor names.
   {
-    question: 'How much does the AWS Cloud Practitioner exam cost?',
-    answer:
-      'The AWS Certified Cloud Practitioner (CLF-C02) exam costs 100 USD (prices vary slightly by region and local tax). AWS occasionally offers a free retake or a 50% discount voucher to candidates who hold an existing AWS certification, so check your AWS Certification account for available benefits before booking. Practicing here is free; only the official exam at Pearson VUE or PSI carries the fee.',
+    question: 'CLF-C02 的通過率是多少？',
+    answer: 'AWS 未公布官方通過率。本平台社群統計只反映使用者在模擬測驗中的表現，不代表正式考試的通過率，也不保證實際考試結果。',
     category: 'format',
     certCode: 'clf-c02',
   },
   {
-    question: 'Is there an AWS Cloud Practitioner exam voucher or discount?',
-    answer:
-      'AWS issues a 50% discount voucher to candidates who already hold an AWS certification, redeemable on their next exam, and periodically runs free or discounted exam promotions. Vouchers appear in the benefits section of your AWS Certification account and are applied at checkout when you schedule the exam. CloudCertPrep practice is always free regardless of any voucher.',
+    question: 'CLF-C02 可以重考嗎？',
+    answer: '原始考試資訊說明未通過後須等待 14 天才可重考，且每次重考須支付費用。報考前請以 AWS 官方最新規定為準。',
     category: 'format',
     certCode: 'clf-c02',
   },
   {
-    question: 'What is the AWS Cloud Practitioner passing score?',
-    answer:
-      'The AWS Cloud Practitioner (CLF-C02) passing score is 700 on a scaled range of 100 to 1000. The score is scaled, not a simple percentage, because questions vary in difficulty, so you do not need 70% of questions correct exactly. Unscored pilot questions are mixed in and do not affect your result. Aim for 800+ on practice exams here for a comfortable margin.',
+    question: 'CLF-C02 證照有效期限多久？',
+    answer: '原始指南說明證照有效期為三年。續證方式與有效期限請以你的 AWS Certification 帳戶及官方最新規定為準。',
     category: 'format',
     certCode: 'clf-c02',
   },
   {
-    question: 'How many questions are on the AWS Cloud Practitioner exam?',
-    answer:
-      'The AWS Certified Cloud Practitioner (CLF-C02) exam has 65 questions to answer in 90 minutes. Of these, 50 are scored and 15 are unscored pilot questions mixed in at random that do not count toward your result. All questions are multiple choice or multiple response.',
-    category: 'format',
-    certCode: 'clf-c02',
-  },
-  {
-    question: 'Can I retake the AWS Cloud Practitioner exam if I fail?',
-    answer:
-      'Yes. If you do not pass, you can retake the CLF-C02 exam after a 14-day waiting period. There is no limit on the total number of attempts, but you must pay the exam fee each time and wait 14 days between attempts. Use the gap to review your weakest domains in domain practice here before rebooking.',
-    category: 'format',
-    certCode: 'clf-c02',
-  },
-  {
-    question: 'Does the AWS Cloud Practitioner certification expire?',
-    answer:
-      'Yes. AWS certifications, including the Cloud Practitioner (CLF-C02), are valid for three years from the date you pass. To recertify, pass the current version of the same exam or earn a higher-level AWS certification before your credential expires, which automatically extends the foundational certification.',
-    category: 'format',
-    certCode: 'clf-c02',
-  },
-  {
-    question: 'Does CloudCertPrep provide CLF-C02 exam dumps?',
-    answer:
-      'No. We do not provide exam dumps, which are leaked or stolen real exam questions that violate the AWS Certification agreement and can get your certification revoked. Every CloudCertPrep question is original, written from the published AWS exam guide and AWS documentation, and aligned to the current CLF-C02 domains. The goal is to teach the material so you pass legitimately, not to memorize stolen answers.',
+    question: '這裡提供 CLF-C02 的真實考題洩題嗎？',
+    answer: '不提供。題目為依公開考試指南與文件撰寫的原創練習內容，不是洩漏的真實考題。目標是協助你理解觀念並正當準備考試。',
     category: 'general',
     certCode: 'clf-c02',
   },
   {
-    question: 'Is this the same exam as CLF-CO2, CLF-02, or CLF2?',
-    answer:
-      'Yes. The AWS Cloud Practitioner exam code is CLF-C02 (the current version, which replaced CLF-C01). It is sometimes mistyped as CLF-CO2, CLF-02, or CLF2 in searches. All refer to the same AWS Certified Cloud Practitioner exam that CloudCertPrep prepares you for.',
-    category: 'format',
-    certCode: 'clf-c02',
-  },
-  {
-    question: 'What is the format of the AWS AI Practitioner practice exams?',
-    answer:
-      'Practice exams mirror the real AWS Certified AI Practitioner (AIF-C01) exam: 65 questions (50 scored plus 15 unscored) in 90 minutes, scaled scoring from 100 to 1000 with a 700 passing threshold. The official exam uses multiple-choice, multiple-response, ordering, and matching question formats. The exam covers fundamentals of AI, machine learning, and generative AI on AWS.',
+    question: 'AIF-C01 模擬測驗的形式是什麼？',
+    answer: '完整測驗為 65 題、90 分鐘，使用 100 至 1000 的換算分數，通過門檻為 700 分。此平台的分數僅供練習參考，並非官方評分結果。',
     category: 'format',
     certCode: 'aif-c01',
   },
   {
-    question: 'Is the AWS AI Practitioner exam hard?',
-    answer:
-      'AIF-C01 is a foundational certification and is not deeply technical: it tests conceptual understanding of AI, machine learning, and generative AI on AWS rather than coding or model training. Candidates with some cloud familiarity (the Cloud Practitioner CLF-C02 is good groundwork) generally find it approachable. The trickier areas are the generative-AI and foundation-model domains, which together are over half the exam, so weight your study there. Consistent domain practice and full-length mock exams here make it very passable on the first attempt.',
-    category: 'format',
-    certCode: 'aif-c01',
-    excludeFromLlms: true,
-  },
-  {
-    question: 'Who is the AWS AI Practitioner certification for?',
-    answer:
-      'AIF-C01 is a foundational certification for individuals who use AI/ML technologies on AWS but are not in technical IT roles, such as business analysts, sales, marketing, product managers, and decision-makers. It validates broad knowledge of AI and ML concepts, generative AI use cases, and AWS AI services like Amazon Bedrock, SageMaker, Q, and Rekognition.',
+    question: 'AIF-C01 涵蓋哪些領域？',
+    answer: 'AI 與機器學習基礎、生成式 AI、基礎模型應用、負責任 AI，以及安全、合規與治理。',
     category: 'format',
     certCode: 'aif-c01',
   },
   {
-    question: 'Do I need a technical background for AWS AI Practitioner?',
-    answer:
-      'No deep technical background is required. AIF-C01 is foundational and tests conceptual understanding rather than implementation. You should be familiar with cloud computing basics (the AWS Cloud Practitioner CLF-C02 is excellent prerequisite preparation) and have exposure to AI/ML terminology, but you do not need to write code or train models to pass.',
+    question: 'AIF-C01 題目有詳細解析嗎？',
+    answer: '有。每題解析說明正確答案的理由與其他選項的差異，幫助你理解概念，而非只記住答案。原始題庫與解析目前為英文。',
+    category: 'format',
+    certCode: 'aif-c01',
+  },
+  {
+    question: 'AIF-C01 題目如何維護？',
+    answer: '題目依公開的 AWS 考試指南與文件撰寫，透過 GitHub Pull Request 進行審查。可使用題目旁的原始檔連結公開檢視與回報問題。',
+    category: 'format',
+    certCode: 'aif-c01',
+  },
+  {
+    question: '該如何準備 AIF-C01？',
+    answer: '先閱讀官方考試指南，了解各領域範圍，再透過領域練習加強不熟悉的主題。每次作答後閱讀解析，最後以完整計時模擬測驗練習配速。',
     category: 'strategy',
     certCode: 'aif-c01',
-    excludeFromLlms: true,
   },
   {
-    question: 'What topics are on the AWS AI Practitioner exam?',
-    answer:
-      'AIF-C01 covers five domains: Fundamentals of AI and ML (20%), Fundamentals of Generative AI (24%), Applications of Foundation Models (28%), Guidelines for Responsible AI (14%), and Security, Compliance, and Governance for AI Solutions (14%). Key services covered include Amazon Bedrock, Amazon SageMaker, Amazon Q, Amazon Rekognition, Amazon Comprehend, Amazon Polly, Amazon Transcribe, and Amazon Textract.',
-    category: 'format',
-    certCode: 'aif-c01',
-  },
-
-  // Exam-realism cluster (R23.12). Mirrored in the FAQPage JSON-LD via Faq.astro.
-  {
-    question: 'How realistic are CloudCertPrep practice exams?',
-    answer:
-      'Very realistic. Our AIF-C01 mock exams mirror the real AWS Certified AI Practitioner format: timed sittings, scaled scoring from 100 to 1000, and a 700 pass mark. Questions match the difficulty, style, and domain weighting of the official exam guide, so your practice scores closely track real exam-day performance.',
+    question: 'AIF-C01 的通過率是多少？',
+    answer: 'AWS 未公布官方通過率。本平台社群統計只反映使用者在模擬測驗中的表現，不代表正式考試的通過率，也不保證實際考試結果。',
     category: 'format',
     certCode: 'aif-c01',
   },
   {
-    question: 'Are the practice questions aligned to the current exam guide?',
-    answer:
-      'Yes. Every AIF-C01 question is written against the current AWS Certified AI Practitioner exam guide (AIF-C01, version 1.1, April 2026) and mapped to its five domains and task statements. The open-source bank is reviewed via GitHub pull request and updated whenever AWS revises the guide, so coverage stays aligned with what the real exam tests.',
+    question: 'AIF-C01 可以重考嗎？',
+    answer: '原始考試資訊說明未通過後須等待 14 天才可重考，且每次重考須支付費用。報考前請以 AWS 官方最新規定為準。',
     category: 'format',
     certCode: 'aif-c01',
   },
   {
-    question: 'Does every question have a detailed explanation?',
-    answer:
-      'Yes. Every AIF-C01 practice question ships with a full explanation covering why the correct answer is right and why each distractor is wrong. Explanations reference AWS AI and ML concepts and documentation, so you learn the reasoning rather than memorizing answers. The entire bank is publicly auditable on GitHub under the MIT license.',
-    category: 'format',
-    certCode: 'aif-c01',
-  },
-  // AIF-C01 cost / logistics / strategy cluster (audit K3 / N-section).
-  {
-    question: 'How much does the AWS AI Practitioner exam cost?',
-    answer:
-      'The AWS Certified AI Practitioner (AIF-C01) exam costs 100 USD (prices vary slightly by region and local tax). As a foundational-level exam it is the same price tier as the Cloud Practitioner. If you already hold an AWS certification, check your AWS Certification account for a 50% discount voucher before booking. Practicing on CloudCertPrep is always free.',
+    question: 'AIF-C01 證照有效期限多久？',
+    answer: '原始指南說明證照有效期為三年。續證方式與有效期限請以你的 AWS Certification 帳戶及官方最新規定為準。',
     category: 'format',
     certCode: 'aif-c01',
   },
   {
-    question: 'Is there an AWS AI Practitioner exam voucher or discount?',
-    answer:
-      'AWS issues a 50% discount voucher to candidates who already hold an AWS certification, redeemable on their next exam, and periodically runs free or discounted exam promotions. Vouchers appear in the benefits section of your AWS Certification account and are applied at checkout when you schedule the exam. CloudCertPrep practice is always free regardless of any voucher.',
-    category: 'format',
-    certCode: 'aif-c01',
-  },
-  {
-    question: 'What is the AWS AI Practitioner passing score?',
-    answer:
-      'The AWS Certified AI Practitioner (AIF-C01) passing score is 700 on a scaled range of 100 to 1000. The score is scaled, not a simple percentage, so you do not need exactly 70% of questions correct. Of the 65 questions, 50 are scored and 15 are unscored pilot questions that do not affect your result. Aim for 800+ on the practice exams here for a comfortable margin.',
-    category: 'format',
-    certCode: 'aif-c01',
-  },
-  {
-    question: 'Can I retake the AWS AI Practitioner exam if I fail?',
-    answer:
-      'Yes. If you do not pass, you can retake the AIF-C01 exam after a 14-day waiting period. There is no limit on the total number of attempts, but you pay the exam fee each time and must wait 14 days between attempts. Use the gap to review your weakest domains in domain practice here before rebooking.',
-    category: 'format',
-    certCode: 'aif-c01',
-  },
-  {
-    question: 'What is the AWS AI Practitioner pass rate?',
-    answer:
-      'AWS does not publish official pass rates for any certification, so any specific percentage you see online is an estimate, not an AWS figure. AIF-C01 is a foundational exam: candidates who study the exam guide, focus on the generative-AI and foundation-model domains (together over half the exam), and review explanations typically pass on their first attempt. Treat your scores on full-length practice exams here as the best available predictor: a steady 800+ signals you are ready.',
-    category: 'format',
-    certCode: 'aif-c01',
-    excludeFromLlms: true,
-  },
-  {
-    question: 'How many questions are on the AWS AI Practitioner exam?',
-    answer:
-      'The AWS Certified AI Practitioner (AIF-C01) exam has 65 questions to answer in 90 minutes. Of these, 50 are scored and 15 are unscored pilot questions mixed in at random that do not affect your result. Question formats include multiple choice, multiple response, ordering, and matching.',
-    category: 'format',
-    certCode: 'aif-c01',
-  },
-  {
-    question: 'Does the AWS AI Practitioner certification expire?',
-    answer:
-      'Yes. Like all AWS certifications, the AI Practitioner (AIF-C01) is valid for three years from the date you pass. You can recertify by passing the current version of the exam again, or by earning a higher-level AWS certification before it expires.',
-    category: 'format',
-    certCode: 'aif-c01',
-  },
-  {
-    question: 'Does CloudCertPrep provide AIF-C01 exam dumps?',
-    answer:
-      'No. We do not provide exam dumps, which are leaked or stolen real exam questions that violate the AWS Certification agreement and can get your certification revoked. Every AIF-C01 question is original, written from the published AWS exam guide and AWS documentation, and aligned to the five current AIF-C01 domains. We help you pass legitimately by teaching the material, not by sharing stolen answers.',
+    question: '這裡提供 AIF-C01 的真實考題洩題嗎？',
+    answer: '不提供。題目為依公開考試指南與文件撰寫的原創練習內容，不是洩漏的真實考題。目標是協助你理解觀念並正當準備考試。',
     category: 'general',
     certCode: 'aif-c01',
-  },
-  {
-    question: 'What is the best way to prepare for the AWS AI Practitioner exam?',
-    answer:
-      'A practical approach for AIF-C01: (1) Build foundational cloud knowledge first; the AWS Cloud Practitioner (CLF-C02) material is excellent groundwork. (2) Read the official AWS Certified AI Practitioner exam guide and focus on the five domains, especially generative AI and foundation models, which together are over half the exam. (3) Learn the AWS AI/ML service map: Amazon Bedrock, SageMaker, Q, Rekognition, Comprehend, Polly, Transcribe, and Textract. (4) Use domain practice here to drill your weakest domains with adaptive spaced repetition, then take full-length timed mock exams to build pacing.',
-    steps: {
-      intro: 'A practical approach for AIF-C01:',
-      items: [
-        'Build foundational cloud knowledge first; the AWS Cloud Practitioner (CLF-C02) material is excellent groundwork.',
-        'Read the official AWS Certified AI Practitioner exam guide and focus on the five domains, especially generative AI and foundation models, which together are over half the exam.',
-        'Learn the AWS AI/ML service map: Amazon Bedrock, SageMaker, Q, Rekognition, Comprehend, Polly, Transcribe, and Textract.',
-        'Use domain practice here to drill your weakest domains with adaptive spaced repetition, then take full-length timed mock exams to build pacing.',
-      ],
-    },
-    category: 'strategy',
-    certCode: 'aif-c01',
-    excludeFromLlms: true,
   },
 ]

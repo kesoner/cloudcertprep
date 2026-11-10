@@ -1,8 +1,8 @@
 ---
 /**
- * ExamRealismTable.astro — "How Our Practice Exams Match the Real Exam"
+ * ExamRealismTable.astro — "How Our 模擬測驗 Match the Real Exam"
  * comparison table. Renders the published exam logistics (from the
- * Cert_Registry's `examFormat`) side-by-side with the CloudCertPrep practice
+ * Cert_Registry's `examFormat`) side-by-side with the CloudCertPrep-zh practice
  * experience so crawlers and LLM browse-mode read a concrete realism claim
  * grounded in the official exam guide.
  *
@@ -27,7 +27,7 @@ const examFormat = cert.examFormat
   const fmtTypes = (types: string[]) =>
     types.map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(', ')
   const realTypesLabel = fmtTypes(examFormat.questionTypes)
-  // What CloudCertPrep actually offers (falls back to full parity when the
+  // What CloudCertPrep-zh actually offers (falls back to full parity when the
   // cert does not distinguish). When the two differ, the table is honest that
   // some real-exam formats are not yet in the practice bank.
   const oursTypes = examFormat.practiceQuestionTypes ?? examFormat.questionTypes
@@ -49,12 +49,12 @@ const examFormat = cert.examFormat
       ours: `${cert.examQuestionCount}-question timed mock exam`,
     },
     {
-      feature: 'Time limit',
+      feature: '時間限制',
       real: `${examFormat.timeMinutes} minutes`,
       ours: `${mockMinutes} minutes`,
     },
     {
-      feature: 'Passing score',
+      feature: '通過分數',
       real: `${examFormat.passingScore} / ${scaleMax}`,
       ours: `${cert.passingScore} / ${scaleMax}`,
     },
@@ -64,7 +64,7 @@ const examFormat = cert.examFormat
       ours: `${examFormat.scoringScale} scaled`,
     },
     {
-      feature: 'Question types',
+      feature: '題型',
       real: realTypesLabel,
       ours: oursTypesLabel,
     },
@@ -77,9 +77,9 @@ const examFormat = cert.examFormat
 
   return (
     <section aria-labelledby="exam-realism-heading" class="mt-8 md:mt-12">
-      <p class="kicker" aria-hidden="true">Exam realism</p>
+      <p class="kicker" aria-hidden="true">測驗設計</p>
       <h2 id="exam-realism-heading" class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-2">
-        How our practice exams match the real exam
+        模擬測驗與正式考試的對照
       </h2>
       <p class="text-lead mb-6 max-w-2xl">
         Our {cert.shortName} mock exams mirror the format of the real {cert.name} exam, sourced from the official AWS exam guide.
@@ -89,9 +89,9 @@ const examFormat = cert.examFormat
         <table class="w-full text-left border-collapse text-sm md:text-base">
           <thead>
             <tr class="border-b border-border-hairline">
-              <th scope="col" class="px-4 md:px-6 py-3 font-semibold text-text-primary">Feature</th>
-              <th scope="col" class="px-4 md:px-6 py-3 font-semibold text-text-primary">Real Exam</th>
-              <th scope="col" class="px-4 md:px-6 py-3 font-semibold text-text-primary">CloudCertPrep</th>
+              <th scope="col" class="px-4 md:px-6 py-3 font-semibold text-text-primary">項目</th>
+              <th scope="col" class="px-4 md:px-6 py-3 font-semibold text-text-primary">正式考試</th>
+              <th scope="col" class="px-4 md:px-6 py-3 font-semibold text-text-primary">CloudCertPrep-zh</th>
             </tr>
           </thead>
           <tbody>
@@ -109,7 +109,7 @@ const examFormat = cert.examFormat
       </div>
       {typesDiffer && (
         <p class="text-text-muted text-xs md:text-sm mt-3 max-w-2xl">
-          The real {cert.shortName} exam also includes {realTypesLabel.toLowerCase()} formats. CloudCertPrep currently offers {oursTypesLabel.toLowerCase()} questions; additional formats are on the roadmap.
+          The real {cert.shortName} exam also includes {realTypesLabel.toLowerCase()} formats. CloudCertPrep-zh currently offers {oursTypesLabel.toLowerCase()} questions; additional formats are on the roadmap.
         </p>
       )}
     </section>

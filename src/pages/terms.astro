@@ -1,146 +1,54 @@
 ---
-/**
- * Terms of Service (/terms) — genuine prerendered Astro markup.
- *
- * Ports the visible content of the former React `_Terms.tsx` page into static
- * HTML rendered inside BaseLayout. No React app is mounted; the chrome
- * (Header/Footer/etc.) comes from BaseLayout islands.
- *
- * Satisfies: R1.2
- */
+import { SITE_URL } from '../lib/seo-data'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import HeroMini from '../components/landing/HeroMini.astro'
 import Breadcrumb from '../components/Breadcrumb.astro'
-
-const breadcrumbItems = [
-  { label: 'Home', to: '/' },
-  { label: 'Terms' },
-]
+const items = [{ label: '首頁', to: '/' }, { label: '服務條款' }]
 ---
-
-<BaseLayout
-  title="Terms of Service · CloudCertPrep"
-  description="CloudCertPrep terms of service: a free study tool provided as-is with no warranty, open source under the MIT license. Read the full usage terms here."
-  canonical="https://www.cloudcertprep.io/terms"
-  headerOverlay={true}
-  headerNoAuthedFrost={true}
->
-  {/* BreadcrumbList JSON-LD only; the visible trail is the HeroMini crumbs. */}
-  <Breadcrumb items={breadcrumbItems} visuallyHidden />
-
-  <HeroMini
-    kicker="Legal"
-    title="Terms of Service"
-    lede="A free study tool, provided as-is, open source under the MIT license."
-    crumbs={[{ label: 'Home', href: '/' }, { label: 'Terms' }]}
-    maxWidth="max-w-3xl"
-  />
-
+<BaseLayout title="服務條款 · CloudCertPrep-zh" description="kesoner 的自用繁中 fork，按現狀提供。帳戶、資料與服務不提供保存、可用性或持續託管保證。"
+  canonical={SITE_URL + "/terms"} headerOverlay={true} headerNoAuthedFrost={true}>
+  <Breadcrumb items={items} visuallyHidden />
+  <HeroMini kicker="自用 fork 說明" title="服務條款" lede="kesoner 的自用繁中 fork，按現狀提供。帳戶、資料與服務不提供保存、可用性或持續託管保證。"
+    crumbs={[{ label: '首頁', href: '/' }, { label: '服務條款' }]} maxWidth="max-w-3xl" />
   <div class="sheet-overlap pb-16 md:pb-24 pt-10 md:pt-14">
     <div class="max-w-3xl mx-auto px-4 md:px-8">
-      <p class="font-mono text-[12px] tracking-wide text-text-muted mb-8 max-w-[68ch] mx-auto">Last updated: May 2026</p>
-
-      <div class="space-y-8 max-w-[68ch] mx-auto">
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">The short version</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            CloudCertPrep is a free study tool. Use it to prepare for your cloud certification exams (AWS today; Azure and GCP planned). It is provided as-is with no guarantees. Be respectful, don't abuse the service.
-          </p>
+      <p class="font-mono text-xs text-text-muted mb-8">最後更新：2026 年 11 月 9 日</p>
+      <div class="space-y-8">
+        <section class="space-y-3">
+          <h2 class="text-xl font-semibold text-text-primary">專案定位與作者歸屬</h2>
+          <p class="text-text-muted text-base leading-[1.8]">CloudCertPrep-zh 是 kesoner 為個人刷題及實際操作雲端架構建立的 fork。kesoner 並非原專案的開發者或維護者。原始程式與題庫來自 <a href="https://github.com/nastaso/cloudcertprep" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">Alex 的原專案 CloudCertPrep</a>，原作者及貢獻者的署名與授權均予保留。</p>
         </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">Free to use</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            CloudCertPrep is completely free. There are no paid tiers, no premium features, and no paywalls. We may accept voluntary donations via Ko-fi to cover hosting costs, but payment is never required to access any feature.
-          </p>
+        <section class="space-y-3">
+          <h2 class="text-xl font-semibold text-text-primary">免費使用與贊助</h2>
+          <p class="text-text-muted text-base leading-[1.8]">本 fork 免費提供，不收取使用費用，也不以募款為目的。如想贊助，請直接支持 <a href="https://ko-fi.com/alexsantonastaso" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">原作者 Alex 的 Ko-fi</a>。對題目、原專案或功能有建議與改動想法，請直接透過 <a href="https://github.com/nastaso/cloudcertprep/issues" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">原專案 Issues</a> 向 Alex 提出。</p>
         </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">No warranty</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            CloudCertPrep is provided "as is" without warranty of any kind, express or implied. We make no guarantees about uptime, accuracy of questions, or fitness for any particular purpose. The service may be interrupted, changed, or discontinued at any time without notice.
-          </p>
+        <section class="space-y-3">
+          <h2 class="text-xl font-semibold text-text-primary">資料與服務不提供保證</h2>
+          <p class="text-text-muted text-base leading-[1.8]">本 fork 按現狀提供，不對任何資訊或資料的正確性、完整性、可用性、適用性或永久保存作明示或默示擔保。所有帳號、作答紀錄、分數與學習進度均可能隨時回退或遺失，亦可能無法復原。</p>
+          <p class="text-text-muted text-base leading-[1.8]">服務可能隨時更新、中斷、暫停或下架，不承諾固定更新、長期維護、離線可用性或持續提供服務。請勿將本服務當作可靠備份或正式考試成績證明。</p>
         </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">No exam guarantee</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            Using CloudCertPrep does not guarantee you will pass AWS certification exams. You are responsible for your own study outcomes. Results vary depending on your prior knowledge, study habits, and effort.
-          </p>
+        <section class="space-y-3">
+          <h2 class="text-xl font-semibold text-text-primary">責任限制</h2>
+          <p class="text-text-muted text-base leading-[1.8]">在適用法律允許的範圍內，kesoner 不對使用或無法使用本服務、資訊錯誤、帳戶或資料回退與遺失、服務中斷或停止託管所生的損失負責。依法不得排除或限制的責任，以及使用者依法不得放棄的權利，不受本條款影響。</p>
         </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">Question content</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            Practice questions are original works created for CloudCertPrep, written against the published AWS exam guides and AWS documentation. While we aim for accuracy, questions may contain errors or become outdated as AWS updates its services. Always cross-reference with official AWS documentation and training materials.
-          </p>
+        <section class="space-y-3">
+          <h2 class="text-xl font-semibold text-text-primary">同步更新與託管權利</h2>
+          <p class="text-text-muted text-base leading-[1.8]">kesoner 會不定時從原專案 clone／同步更新，並加入個人想用的功能，沒有固定時程。kesoner 保留調整、暫停、停止託管及維護此 fork 的決定權。</p>
+          <p class="text-text-muted text-base leading-[1.8]">上述權利僅指本 fork 的託管與維護決定，不移轉原作者著作權，也不限制原始 <a href="https://github.com/nastaso/cloudcertprep/blob/main/LICENSE" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">MIT 授權</a> 所賦予的使用、修改及散布權利。</p>
         </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">Acceptable use</h2>
-          <p class="text-text-muted text-base leading-[1.7] mb-3">
-            You agree not to:
-          </p>
-          <ul class="space-y-2 text-text-muted text-base">
-            <li class="flex items-start gap-2">
-              <span class="mt-[0.55em] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-text-muted/50" aria-hidden="true"></span>
-              <span>Attempt to scrape, reverse engineer, or systematically extract question content</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="mt-[0.55em] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-text-muted/50" aria-hidden="true"></span>
-              <span>Use the service in a way that places unreasonable load on our infrastructure</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="mt-[0.55em] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-text-muted/50" aria-hidden="true"></span>
-              <span>Create multiple accounts to circumvent any limitations</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="mt-[0.55em] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-text-muted/50" aria-hidden="true"></span>
-              <span>Use the service for any unlawful purpose</span>
-            </li>
-          </ul>
+        <section class="space-y-3">
+          <h2 class="text-xl font-semibold text-text-primary">合理使用與學習用途</h2>
+          <p class="text-text-muted text-base leading-[1.8]">請勿濫用服務、繞過安全機制、存取他人資料，或以不合理流量影響基礎設施。題目與解析可能有錯誤或過時，請搭配官方學習資料查證；使用本服務不保證通過證照考試。</p>
+          <p class="text-text-muted text-base leading-[1.8]">AWS、Amazon Web Services 及相關商標屬於其權利人。本 fork 是獨立學習工具，與 AWS 或 Amazon 無關聯，亦未獲其背書。</p>
         </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">AWS trademark notice</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            AWS, Amazon Web Services, and related trademarks are the property of Amazon.com, Inc. or its affiliates. CloudCertPrep is an independent study tool and is not affiliated with, endorsed by, or sponsored by Amazon or AWS.
-          </p>
+        <section class="space-y-3">
+          <h2 class="text-xl font-semibold text-text-primary">違反使用條款或授權時</h2>
+          <p class="text-text-muted text-base leading-[1.8]">若本 fork 有任何違反使用條款、授權或其他權利的地方，請寫信至 <a href="mailto:kesoner666@gmail.com" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">kesoner666@gmail.com</a>，kesoner 收到通知後會立即下架。</p>
         </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">Limitation of liability</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            To the maximum extent permitted by applicable law, CloudCertPrep and its creator shall not be liable for any direct, indirect, incidental, special, consequential, or punitive damages arising from your use of, or inability to use, the service. Nothing in these terms excludes or limits liability for death or personal injury caused by negligence, fraud, or any other liability that cannot be excluded by law.
-          </p>
+        <section class="space-y-3">
+          <h2 class="text-xl font-semibold text-text-primary">其他說明</h2>
+          <p class="text-text-muted text-base leading-[1.8]">本頁可能隨實際使用情況調整，並更新頁首日期。隱私與帳戶資料處理請閱讀 <a href="/privacy" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">隱私權政策</a>；建立此 fork 的原因請見 <a href="/about" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">關於 CloudCertPrep-zh</a>。</p>
         </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">Governing law</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            These terms are governed by the laws of England and Wales. Any disputes arising from these terms or your use of the service shall be subject to the exclusive jurisdiction of the courts of England and Wales. If you are a consumer resident in the UK, you may also bring proceedings in the courts of your country of residence.
-          </p>
-        </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">Consumer rights</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            Nothing in these terms affects your statutory rights as a consumer under UK law, including rights under the Consumer Rights Act 2015. If any provision of these terms is found to be unenforceable, the remaining provisions will continue in effect.
-          </p>
-        </section>
-
-        <section>
-          <h2 class="text-lg md:text-xl font-semibold text-text-primary mb-3">Changes to these terms</h2>
-          <p class="text-text-muted text-base leading-[1.7]">
-            We may update these terms from time to time. The "last updated" date at the top of this page will reflect any changes. Continued use of the service after changes constitutes acceptance of the updated terms.
-          </p>
-        </section>
-
-        <div class="pt-4 border-t border-text-muted/20">
-          <p class="text-text-muted text-sm">
-            Questions? Email <a href="mailto:alex@cloudcertprep.io" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70 transition-colors">alex@cloudcertprep.io</a> or read our <a href="/privacy" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70 transition-colors">Privacy Policy</a>.
-          </p>
-        </div>
       </div>
     </div>
   </div>

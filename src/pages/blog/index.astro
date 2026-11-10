@@ -32,27 +32,27 @@ const sorted = posts
 
 const canonical = `${SITE_URL}/blog`
 
-const breadcrumbItems = [{ label: 'Home', to: '/' }, { label: 'Blog' }]
+const breadcrumbItems = [{ label: '首頁', to: '/' }, { label: '學習文章' }]
 
 const description =
-  'AWS certification study guides, exam-format breakdowns, and prep strategy for the Cloud Practitioner and AI Practitioner exams, from the CloudCertPrep team.'
+  '閱讀 Cloud Practitioner 與 AI Practitioner 的學習指南、測驗形式與準備策略。文章保留英文原文，方便對照官方術語。'
 ---
 
-<BaseLayout title="AWS Certification Study Guides · CloudCertPrep Blog" description={description} canonical={canonical} ogImage={`${SITE_URL}/og/og-blog.png`} headerOverlay={true} headerNoAuthedFrost={true}>
+<BaseLayout title="AWS Certification Study Guides · CloudCertPrep-zh 學習文章" description={description} canonical={canonical} ogImage={`${SITE_URL}/og/og-blog.png`} headerOverlay={true} headerNoAuthedFrost={true}>
   <Breadcrumb items={breadcrumbItems} visuallyHidden />
 
   <HeroMini
-    kicker="Study guides"
-    title="CloudCertPrep Blog"
+    kicker="學習指南"
+    title="CloudCertPrep-zh 學習文章"
     lede={description}
-    crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog' }]}
+    crumbs={[{ label: '首頁', href: '/' }, { label: '學習文章' }]}
     maxWidth="max-w-3xl"
   />
 
   <div class="sheet-overlap pb-16 md:pb-24 pt-10 md:pt-14">
     <div class="max-w-3xl mx-auto px-4 md:px-8">
       {sorted.length === 0 ? (
-        <p class="text-text-muted">No posts yet. Check back soon.</p>
+        <p class="text-text-muted">目前尚無文章，歡迎稍後再來。</p>
       ) : (
         <div class="space-y-5">
           {sorted.map((post: CollectionEntry<'blog'>) => (

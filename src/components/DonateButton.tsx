@@ -13,7 +13,7 @@ interface DonateButtonProps {
 }
 
 /**
- * Floating "Support this project" affordance - bottom-left, desktop only.
+ * Floating "贊助原作者 Alex" affordance - bottom-left, desktop only.
  *
  * Visual: a small neutral surface PILL with a red heart icon and a visible
  * label (it used to be a heart that only revealed its label on hover, which
@@ -23,7 +23,7 @@ interface DonateButtonProps {
  */
 export function DonateButton({ isExamActive, pathname }: DonateButtonProps) {
   // Hide the floating pill while the footer is on screen: the footer has its
-  // own "Support this project" link, and a fixed bottom-left pill otherwise
+  // own "贊助原作者 Alex" link, and a fixed bottom-left pill otherwise
   // sits ON TOP of the footer's first column on short pages. (Hooks run before
   // the isExamActive early-return so hook order stays stable.)
   const [nearFooter, setNearFooter] = useState(false)
@@ -47,7 +47,7 @@ export function DonateButton({ isExamActive, pathname }: DonateButtonProps) {
   // Don't float the donate pill over the user's OWN data pages (stats / history
   // / account): on common desktop widths the fixed bottom-left pill overlaps the
   // left edge of the wide content cards, and a donate prompt over personal data
-  // reads as nagging. The footer 'Support this project' link still carries the
+  // reads as nagging. The footer '贊助原作者 Alex' link still carries the
   // ask on those pages. Uses the Astro-provided pathname (falls back to window
   // for safety) so the check holds during SSR, not just after hydration.
   const path = pathname ?? (typeof window !== 'undefined' ? window.location.pathname : '')
@@ -63,7 +63,7 @@ export function DonateButton({ isExamActive, pathname }: DonateButtonProps) {
     // it instantly (global override neutralizes the animation).
     <div
       role="complementary"
-      aria-label="Support this project"
+      aria-label="贊助原作者 Alex"
       className={`hidden lg:block fixed bottom-6 left-6 z-40 group animate-fade-in transition-[opacity,transform] duration-gentle ease-out ${nearFooter ? 'pointer-events-none translate-y-3 opacity-0' : 'opacity-100'}`}
     >
       <a
@@ -80,7 +80,7 @@ export function DonateButton({ isExamActive, pathname }: DonateButtonProps) {
           fill="currentColor"
           aria-hidden="true"
         />
-        <span className="whitespace-nowrap font-medium text-sm">Support this project</span>
+        <span className="whitespace-nowrap font-medium text-sm">贊助原作者 Alex</span>
       </a>
     </div>
   )

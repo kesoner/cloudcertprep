@@ -33,7 +33,8 @@ import { dirname, resolve, relative, sep } from 'node:path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DIST = resolve(__dirname, '../dist')
-const SITE_HOST = 'www.cloudcertprep.io'
+import { SITE_URL } from './site-config.mjs'
+const SITE_HOST = new URL(SITE_URL).host
 
 const MAX_CLICK_DEPTH = 3
 const MIN_HUB_SPOKES = 3

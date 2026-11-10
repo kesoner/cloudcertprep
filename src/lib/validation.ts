@@ -10,7 +10,7 @@ export const MIN_PASSWORD_LENGTH = 8
 
 /**
  * Minimum strength score required at sign-up / password-reset, based on
- * `scorePassword`. 2 = "Fair" = length + at least one of [case mix, digit,
+ * `scorePassword`. 2 = "尚可" = length + at least one of [case mix, digit,
  * symbol]. Allows passphrases like 'Mypassword1' while blocking weak
  * patterns like 'password' or '12345678'.
  */
@@ -22,15 +22,15 @@ export const MIN_PASSWORD_SCORE = 2
  */
 export function validatePassword(password: string, confirmPassword: string): string | null {
   if (password !== confirmPassword) {
-    return 'Passwords do not match'
+    return '兩次輸入的密碼不一致'
   }
 
   if (password.length < MIN_PASSWORD_LENGTH) {
-    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+    return `密碼長度至少需要 ${MIN_PASSWORD_LENGTH} 個字元`
   }
 
   if (scorePassword(password).score < MIN_PASSWORD_SCORE) {
-    return 'Password is too weak. Add a number, symbol, or mix of letter cases.'
+    return '密碼強度不足，請加入數字、符號或混合大小寫字母。'
   }
 
   return null
@@ -61,7 +61,7 @@ export function isPasswordStrongEnough(password: string): boolean {
  */
 export interface PasswordStrength {
   score: 0 | 1 | 2 | 3 | 4
-  label: 'Weak' | 'Fair' | 'Good' | 'Strong'
+  label: '較弱' | '尚可' | '良好' | '強'
   checks: {
     length: boolean
     caseMix: boolean
@@ -85,7 +85,7 @@ export function scorePassword(password: string): PasswordStrength {
   }
 
   const label: PasswordStrength['label'] =
-    score <= 1 ? 'Weak' : score === 2 ? 'Fair' : score === 3 ? 'Good' : 'Strong'
+    score <= 1 ? '較弱' : score === 2 ? '尚可' : score === 3 ? '良好' : '強'
 
   return { score, label, checks }
 }

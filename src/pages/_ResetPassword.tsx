@@ -28,8 +28,8 @@ export function ResetPassword() {
   const { user, loading: authLoading } = useAuth()
 
   useSEO({
-    title: 'Reset password · CloudCertPrep',
-    description: 'Reset your CloudCertPrep account password.',
+    title: '重設密碼 · CloudCertPrep-zh',
+    description: '重設你的 CloudCertPrep-zh 帳戶密碼。',
     canonical: null,
   })
 
@@ -50,14 +50,13 @@ export function ResetPassword() {
       <div className="flex-1 flex items-center justify-center px-4 py-10 md:py-16">
         <Card padding="lg" className="max-w-md w-full" style={{ boxShadow: 'var(--shadow-card-hover)' }}>
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-2">Reset link invalid or expired</h1>
+            <h1 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-2">重設連結無效或已過期</h1>
             <p className="text-text-muted text-sm leading-relaxed">
-              Password reset links are single-use and expire after a short time.
-              Request a new one from the sign-in page.
+              重設密碼連結僅能使用一次，且有時間限制。請前往登入頁面重新申請。
             </p>
           </div>
           <Button onClick={() => navigate('/login')} fullWidth>
-            Back to sign in
+            返回登入
           </Button>
         </Card>
       </div>
@@ -102,7 +101,7 @@ export function ResetPassword() {
 
       setTimeout(() => navigate('/login'), 2000)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : '發生錯誤，請稍後重試')
     } finally {
       setLoading(false)
     }
@@ -112,14 +111,14 @@ export function ResetPassword() {
     <div className="flex-1 flex items-center justify-center px-4 py-10 md:py-16">
       <Card padding="lg" className="max-w-md w-full" style={{ boxShadow: 'var(--shadow-card-hover)' }}>
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-2">Reset your password</h1>
-          <p className="text-text-muted text-sm">Choose a new password</p>
+          <h1 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-2">重設你的密碼</h1>
+          <p className="text-text-muted text-sm">設定新密碼</p>
         </div>
 
         <form onSubmit={handleResetPassword} className="space-y-4">
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-text-primary mb-2">
-              New password
+              新密碼
             </label>
             <PasswordInput
               id="password"
@@ -127,14 +126,14 @@ export function ResetPassword() {
               onChange={setPassword}
               required
               autoComplete="new-password"
-              placeholder="Enter a new password"
+              placeholder="輸入新密碼"
             />
             <PasswordStrengthMeter password={password} />
           </div>
 
           <div>
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-primary mb-2">
-              Confirm password
+              確認密碼
             </label>
             <PasswordInput
               id="confirmPassword"
@@ -142,13 +141,13 @@ export function ResetPassword() {
               onChange={setConfirmPassword}
               required
               autoComplete="new-password"
-              placeholder="Re-enter your password"
+              placeholder="再次輸入密碼"
             />
           </div>
 
           {success && (
             <Alert tone="success" role="status">
-              Password updated successfully! Redirecting to sign in...
+              密碼更新成功！正在前往登入頁面…
             </Alert>
           )}
 
@@ -166,7 +165,7 @@ export function ResetPassword() {
             loadingText="Updating..."
             disabled={success || !isPasswordStrongEnough(password) || password !== confirmPassword}
           >
-            Reset password
+            重設密碼
           </Button>
         </form>
       </Card>

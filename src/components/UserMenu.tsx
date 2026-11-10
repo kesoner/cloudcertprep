@@ -64,7 +64,7 @@ export function UserMenu() {
         type="button"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        aria-label="Account menu"
+        aria-label="帳戶選單"
         onClick={() => setOpen(o => !o)}
         className="inline-flex items-center gap-1 rounded-full text-on-header transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-on-header focus-visible:ring-offset-2 focus-visible:ring-offset-header-bg"
       >
@@ -86,17 +86,17 @@ export function UserMenu() {
           )}
           <a href="/history" className={itemClass}>
             <History className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
-            Exam history
+            測驗紀錄
           </a>
           <a href="/account" className={itemClass}>
             <Settings className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
-            Account
+            帳戶
           </a>
           <button type="button" onClick={toggleTheme} className={itemClass}>
             {theme === 'dark'
               ? <Sun className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
               : <Moon className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />}
-            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            <span>{theme === 'dark' ? '淺色模式' : '深色模式'}</span>
           </button>
           <div className="my-1.5 border-t border-border-hairline/70" />
           <button
@@ -105,7 +105,7 @@ export function UserMenu() {
             className={`${itemClass} text-danger`}
           >
             <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
-            Sign out
+            登出
           </button>
         </div>
       )}

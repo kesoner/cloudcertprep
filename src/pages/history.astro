@@ -1,4 +1,5 @@
 ---
+import { SITE_URL } from '../lib/seo-data'
 /**
  * /history — interactive page body island. Noindexed (R2.7).
  * Static Astro chrome comes from BaseLayout; AppIsland renders only the body.
@@ -8,9 +9,9 @@ import AppIsland from '../components/AppIsland.tsx'
 ---
 
 <BaseLayout
-  title="Exam history · CloudCertPrep"
+  title="測驗紀錄 · CloudCertPrep-zh"
   description="Review your past practice exam attempts and domain practice sessions."
-  canonical="https://www.cloudcertprep.io/history"
+  canonical={SITE_URL + "/history"}
   robots="noindex"
   noscriptDirectory={true}
 >

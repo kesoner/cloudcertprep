@@ -21,7 +21,7 @@ const { data, slug } = Astro.props
 
 const href = `/blog/${slug}`
 const dateIso = data.date.toISOString()
-const dateDisplay = data.date.toLocaleDateString('en-US', {
+const dateDisplay = data.date.toLocaleDateString('zh-TW', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
@@ -38,7 +38,7 @@ const dateDisplay = data.date.toLocaleDateString('en-US', {
     <time datetime={dateIso}>{dateDisplay}</time>
   </p>
   <h2 class="mt-1.5 text-lg md:text-xl font-semibold tracking-[-0.01em] text-text-primary">
-    <a href={href} class="before:absolute before:inset-0 hover:text-text-primary transition-colors rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg-card">{data.title}</a>
+    <a href={href} class="before:absolute before:inset-0 hover:text-text-primary transition-colors rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg-card"><span lang="en">{data.title}</span><span class="ml-2 text-xs font-normal text-text-muted">英文文章</span></a>
   </h2>
   <p class="mt-2 text-sm md:text-base text-text-muted leading-relaxed">{data.description}</p>
   {data.tags && data.tags.length > 0 && (

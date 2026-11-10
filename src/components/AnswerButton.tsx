@@ -51,7 +51,7 @@ export function AnswerButton({ label, text, state, onClick, disabled, compact }:
         {label}
       </span>
       <div className={`flex-1 text-text-primary ${compact ? 'pt-0' : 'pt-0 md:pt-0.5'}`}>
-        {text}
+        <span lang="en">{text}</span>
       </div>
       {/* Non-color cue for the graded states (color alone fails colorblind
           users): a check on the correct answer, an X on a wrong pick. */}
@@ -60,8 +60,8 @@ export function AnswerButton({ label, text, state, onClick, disabled, compact }:
           className={`flex-shrink-0 ${compact ? 'pt-0.5' : 'pt-0.5 md:pt-1'} ${state === 'correct' ? 'text-success' : 'text-danger'}`}
         >
           {state === 'correct'
-            ? <Check role="img" aria-label="Correct answer" className={compact ? 'w-4 h-4' : 'w-4 h-4 md:w-5 md:h-5'} />
-            : <X role="img" aria-label="Your answer (incorrect)" className={compact ? 'w-4 h-4' : 'w-4 h-4 md:w-5 md:h-5'} />}
+            ? <Check role="img" aria-label="正確答案" className={compact ? 'w-4 h-4' : 'w-4 h-4 md:w-5 md:h-5'} />
+            : <X role="img" aria-label="你的答案（答錯）" className={compact ? 'w-4 h-4' : 'w-4 h-4 md:w-5 md:h-5'} />}
         </span>
       )}
     </button>

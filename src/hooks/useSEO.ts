@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { DEFAULT_SEO, SITE_URL } from '../lib/seo-data'
+import { APP_NAME } from '../lib/constants'
 
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`
 
@@ -31,8 +32,9 @@ interface SEOOptions {
  * deep pages from ranking on their own keywords.
  */
 export function useSEO({ title, description, canonical, image }: SEOOptions): void {
+  const pageTitle = title.includes(APP_NAME) ? title : `${title} · ${APP_NAME}`
   useEffect(() => {
-    document.title = title
+    document.title = pageTitle
 
     if (description !== undefined) {
       setMetaContent('name', 'description', description)
@@ -40,8 +42,8 @@ export function useSEO({ title, description, canonical, image }: SEOOptions): vo
       setMetaContent('name', 'twitter:description', description)
     }
 
-    setMetaContent('property', 'og:title', title)
-    setMetaContent('name', 'twitter:title', title)
+    setMetaContent('property', 'og:title', pageTitle)
+    setMetaContent('name', 'twitter:title', pageTitle)
 
     if (canonical !== undefined && canonical !== null) {
       const fullUrl = `${SITE_URL}${canonical}`
@@ -70,7 +72,7 @@ export function useSEO({ title, description, canonical, image }: SEOOptions): vo
       setMetaContent('property', 'og:image:url', DEFAULT_OG_IMAGE)
       setMetaContent('name', 'twitter:image', DEFAULT_OG_IMAGE)
     }
-  }, [title, description, canonical, image])
+  }, [pageTitle, description, canonical, image])
 }
 
 function setMetaContent(attr: 'name' | 'property', key: string, value: string): void {

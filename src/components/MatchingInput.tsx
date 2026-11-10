@@ -75,9 +75,9 @@ export function MatchingInput({ options, targets, value, correctMatches, mode, o
                   ? <Check className="w-4 h-4 text-success flex-shrink-0 mt-0.5" aria-label="correct match" />
                   : <X className="w-4 h-4 text-danger flex-shrink-0 mt-0.5" aria-label="wrong match" />}
                 <span>
-                  <span className="text-text-primary">{chosen !== undefined ? (targets[chosen] ?? chosen) : 'Not answered'}</span>
+                  <span className="text-text-primary">{chosen !== undefined ? (targets[chosen] ?? chosen) : '未作答'}</span>
                   {!isRight && correct !== undefined && (
-                    <span className="block text-success mt-0.5">Correct: {targets[correct] ?? correct}</span>
+                    <span className="block text-success mt-0.5">正確答案： {targets[correct] ?? correct}</span>
                   )}
                 </span>
               </span>
@@ -114,7 +114,7 @@ export function MatchingInput({ options, targets, value, correctMatches, mode, o
             aria-label={`Match for: ${options[key]}`}
             className="flex-1 min-w-0 min-h-[44px] bg-bg-dark border border-border-hairline rounded-lg px-3 py-2 text-text-primary hover:border-text-muted/50 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
           >
-            <option value="">Select a match...</option>
+            <option value="">選擇配對項目…</option>
             {rights.map(tk => (
               <option key={tk} value={tk}>{targets[tk]}</option>
             ))}

@@ -27,7 +27,7 @@ const rowBase =
 
 /**
  * Keyboard-accessible ordering control: a vertical list reordered with native
- * Move up / Move down buttons (no HTML5 drag-and-drop, which fails WCAG 2.5.7
+ * 向上移動 / 向下移動 buttons (no HTML5 drag-and-drop, which fails WCAG 2.5.7
  * Dragging Movements and is not keyboard-operable). Doubles as the read-only
  * result view used by QuestionReviewCard and the in-session feedback panels.
  */
@@ -58,7 +58,7 @@ export function OrderingInput({ options, value, correctOrder, mode, onChange, co
       <div className="space-y-3">
         {answered && (
           <div className="space-y-1.5">
-            <p className="text-xs font-medium text-text-muted">Your order</p>
+            <p className="text-xs font-medium text-text-muted">你的排序</p>
             <ol className="space-y-1.5">
               {userOrder.map((key, i) => {
                 const isRight = correctOrder?.[i] === key
@@ -81,7 +81,7 @@ export function OrderingInput({ options, value, correctOrder, mode, onChange, co
           </div>
         )}
         <div className="space-y-1.5">
-          <p className="text-xs font-medium text-text-muted">{answered ? 'Correct order' : 'Not answered. Correct order'}</p>
+          <p className="text-xs font-medium text-text-muted">{answered ? '正確順序' : '未作答。正確順序'}</p>
           <ol className="space-y-1.5">
             {(correctOrder ?? defaultOrder(options)).map((key, i) => (
               <li key={`${key}-${i}`} className={`${rowBase} ${pad} border-success bg-success/10`}>
@@ -105,7 +105,7 @@ export function OrderingInput({ options, value, correctOrder, mode, onChange, co
     const next = [...order]
     const [moved] = next.splice(from, 1)
     next.splice(to, 0, moved)
-    setAnnouncement(`${options[moved]} moved to position ${to + 1} of ${order.length}`)
+    setAnnouncement(`${options[moved]} 已移至第 ${to + 1} 個位置，共 ${order.length} 個`)
     clearTimeout(clearTimer.current)
     clearTimer.current = setTimeout(() => setAnnouncement(''), 1000)
     onChange?.(next)
@@ -125,7 +125,7 @@ export function OrderingInput({ options, value, correctOrder, mode, onChange, co
                 type="button"
                 onClick={() => move(i, i - 1)}
                 disabled={i === 0}
-                aria-label={`Move "${options[key]}" up`}
+                aria-label={`將「${options[key]}」向上移動`}
                 className={reorderBtn}
               >
                 <ArrowUp className="w-4 h-4 md:w-[18px] md:h-[18px] transition-transform duration-gentle ease-press group-hover:-translate-y-0.5" aria-hidden="true" />
@@ -134,7 +134,7 @@ export function OrderingInput({ options, value, correctOrder, mode, onChange, co
                 type="button"
                 onClick={() => move(i, i + 1)}
                 disabled={i === order.length - 1}
-                aria-label={`Move "${options[key]}" down`}
+                aria-label={`將「${options[key]}」向下移動`}
                 className={reorderBtn}
               >
                 <ArrowDown className="w-4 h-4 md:w-[18px] md:h-[18px] transition-transform duration-gentle ease-press group-hover:translate-y-0.5" aria-hidden="true" />

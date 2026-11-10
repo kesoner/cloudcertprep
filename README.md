@@ -1,4 +1,24 @@
-# CloudCertPrep
+# CloudCertPrep-zh
+
+繁體中文介面版本：題庫保留英文。Windows 開發環境與啟動方式請見 [本機開發指南](docs/local-development-zh-TW.md)。
+
+## 關於這個 fork（請先閱讀）
+
+CloudCertPrep-zh 是 kesoner 為了自己使用而建立的 fork，原專案為 Alex Santonastaso 的 [nastaso/cloudcertprep](https://github.com/nastaso/cloudcertprep)。kesoner 不是原專案的開發者或維護者。
+
+**為什麼有這個 fork：** kesoner 的英文不好，原本想在原站用 Google 翻譯或沉浸式翻譯來閱讀，但網站畫面會出錯。原因是 Chrome 的翻譯會把網頁上的文字節點換成巢狀的 `<font>` 元素，而 React 更新畫面時仍持有原本的文字節點。結果是按下「開始測驗」這類會切換文字的按鈕時，React 移除不到那個節點，整個頁面跳到錯誤畫面；切換到下一題時，也可能留著上一題的文字（詳見 fork 分支 `fix/google-translate-react` 的提交 `0720651`，以及上游的 nastaso/cloudcertprep#275）。所以這個 fork 直接把介面改成繁體中文，讓 kesoner 可以躺在床上用平板安心刷題，並順便實際練習雲端架構的部署與維運。
+
+- **建議與問題回報：** 對題目或功能有任何建議，請直接向原作者 Alex 提出（[原專案 Issues](https://github.com/nastaso/cloudcertprep/issues)），不要回報到這個 fork。
+- **同步方式：** kesoner 會不定時從原專案同步最新版本，並加入一些自用的功能。
+- **平板與離線使用：** 想躺在床上用平板舒服刷題，也希望逐步朝離線使用調整；目前不保證完整離線體驗，登入與雲端紀錄仍需要網路。
+- **使用條款與下架：** 如果本 fork 有任何違反使用條款或授權的地方，請寫信到 kesoner666@gmail.com，收到後會立刻下架。
+- **不保證資料：** 本 fork 伺服器上的任何資料（包括帳號在內）一律不做任何保證，可能隨時回退或遺失，kesoner 不負任何責任。
+- **權利：** kesoner 保留調整、暫停或停止本 fork 託管與維護的權利。原作者與貢獻者的著作權及 [MIT 授權](./LICENSE) 所賦予的權利不受影響。
+- **贊助：** 如果想贊助，請支持原作者 Alex（[Ko-fi](https://ko-fi.com/alexsantonastaso)）。本 fork 僅供自用，以及實際操作雲端架構之用。
+
+---
+
+以下為原專案說明（英文原文）。
 
 ### Free open-source AWS certification practice exams
 

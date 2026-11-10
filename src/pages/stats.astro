@@ -17,7 +17,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Card from '../components/Card.astro'
 import StatsIsland from '../components/StatsIsland.tsx'
-import snapshot from '../lib/generated/stats-snapshot.json'
+import { statsSnapshot as snapshot } from '../lib/statsSnapshot'
 import { CERTIFICATIONS } from '../data/certifications'
 import { SITE_URL } from '../lib/seo-data'
 import { serializeJsonLd } from '../lib/jsonld'
@@ -51,9 +51,9 @@ const datasetJsonLd = serializeJsonLd({
   '@context': 'https://schema.org',
   '@type': 'Dataset',
   '@id': `${SITE_URL}/stats#dataset`,
-  name: 'CloudCertPrep community pass-rate dataset',
+  name: 'CloudCertPrep-zh community pass-rate dataset',
   description:
-    'Community-wide pass rates, average scaled scores, and per-domain difficulty rankings for the CloudCertPrep practice exams. Aggregated from authenticated user attempts; no personally identifiable information.',
+    'Community-wide pass rates, average scaled scores, and per-domain difficulty rankings for the CloudCertPrep-zh practice exams. Aggregated from authenticated user attempts; no personally identifiable information.',
   url: `${SITE_URL}/stats`,
   license: 'https://opensource.org/licenses/MIT',
   creator: { '@id': `${SITE_URL}/#organization` },
@@ -77,9 +77,9 @@ const datasetJsonLd = serializeJsonLd({
 ---
 
 <BaseLayout
-  title="Community Statistics · CloudCertPrep"
-  description="See how the CloudCertPrep community is performing. Pass rates, score distributions, and domain mastery breakdowns across all certifications."
-  canonical="https://www.cloudcertprep.io/stats"
+  title="社群統計 · CloudCertPrep-zh"
+  description="See how the CloudCertPrep-zh community is performing. Pass rates, score distributions, and domain mastery breakdowns across all certifications."
+  canonical={SITE_URL + "/stats"}
   robots="noindex"
   jsonLd={[datasetJsonLd]}
 >
@@ -109,44 +109,44 @@ const datasetJsonLd = serializeJsonLd({
   >
     <div class="max-w-6xl mx-auto space-y-6">
       <header class="space-y-2">
-        <h1 class="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary">Community statistics</h1>
+        <h1 class="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary">社群學習統計</h1>
         <p class="text-text-muted text-sm md:text-base">
-          Aggregated, anonymous results from the CloudCertPrep community. Figures below are as of
+          CloudCertPrep-zh 社群的匿名彙整結果。以下資料截至
           {' '}{snapshot.generatedAt}; live numbers load when the page is interactive.
         </p>
       </header>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card padding="md">
-          <p class="text-text-muted text-xs md:text-sm">Community pass rate</p>
+          <p class="text-text-muted text-xs md:text-sm">社群通過率</p>
           <p class="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">{overall.passRatePercent}%</p>
         </Card>
         <Card padding="md">
-          <p class="text-text-muted text-xs md:text-sm">Average scaled score</p>
+          <p class="text-text-muted text-xs md:text-sm">平均換算分數</p>
           <p class="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">{overall.averageScaledScore}/1000</p>
         </Card>
         <Card padding="md">
-          <p class="text-text-muted text-xs md:text-sm">Exam attempts completed</p>
+          <p class="text-text-muted text-xs md:text-sm">已完成測驗次數</p>
           <p class="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">{overall.attemptsCompleted.toLocaleString('en-US')}</p>
         </Card>
       </div>
 
       <div class="space-y-3">
-        <h2 class="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary">By certification</h2>
+        <h2 class="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary">依證照統計</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           {certRows.map((c) => (
             <Card padding="md">
               <p class="text-base md:text-lg font-semibold text-text-primary mb-2">{c.name}</p>
               {c.noDataYet ? (
                 <p class="text-text-muted text-sm">
-                  Not enough attempts yet. Be the first to set the community benchmark.{' '}
-                  <a href={`/aws/${c.certCode}/practice-exam`} class="text-text-primary hover:text-text-primary/70 underline">Start practicing →</a>
+                  目前測驗紀錄不足，歡迎率先參與練習。{' '}
+                  <a href={`/aws/${c.certCode}/practice-exam`} class="text-text-primary hover:text-text-primary/70 underline">開始練習 →</a>
                 </p>
               ) : (
                 <ul class="text-text-muted text-sm space-y-1 list-none p-0">
-                  <li>Pass rate: <span class="text-text-primary font-medium">{c.passRatePercent}%</span></li>
-                  <li>Average scaled score: <span class="text-text-primary font-medium">{c.averageScaledScore}/1000</span></li>
-                  <li>Attempts completed: <span class="text-text-primary font-medium">{c.attemptsCompleted.toLocaleString('en-US')}</span></li>
+                  <li>通過率： <span class="text-text-primary font-medium">{c.passRatePercent}%</span></li>
+                  <li>平均換算分數： <span class="text-text-primary font-medium">{c.averageScaledScore}/1000</span></li>
+                  <li>已完成次數： <span class="text-text-primary font-medium">{c.attemptsCompleted.toLocaleString('en-US')}</span></li>
                 </ul>
               )}
             </Card>

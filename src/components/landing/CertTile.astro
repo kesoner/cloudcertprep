@@ -32,13 +32,13 @@ const domains = cert.domains.length
   href={href}
   class:list={['feature-card group relative', !isComingSoon && 'halo']}
   style={`--halo-color: ${LEVEL_ACCENT_RGB[cert.level]}`}
-  aria-label={`${cert.name}: ${isComingSoon ? 'coming soon' : `${questions.toLocaleString('en-US')}+ practice questions`}`}
+  aria-label={`${cert.name}: ${isComingSoon ? '即將推出' : `${questions.toLocaleString('zh-TW')}+ 道練習題`}`}
 >
   {/* Coming-soon badge as a corner overlay (not in the body flow) so the title
       row shares a baseline with the live tiles. */}
   {isComingSoon && (
     <span class="absolute top-3 right-3 z-10 inline-flex items-center rounded-md bg-warning-fill px-2 py-0.5 text-[11px] font-semibold text-[#0E1116] shadow-sm">
-      Coming soon
+      即將推出
     </span>
   )}
   {/* De-emphasized art for coming-soon so a roadmap tile never out-ranks a live
@@ -66,12 +66,12 @@ const domains = cert.domains.length
 
     <p class="text-sm md:text-base leading-relaxed text-text-muted">
       {isComingSoon
-        ? `${domains} domains. Question bank in development. Watch the repo to follow progress.`
-        : `${questions.toLocaleString('en-US')}+ practice questions across ${domains} domains, with full mock exams and per-question explanations.`}
+        ? `${domains} 個考試領域，題庫建置中。追蹤專案以掌握開發進度。`
+        : `${questions.toLocaleString('zh-TW')}+ 道題目，涵蓋 ${domains} 個領域，提供完整模擬測驗與逐題解析。`}
     </p>
 
     <span class="mt-auto pt-2 inline-flex items-center gap-1 text-sm font-medium text-text-primary">
-      {isComingSoon ? 'View roadmap' : 'Start practicing'}
+      {isComingSoon ? '查看開發進度' : '開始練習'}
       <span class="feature-arrow" aria-hidden="true">→</span>
     </span>
   </div>

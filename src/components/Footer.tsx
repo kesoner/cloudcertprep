@@ -22,43 +22,43 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-16">
         {/* 2x2 on mobile (brand + 3 nav columns = 4 even cells, no orphan),
             1x4 on desktop. The previous 2-col grid with a full-width brand
-            stranded "Legal" next to an empty cell on phones. */}
+            stranded "法律資訊" next to an empty cell on phones. */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
           <div>
             <p className="text-base font-semibold text-text-primary tracking-tight">
-              Cloud<span className="font-bold">CertPrep</span>
+              Cloud<span className="font-bold">CertPrep-zh</span>
             </p>
             <p className="mt-2 text-sm leading-relaxed text-text-muted max-w-[28ch]">
-              Free, open-source AWS certification practice exams.
+              kesoner 自用的繁中 fork，原專案由 Alex 建立。
             </p>
             <button
               onClick={toggleTheme}
               className="mt-4 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors duration-200"
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              aria-label={`切換至${theme === 'dark' ? '淺色' : '深色'}模式`}
             >
               {theme === 'dark'
                 ? <Sun className="w-4 h-4" aria-hidden="true" />
                 : <Moon className="w-4 h-4" aria-hidden="true" />}
-              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              <span>{theme === 'dark' ? '淺色模式' : '深色模式'}</span>
             </button>
           </div>
 
-          <nav aria-label="Practice">
-            <h2 className="text-sm font-semibold text-text-primary mb-3">Practice</h2>
+          <nav aria-label="練習">
+            <h2 className="text-sm font-semibold text-text-primary mb-3">練習</h2>
             <ul className="space-y-2 text-sm">
               <li><a href="/aws/clf-c02" className={navLink}>Cloud Practitioner</a></li>
               <li><a href="/aws/aif-c01" className={navLink}>AI Practitioner</a></li>
-              <li><a href="/history" className={navLink}>Exam history</a></li>
+              <li><a href="/history" className={navLink}>測驗紀錄</a></li>
             </ul>
           </nav>
 
-          <nav aria-label="Project">
-            <h2 className="text-sm font-semibold text-text-primary mb-3">Project</h2>
+          <nav aria-label="專案">
+            <h2 className="text-sm font-semibold text-text-primary mb-3">專案</h2>
             <ul className="space-y-2 text-sm">
-              <li><a href="/about" className={navLink}>About</a></li>
-              <li><a href="/blog" className={navLink}>Blog</a></li>
-              <li><a href="/contribute" className={navLink}>Contribute</a></li>
-              <li><a href="/stats" className={navLink}>Community stats</a></li>
+              <li><a href="/about" className={navLink}>關於我們</a></li>
+              <li><a href="/blog" className={navLink}>學習文章</a></li>
+              <li><a href="/contribute" className={navLink}>參與貢獻</a></li>
+              <li><a href="/stats" className={navLink}>社群統計</a></li>
               <li>
                 <a
                   href={KOFI_URL}
@@ -67,17 +67,17 @@ export function Footer() {
                   onClick={() => trackEvent('donate_click', { location: 'footer' })}
                   className={navLink}
                 >
-                  Support this project
+                  贊助原作者 Alex
                 </a>
               </li>
             </ul>
           </nav>
 
-          <nav aria-label="Legal">
-            <h2 className="text-sm font-semibold text-text-primary mb-3">Legal</h2>
+          <nav aria-label="法律資訊">
+            <h2 className="text-sm font-semibold text-text-primary mb-3">法律資訊</h2>
             <ul className="space-y-2 text-sm">
-              <li><a href="/privacy" className={navLink}>Privacy Policy</a></li>
-              <li><a href="/terms" className={navLink}>Terms of Service</a></li>
+              <li><a href="/privacy" className={navLink}>隱私權政策</a></li>
+              <li><a href="/terms" className={navLink}>服務條款</a></li>
             </ul>
           </nav>
         </div>
@@ -85,10 +85,10 @@ export function Footer() {
         <div className="mt-10 pt-6 border-t border-border-hairline flex flex-col md:flex-row gap-3 md:items-center md:justify-between text-xs leading-relaxed text-text-muted">
           <p>
             © {new Date().getFullYear()}{' '}
-            <a href="https://santonastaso.me" target="_blank" rel="noopener noreferrer" className={inlineLink}>Alex Santonastaso</a> · MIT licensed.
+            <a href="https://santonastaso.me" target="_blank" rel="noopener noreferrer" className={inlineLink}>Alex Santonastaso</a> · MIT licensed. 本 fork 由 kesoner 自用託管。
           </p>
           <p className="max-w-xl">
-            Not affiliated with AWS or Amazon.com, Inc. AWS and related trademarks belong to Amazon. This independent study tool does not guarantee success on official AWS certification exams.
+            本平台與 AWS 或 Amazon.com, Inc. 無關聯。AWS 及相關商標屬於 Amazon。本平台為獨立學習工具，不保證通過官方證照考試。
           </p>
         </div>
       </div>

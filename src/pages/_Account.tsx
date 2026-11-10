@@ -16,25 +16,25 @@ import { LoadingSpinner } from '../components/LoadingSpinner'
 import { filterChipClass } from '../lib/buttonStyles'
 import { Download, Trash2, UserCircle } from 'lucide-react'
 
-const SUPPORT_EMAIL = 'alex@cloudcertprep.io'
+const SUPPORT_EMAIL = 'kesoner666@gmail.com'
 
 // Optional, skippable exit-reason chips shown in the delete-confirmation
 // modal (GROW M1). Purely a success/churn signal for retention analysis -
 // never gates the Delete button, and only ever sent if the user opts in.
 const DELETE_REASONS = [
-  { value: 'passed_exam', label: 'Passed my exam' },
-  { value: 'better_tool', label: 'Found a better tool' },
-  { value: 'privacy', label: 'Privacy' },
-  { value: 'other', label: 'Other' },
+  { value: 'passed_exam', label: '已通過考試' },
+  { value: 'better_tool', label: '找到更適合的工具' },
+  { value: 'privacy', label: '隱私權' },
+  { value: 'other', label: '其他' },
 ] as const
 
 /**
  * Account settings (signed-in only, noindex app route).
  *
  * GDPR controls:
- *   - Right to portability: "Download my data (JSON)" reads the user's own
+ *   - Right to portability: "下載我的資料（JSON）" reads the user's own
  *     rows (RLS-scoped) and saves a JSON file entirely client-side.
- *   - Right to erasure: "Delete my account" invokes the `delete-account` Edge
+ *   - 刪除權: "刪除我的帳戶" invokes the `delete-account` Edge
  *     Function (RLS cannot remove an auth.users row from the client; only the
  *     service_role can). On success the local session is cleared and the user
  *     is sent home with ?account_deleted=1 (AuthLinkNotice acknowledges it). If
@@ -48,8 +48,8 @@ export function Account() {
   const location = useLocation()
 
   useSEO({
-    title: 'Account · CloudCertPrep',
-    description: 'Manage your CloudCertPrep account: export your data or request account deletion.',
+    title: '帳戶 · CloudCertPrep-zh',
+    description: 'Manage your CloudCertPrep-zh account: export your data or request account deletion.',
     canonical: null,
   })
 
@@ -139,7 +139,7 @@ export function Account() {
       setExportDone(true)
     } catch (err: unknown) {
       logError('Account.export', err)
-      setExportError('Could not export your data. Please try again, or email ' + SUPPORT_EMAIL + '.')
+      setExportError('無法匯出資料。請重試，或寄信至 ' + SUPPORT_EMAIL + '.')
     } finally {
       setExporting(false)
     }
@@ -195,7 +195,7 @@ export function Account() {
       // Retry-first copy (note 5): the operation is idempotent, so "try
       // again" is the accurate first suggestion; email stays the fallback.
       setDeleteError(
-        `We could not delete your account. Please try again in a moment. If it keeps failing, email ${SUPPORT_EMAIL} and we will erase it within 30 days.`,
+        `無法刪除帳戶，請稍後再試。若問題持續，請寄信至 ${SUPPORT_EMAIL}，我們會在 30 天內處理刪除請求。`,
       )
     }
   }
@@ -203,20 +203,20 @@ export function Account() {
   if (authLoading) {
     return (
       <div className="p-4 md:p-8 min-h-[320px]">
-        <LoadingSpinner text="Loading your account..." />
+        <LoadingSpinner text="正在載入帳戶…" />
       </div>
     )
   }
 
   const memberSince = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    ? new Date(user.created_at).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })
     : null
 
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary mb-2">Account</h1>
-        <p className="text-text-muted text-sm md:text-base mb-8">Manage your data and account.</p>
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary mb-2">帳戶</h1>
+        <p className="text-text-muted text-sm md:text-base mb-8">管理你的資料與帳戶。</p>
 
         {!user ? (
           <Card padding="lg">
@@ -224,35 +224,35 @@ export function Account() {
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-bg-dark border border-border-hairline">
                 <UserCircle className="w-4 h-4 text-text-primary" aria-hidden="true" />
               </span>
-              <p className="text-text-primary font-semibold tracking-[-0.01em]">Sign in to manage your account</p>
+              <p className="text-text-primary font-semibold tracking-[-0.01em]">登入以管理帳戶</p>
             </div>
             <p className="text-text-muted text-sm mb-5 max-w-md">
-              Your account settings, data export, and deletion controls are available once you sign in.
+              登入後即可使用帳戶設定、資料匯出與刪除功能。
             </p>
             <Button onClick={() => goToLogin(navigate, location)} variant="primary" size="md">
-              Sign in
+              登入
             </Button>
           </Card>
         ) : (
           <div className="space-y-6 md:space-y-8">
             {/* Account identity */}
             <Card padding="md">
-              <h2 className="text-sm font-mono uppercase tracking-[0.16em] text-text-muted mb-3">Signed in as</h2>
+              <h2 className="text-sm font-mono uppercase tracking-[0.16em] text-text-muted mb-3">目前登入帳戶</h2>
               <p className="text-text-primary font-medium break-all">{user.email}</p>
-              {memberSince && <p className="text-text-muted text-sm mt-1">Member since {memberSince}</p>}
+              {memberSince && <p className="text-text-muted text-sm mt-1">加入日期 {memberSince}</p>}
             </Card>
 
             {/* Data export (GDPR portability) */}
             <Card padding="md">
-              <h2 className="text-lg font-semibold tracking-[-0.01em] text-text-primary mb-1">Export your data</h2>
+              <h2 className="text-lg font-semibold tracking-[-0.01em] text-text-primary mb-1">匯出你的資料</h2>
               <p className="text-text-muted text-sm mb-4 max-w-prose">
-                Download everything we store for your account, including your exam attempts and domain progress, as a single JSON file.
+                將此帳戶儲存的測驗紀錄與領域進度等資料下載為一個 JSON 檔案。
               </p>
               {exportError && (
                 <Alert tone="danger" role="alert" className="mb-4">{exportError}</Alert>
               )}
               {exportDone && (
-                <Alert tone="success" role="status" className="mb-4">Your data has been downloaded.</Alert>
+                <Alert tone="success" role="status" className="mb-4">你的資料已下載。</Alert>
               )}
               <Button
                 onClick={handleExport}
@@ -260,22 +260,22 @@ export function Account() {
                 variant="secondary"
                 leftIcon={<Download className="w-4 h-4" aria-hidden="true" />}
               >
-                {exporting ? 'Preparing...' : 'Download my data (JSON)'}
+                {exporting ? 'Preparing...' : '下載我的資料（JSON）'}
               </Button>
             </Card>
 
             {/* Danger zone (GDPR erasure) */}
             <Card padding="md" className="!border-danger/30">
-              <h2 className="text-lg font-semibold tracking-[-0.01em] text-danger mb-1">Delete account</h2>
+              <h2 className="text-lg font-semibold tracking-[-0.01em] text-danger mb-1">刪除帳戶</h2>
               <p className="text-text-muted text-sm mb-4 max-w-prose">
-                Permanently delete your account and all your data: exam attempts, domain progress, and your sign-in. This cannot be undone.
+                永久刪除帳戶及所有資料，包括測驗紀錄、領域進度與登入帳戶，並清除此瀏覽器的整本錯題本（含訪客紀錄）。此操作無法復原。
               </p>
               <Button
                 onClick={() => { setConfirmText(''); setDeleteError(null); setDeleteReason(null); setShowDeleteModal(true) }}
                 variant="danger"
                 leftIcon={<Trash2 className="w-4 h-4" aria-hidden="true" />}
               >
-                Delete my account
+                刪除我的帳戶
               </Button>
             </Card>
           </div>
@@ -284,26 +284,26 @@ export function Account() {
 
       <Modal
         isOpen={showDeleteModal}
-        title="Delete your account?"
+        title="要刪除帳戶嗎？"
         onClose={() => { if (!deleting) setShowDeleteModal(false) }}
       >
         <div className="space-y-4">
           <p className="text-text-primary">
-            This permanently erases your account, exam history, and progress. It cannot be undone.
+            這會永久刪除帳戶、測驗紀錄與學習進度，並清除此瀏覽器的整本錯題本（含訪客紀錄），無法復原。
           </p>
           <p className="text-sm text-text-muted">
-            Want a copy first?{' '}
+            想先保留一份資料嗎？{' '}
             <button
               type="button"
               onClick={() => { setShowDeleteModal(false); handleExport() }}
               disabled={deleting || exporting}
               className="text-text-primary underline underline-offset-2 hover:text-text-primary/70 transition-colors"
             >
-              Download your data
+              下載你的資料
             </button>
           </p>
           <div>
-            <p className="text-sm text-text-muted mb-2">Mind sharing why? (optional)</p>
+            <p className="text-sm text-text-muted mb-2">願意告訴我們原因嗎？（選填）</p>
             <div className="flex flex-wrap gap-2">
               {DELETE_REASONS.map(r => (
                 <button
@@ -320,12 +320,12 @@ export function Account() {
             </div>
           </div>
           <p className="text-sm text-text-muted">
-            Type <span className="font-mono font-semibold text-text-primary">DELETE</span> to confirm.
+            輸入 <span className="font-mono font-semibold text-text-primary">DELETE</span> 以確認。
           </p>
           <Input
             value={confirmText}
             onChange={e => setConfirmText(e.target.value)}
-            aria-label="Type DELETE to confirm account deletion"
+            aria-label="輸入 DELETE 以確認刪除帳戶"
             placeholder="DELETE"
             autoComplete="off"
             autoCorrect="off"
@@ -335,15 +335,15 @@ export function Account() {
           {deleteError && <Alert tone="danger" role="alert">{deleteError}</Alert>}
           {deleting ? (
             <div className="py-4">
-              <LoadingSpinner text="Deleting your account..." />
+              <LoadingSpinner text="正在刪除帳戶…" />
             </div>
           ) : (
             <div className="flex gap-3 mt-2">
               <Button onClick={() => setShowDeleteModal(false)} variant="secondary" className="flex-1">
-                Cancel
+                取消
               </Button>
               <Button onClick={handleDelete} disabled={confirmText !== 'DELETE'} variant="danger" className="flex-1">
-                Delete account
+                刪除帳戶
               </Button>
             </div>
           )}

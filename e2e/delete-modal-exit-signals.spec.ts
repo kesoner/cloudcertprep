@@ -71,22 +71,23 @@ async function stubDeleteFunction(page: Page, opts: { status: number; delayMs?: 
 
 async function openDeleteModal(page: Page): Promise<void> {
   await page.goto('/account')
-  await page.getByRole('button', { name: 'Delete my account' }).click()
+  await page.getByRole('button', { name: "刪除我的帳戶" }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
+  await expect(page.getByRole('dialog')).toContainText('整本錯題本（含訪客紀錄）')
 }
 
 test('chips are optional and toggleable; Delete enables on typed DELETE alone', async ({ page }) => {
   await seedSession(page)
   await openDeleteModal(page)
 
-  const chip = page.getByRole('button', { name: 'Passed my exam' })
+  const chip = page.getByRole('button', { name: "已通過考試" })
   await chip.click()
   await expect(chip).toHaveAttribute('aria-pressed', 'true')
   await chip.click()
   await expect(chip).toHaveAttribute('aria-pressed', 'false')
 
   // One click after DELETE is typed, no chip required.
-  const deleteBtn = page.getByRole('button', { name: 'Delete account' })
+  const deleteBtn = page.getByRole('button', { name: "刪除帳戶" })
   await expect(deleteBtn).toBeDisabled()
   await page.getByPlaceholder('DELETE').fill('DELETE')
   await expect(deleteBtn).toBeEnabled()
@@ -95,19 +96,28 @@ test('chips are optional and toggleable; Delete enables on typed DELETE alone', 
 test('no chip selected: deletion proceeds and account_delete_reason does NOT fire', async ({ page }) => {
   const events = await installEventCapture(page)
   await seedSession(page)
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem('mistake-fixture-seeded')) return
+    localStorage.setItem('cloudcertprep_wrong_answers_v1', JSON.stringify([
+      { certCode: 'clf-c02', questionId: 'Q1', userAnswer: 'B', lastMissedAt: 1 },
+    ]))
+    sessionStorage.setItem('mistake-fixture-seeded', '1')
+  })
   await stubDeleteFunction(page, { status: 200, delayMs: 1200 })
   await openDeleteModal(page)
 
   await page.getByPlaceholder('DELETE').fill('DELETE')
-  await page.getByRole('button', { name: 'Delete account' }).click()
+  await page.getByRole('button', { name: "刪除帳戶" }).click()
 
   // The stub holds the response open long enough to observe the spinner.
-  await expect(page.getByText('Deleting your account...')).toBeVisible()
+  await expect(page.getByText("正在刪除帳戶…")).toBeVisible()
 
   // trackEvent (if any) fires just before the hard navigation away; assert
   // against the Node-side capture after the redirect lands, once the
   // beacon (if any) has had a chance to arrive.
   await page.waitForURL('**/?account_deleted=1')
+  // Inspect before another document's init script can seed the fixture again.
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('cloudcertprep_wrong_answers_v1'))).toBeNull()
   await expect.poll(() => events.filter(e => e.name === 'account_delete_reason').length).toBe(0)
 })
 
@@ -117,11 +127,11 @@ test('chip selected: account_delete_reason fires once, anonymously, at deletion 
   await stubDeleteFunction(page, { status: 200, delayMs: 1200 })
   await openDeleteModal(page)
 
-  await page.getByRole('button', { name: 'Found a better tool' }).click()
+  await page.getByRole('button', { name: "找到更適合的工具" }).click()
   await page.getByPlaceholder('DELETE').fill('DELETE')
-  await page.getByRole('button', { name: 'Delete account' }).click()
+  await page.getByRole('button', { name: "刪除帳戶" }).click()
 
-  await expect(page.getByText('Deleting your account...')).toBeVisible()
+  await expect(page.getByText("正在刪除帳戶…")).toBeVisible()
 
   // The event fires right before the success redirect; wait for the
   // redirect, then assert against the Node-side beacon capture (which
@@ -137,10 +147,10 @@ test('export pointer closes the modal and runs the existing export', async ({ pa
   await seedSession(page)
   await openDeleteModal(page)
 
-  await page.getByRole('button', { name: 'Download your data' }).click()
+  await page.getByRole('button', { name: "下載你的資料" }).click()
   await expect(page.getByRole('dialog')).toBeHidden()
   // handleExport runs against the seeded REST stub and saves the JSON file.
-  await expect(page.getByText('Your data has been downloaded.')).toBeVisible()
+  await expect(page.getByText("你的資料已下載。")).toBeVisible()
 })
 
 test('#138 regression: failed delete keeps retry-first copy; chip + typed confirm survive', async ({ page }) => {
@@ -149,13 +159,13 @@ test('#138 regression: failed delete keeps retry-first copy; chip + typed confir
   await stubDeleteFunction(page, { status: 500 })
   await openDeleteModal(page)
 
-  await page.getByRole('button', { name: 'Privacy' }).click()
+  await page.getByRole('button', { name: "隱私權" }).click()
   await page.getByPlaceholder('DELETE').fill('DELETE')
-  await page.getByRole('button', { name: 'Delete account' }).click()
+  await page.getByRole('button', { name: "刪除帳戶" }).click()
 
-  await expect(page.getByRole('alert')).toContainText(/could not delete your account/i)
+  await expect(page.getByRole('alert')).toContainText(/無法刪除帳戶/)
   await expect(page.getByRole('dialog')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Privacy' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('button', { name: "隱私權" })).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByPlaceholder('DELETE')).toHaveValue('DELETE')
 })
 

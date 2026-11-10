@@ -23,7 +23,7 @@ export function PasswordInput({
   value,
   onChange,
   autoComplete,
-  placeholder = 'Enter your password',
+  placeholder = '輸入密碼',
   required = false,
 }: PasswordInputProps) {
   const [visible, setVisible] = useState(false)
@@ -43,7 +43,7 @@ export function PasswordInput({
       <button
         type="button"
         onClick={() => setVisible(v => !v)}
-        aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-label={visible ? '隱藏密碼' : '顯示密碼'}
         aria-pressed={visible}
         className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-text-muted hover:text-text-primary transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >

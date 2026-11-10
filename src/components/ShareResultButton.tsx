@@ -6,7 +6,7 @@ import { copyText } from '../lib/clipboard'
 interface ShareResultButtonProps {
   /** Full text to share/copy, prebuilt by the caller (lib/shareResult.ts). */
   text: string
-  /** Idle label, e.g. "Share my result". */
+  /** Idle label, e.g. "分享我的成果". */
   label: string
   /** Extra share_result params (cert/authed) for phase-2 gating. */
   analytics: Record<string, unknown>

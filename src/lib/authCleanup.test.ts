@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { sweepAuthTokens, eraseLocalTraces } from './authCleanup'
+import { getWrongAnswers, recordWrongAnswer } from './wrongAnswers'
 
 /** Minimal Storage stub backed by a Map (node env has no Web Storage). */
 function makeStorage(): Storage {
@@ -48,6 +49,16 @@ describe('sweepAuthTokens', () => {
 })
 
 describe('eraseLocalTraces', () => {
+  it('erases all device-scoped mistakes while preserving theme preferences', () => {
+    recordWrongAnswer('clf-c02', 'Q1', 'A')
+    recordWrongAnswer('aif-c01', 'Q2', 'B')
+    localStorage.setItem('cloudcertprep_theme', 'dark')
+    eraseLocalTraces('deleted-user')
+    expect(getWrongAnswers('clf-c02')).toEqual([])
+    expect(getWrongAnswers('aif-c01')).toEqual([])
+    expect(localStorage.getItem('cloudcertprep_wrong_answers_v1')).toBeNull()
+    expect(localStorage.getItem('cloudcertprep_theme')).toBe('dark')
+  })
   it('clears the pending-attempt snapshot, session markers, and saved notice', () => {
     localStorage.setItem('cloudcertprep_pending_attempt', '{"certCode":"clf-c02"}')
     sessionStorage.setItem('cloudcertprep_pending_attempt_intent', 'clf-c02')

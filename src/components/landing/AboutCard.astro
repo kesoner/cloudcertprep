@@ -1,8 +1,8 @@
 ---
 /**
- * AboutCard.astro — "Built to mirror the real exam" feature grid (DSv5.2).
+ * AboutCard.astro — "貼近實際考試的練習體驗" feature grid (DSv5.2).
  * The single platform-pillars section on the home page: the old "Built to
- * mirror" pair and the "About CloudCertPrep" grid said the same things in the
+ * mirror" pair and the "關於 CloudCertPrep" grid said the same things in the
  * same layout back to back, so they are merged and deduplicated here. Open
  * 2x2 grid of icon rows (one feature language page-wide), with the
  * free/open-source line + project link as the section footer.
@@ -13,7 +13,7 @@ interface Props {
   heading?: string
 }
 
-const { heading = 'Built to mirror the real exam' } = Astro.props
+const { heading = '貼近實際考試的練習體驗' } = Astro.props
 
 // lucide icon path data (24x24, stroke-based)
 const icons = {
@@ -26,29 +26,29 @@ const icons = {
 const features = [
   {
     icon: icons.target,
-    title: 'Realistic exam simulation',
-    body: "Full-length, timed mock exams that mirror the live AWS exam: question style, scoring scale, duration, and passing score read from each cert's exam guide.",
+    title: '完整模擬測驗',
+    body: "依各證照考試指南設計題型、時間與通過門檻，以完整計時模擬測驗熟悉作答節奏。",
   },
   {
     icon: icons.bookCheck,
-    title: 'Every answer explained',
-    body: 'Each question is aligned to the current official exam guide and ships with a detailed explanation of why the correct answer is right and why each distractor is wrong.',
+    title: '每題皆有詳細解析',
+    body: '題目對照考試指南，解析說明正確答案的原因與其他選項的差異，幫助你理解觀念。',
   },
   {
     icon: icons.repeat,
-    title: 'Adaptive spaced repetition',
-    body: 'Domain practice prioritizes questions you have got wrong or have not seen, weighted by your past performance.',
+    title: '適性間隔複習',
+    body: '依過往作答表現安排練習，優先複習錯題與尚未練習的題目。',
   },
   {
     icon: icons.barChart,
-    title: 'Domain mastery analytics',
-    body: 'Track performance across every exam domain. Identify weak areas, focus practice where it matters most, and watch your scores climb over time.',
+    title: '掌握各領域學習表現',
+    body: '追蹤各考試領域的表現，找出需要加強的主題，讓每次練習更有方向。',
   },
 ]
 ---
 
 <section>
-  <p class="kicker" aria-hidden="true">The platform</p>
+  <p class="kicker" aria-hidden="true">平台特色</p>
   <h2 class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-10">{heading}</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
     {features.map((f) => (
@@ -65,9 +65,9 @@ const features = [
     ))}
   </div>
   <p class="mt-8 flex flex-wrap items-center gap-x-2 text-base text-text-muted">
-    <span>MIT licensed, no ads, no paywalls. Codebase on
+    <span>採用 MIT 授權，沒有廣告與付費門檻。原始碼公開於
       <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" class="text-text-primary underline underline-offset-2 hover:text-text-primary/70">GitHub</a>.</span>
-    <a href="/about" class="chev-link font-medium text-text-primary underline underline-offset-4 hover:text-text-primary/70">Learn more about the project<span class="chev" aria-hidden="true">›</span></a>
+    <a href="/about" class="chev-link font-medium text-text-primary underline underline-offset-4 hover:text-text-primary/70">深入了解這個專案<span class="chev" aria-hidden="true">›</span></a>
   </p>
   <slot name="footer" />
 </section>

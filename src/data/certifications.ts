@@ -6,6 +6,8 @@
  */
 
 export interface CertDomain {
+  /** Translated display label; name remains the stable source for URL slugs. */
+  nameZh?: string
   id: number
   name: string
   questionCount: number
@@ -171,10 +173,10 @@ export const CERTIFICATIONS: Record<string, Certification> = {
     examTimeSeconds: 90 * 60,
     passingScore: 700,
     domains: [
-      { id: 1, name: 'Cloud Concepts', questionCount: 187, examProportion: 0.24, weight: 24, taskRange: '1.1-1.4', blurb: 'what the AWS Cloud offers, the Cloud Adoption Framework, and core design ideas like elasticity, high availability, and why cloud can cost less than your own servers' },
-      { id: 2, name: 'Security & Compliance', questionCount: 247, examProportion: 0.30, weight: 30, taskRange: '2.1-2.4', blurb: 'the AWS shared responsibility model, identity and access management, encryption, and the AWS tools that keep cloud workloads secure and compliant' },
-      { id: 3, name: 'Cloud Technology & Services', questionCount: 384, examProportion: 0.34, weight: 34, taskRange: '3.1-3.8', blurb: 'the main AWS compute, storage, networking, and database services, the ways to deploy and run workloads on AWS, and how to pick the right service for a job' },
-      { id: 4, name: 'Billing, Pricing & Support', questionCount: 232, examProportion: 0.12, weight: 12, taskRange: '4.1-4.3', blurb: 'how AWS pricing works, the free tier, the tools for tracking and managing costs, and the support plans AWS customers can choose from' },
+      { id: 1, name: 'Cloud Concepts', questionCount: 187, examProportion: 0.24, nameZh: '雲端概念', weight: 24, taskRange: '1.1-1.4', blurb: 'what the AWS Cloud offers, the Cloud Adoption Framework, and core design ideas like elasticity, high availability, and why cloud can cost less than your own servers' },
+      { id: 2, name: 'Security & Compliance', questionCount: 247, examProportion: 0.30, nameZh: '安全與合規', weight: 30, taskRange: '2.1-2.4', blurb: 'the AWS shared responsibility model, identity and access management, encryption, and the AWS tools that keep cloud workloads secure and compliant' },
+      { id: 3, name: 'Cloud Technology & Services', questionCount: 384, examProportion: 0.34, nameZh: '雲端技術與服務', weight: 34, taskRange: '3.1-3.8', blurb: 'the main AWS compute, storage, networking, and database services, the ways to deploy and run workloads on AWS, and how to pick the right service for a job' },
+      { id: 4, name: 'Billing, Pricing & Support', questionCount: 232, examProportion: 0.12, nameZh: '帳務、定價與支援', weight: 12, taskRange: '4.1-4.3', blurb: 'how AWS pricing works, the free tier, the tools for tracking and managing costs, and the support plans AWS customers can choose from' },
     ],
     status: 'active',
     // AWS publishes no version number or change-history for the CLF-C02 exam
@@ -347,10 +349,10 @@ export const CERTIFICATIONS: Record<string, Certification> = {
     examTimeSeconds: 130 * 60,
     passingScore: 720,
     domains: [
-      { id: 1, name: 'Design Secure Architectures', questionCount: 5, examProportion: 0.30 },
-      { id: 2, name: 'Design Resilient Architectures', questionCount: 5, examProportion: 0.26 },
-      { id: 3, name: 'Design High-Performing Architectures', questionCount: 5, examProportion: 0.24 },
-      { id: 4, name: 'Design Cost-Optimized Architectures', questionCount: 5, examProportion: 0.20 },
+      { id: 1, name: 'Design Secure Architectures', questionCount: 5, examProportion: 0.30, nameZh: '設計安全架構' },
+      { id: 2, name: 'Design Resilient Architectures', questionCount: 5, examProportion: 0.26, nameZh: '設計韌性架構' },
+      { id: 3, name: 'Design High-Performing Architectures', questionCount: 5, examProportion: 0.24, nameZh: '設計高效能架構' },
+      { id: 4, name: 'Design Cost-Optimized Architectures', questionCount: 5, examProportion: 0.20, nameZh: '設計成本最佳化架構' },
     ],
     status: 'coming-soon',
     examGuideVersion: 'SAA-C03 (2024)',
@@ -365,11 +367,11 @@ export const CERTIFICATIONS: Record<string, Certification> = {
     examTimeSeconds: 90 * 60,
     passingScore: 700,
     domains: [
-      { id: 1, name: 'Fundamentals of AI and ML', questionCount: 133, examProportion: 0.20, weight: 20, taskRange: '1.1-1.3', blurb: 'basic AI and machine-learning ideas and terms, real-world uses for AI, and the stages of the machine-learning lifecycle' },
-      { id: 2, name: 'Fundamentals of Generative AI', questionCount: 80, examProportion: 0.24, weight: 24, taskRange: '2.1-2.3', blurb: 'how generative AI and foundation models work, which business problems they can and cannot solve, and the AWS services used to build generative AI applications' },
-      { id: 3, name: 'Applications of Foundation Models', questionCount: 104, examProportion: 0.28, weight: 28, taskRange: '3.1-3.4', blurb: 'how to design applications that use foundation models, prompt engineering, training and fine-tuning, and how to measure model performance' },
-      { id: 4, name: 'Guidelines for Responsible AI', questionCount: 54, examProportion: 0.14, weight: 14, taskRange: '4.1-4.2', blurb: 'how to build responsible AI systems and why transparent, explainable models earn user trust' },
-      { id: 5, name: 'Security, Compliance, and Governance', questionCount: 48, examProportion: 0.14, weight: 14, taskRange: '5.1-5.2', blurb: 'how to secure AI systems and the governance, compliance, and regulation rules that apply to AI and machine learning on AWS' },
+      { id: 1, name: 'Fundamentals of AI and ML', questionCount: 133, examProportion: 0.20, nameZh: 'AI 與機器學習基礎', weight: 20, taskRange: '1.1-1.3', blurb: 'basic AI and machine-learning ideas and terms, real-world uses for AI, and the stages of the machine-learning lifecycle' },
+      { id: 2, name: 'Fundamentals of Generative AI', questionCount: 80, examProportion: 0.24, nameZh: '生成式 AI 基礎', weight: 24, taskRange: '2.1-2.3', blurb: 'how generative AI and foundation models work, which business problems they can and cannot solve, and the AWS services used to build generative AI applications' },
+      { id: 3, name: 'Applications of Foundation Models', questionCount: 104, examProportion: 0.28, nameZh: '基礎模型應用', weight: 28, taskRange: '3.1-3.4', blurb: 'how to design applications that use foundation models, prompt engineering, training and fine-tuning, and how to measure model performance' },
+      { id: 4, name: 'Guidelines for Responsible AI', questionCount: 54, examProportion: 0.14, nameZh: '負責任 AI 指引', weight: 14, taskRange: '4.1-4.2', blurb: 'how to build responsible AI systems and why transparent, explainable models earn user trust' },
+      { id: 5, name: 'Security, Compliance, and Governance', questionCount: 48, examProportion: 0.14, nameZh: 'AI 安全、合規與治理', weight: 14, taskRange: '5.1-5.2', blurb: 'how to secure AI systems and the governance, compliance, and regulation rules that apply to AI and machine learning on AWS' },
     ],
     status: 'active',
     // AWS AIF-C01 exam guide version 1.1, published April 30 2026 (verified
@@ -557,10 +559,10 @@ export function getProviderLabel(provider: string): string {
 
 /** Human-readable display labels for cert levels. Single source of truth. */
 export const LEVEL_DISPLAY: Record<string, string> = {
-  foundational: 'Foundational',
-  associate: 'Associate',
-  professional: 'Professional',
-  specialty: 'Specialty',
+  foundational: '基礎級',
+  associate: '助理級',
+  professional: '專業級',
+  specialty: '專項級',
 }
 
 export function getLevelLabel(level: string): string {

@@ -1,19 +1,7 @@
 ---
-/**
- * About (/about) — genuine prerendered Astro markup.
- *
- * Tells the story behind CloudCertPrep: who maintains it, how the question
- * banks are built, why it is free + open source, and how to get in touch.
- * Anchors the E-E-A-T signal by linking the visible byline to the Person_Entity
- * (@id="https://www.cloudcertprep.io/#author") and emitting AboutPage JSON-LD
- * keyed by @id to the Organization + Person graph in BaseLayout.
- *
- * Satisfies: R3.1-R3.6, R8.4, R17.1, R17.2.
- */
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Breadcrumb from '../components/Breadcrumb.astro'
 import HeroMini from '../components/landing/HeroMini.astro'
-import LastUpdatedStamp from '../components/LastUpdatedStamp.astro'
 import Card from '../components/Card.astro'
 import Button from '../components/Button.astro'
 import { GITHUB_REPO_URL, KOFI_URL } from '../lib/constants'
@@ -21,243 +9,90 @@ import { CERTIFICATIONS, DEFAULT_CERT_ID } from '../data/certifications'
 import { SITE_URL } from '../lib/seo-data'
 import { serializeJsonLd } from '../lib/jsonld'
 
-const canonical = `${SITE_URL}/about`
-const contributorsUrl = `${GITHUB_REPO_URL}/graphs/contributors`
-const contributingUrl = `${GITHUB_REPO_URL}/blob/main/CONTRIBUTING.md`
-const issuesUrl = `${GITHUB_REPO_URL}/issues`
-// Closing-CTA target (P2-12): the flagship practice route, single-sourced.
+const canonical = SITE_URL + '/about'
 const defaultCert = CERTIFICATIONS[DEFAULT_CERT_ID]
-const practiceHref = defaultCert ? `/${defaultCert.provider}/${defaultCert.code}/practice-exam` : '/'
-
-const breadcrumbItems = [
-  { label: 'Home', to: '/' },
-  { label: 'About' },
-]
-
+const practiceHref = '/' + defaultCert.provider + '/' + defaultCert.code + '/practice-exam'
+const breadcrumbItems = [{ label: '首頁', to: '/' }, { label: '關於我們' }]
+const sectionHeading = 'text-xl md:text-2xl font-semibold tracking-tight text-text-primary'
+const bodyText = 'text-text-muted text-base md:text-lg leading-[1.8]'
+const link = 'text-text-primary underline underline-offset-2 hover:text-text-primary/70'
 const aboutPageJsonLd = serializeJsonLd({
-  '@context': 'https://schema.org',
-  '@type': 'AboutPage',
-  '@id': `${SITE_URL}/about#aboutpage`,
-  url: canonical,
-  name: 'About CloudCertPrep',
-  mainEntity: { '@id': `${SITE_URL}/#organization` },
-  author: { '@id': `${SITE_URL}/#author` },
-  publisher: { '@id': `${SITE_URL}/#organization` },
+  '@context': 'https://schema.org', '@type': 'AboutPage',
+  '@id': canonical + '#aboutpage', url: canonical,
+  name: '關於 CloudCertPrep-zh', inLanguage: 'zh-Hant',
+  description: 'kesoner 自用的繁體中文 fork，原專案 CloudCertPrep 由 Alex Santonastaso 建立與維護。',
+  mainEntity: {
+    '@type': 'SoftwareSourceCode', name: 'CloudCertPrep-zh',
+    codeRepository: 'https://github.com/kesoner/cloudcertprep',
+    isBasedOn: { '@type': 'SoftwareSourceCode', name: 'CloudCertPrep', codeRepository: GITHUB_REPO_URL, author: { '@id': SITE_URL + '/#author' } },
+  },
 })
-
-// ProfilePage JSON-LD. The About page is the canonical author profile for the
-// E-E-A-T signal: its "Who maintains it" section profiles the maintainer. Typing
-// the page as a ProfilePage whose mainEntity is the Person_Entity
-// (@id=".../#author") lets search engines treat this URL as Alex's authoritative
-// profile page, reinforcing the cross-property author identity.
-const profilePageJsonLd = serializeJsonLd({
-  '@context': 'https://schema.org',
-  '@type': 'ProfilePage',
-  '@id': `${SITE_URL}/about#profilepage`,
-  url: canonical,
-  name: 'Alex Santonastaso',
-  mainEntity: { '@id': `${SITE_URL}/#author` },
-})
-
-// HowTo JSON-LD describing the study methodology a learner follows when
-// working through the practice banks. Anchored by @id to the same
-// Organization + Person graph as the AboutPage block above.
-const howToJsonLd = serializeJsonLd({
-  '@context': 'https://schema.org',
-  '@type': 'HowTo',
-  '@id': `${SITE_URL}/about#study-methodology`,
-  name: 'How to study with CloudCertPrep practice exams',
-  description:
-    'A repeatable study loop for passing your AWS certification: answer each question, learn from the full explanation, target weak domains with spaced repetition, and rehearse under timed conditions.',
-  author: { '@id': `${SITE_URL}/#author` },
-  publisher: { '@id': `${SITE_URL}/#organization` },
-  step: [
-    {
-      '@type': 'HowToStep',
-      name: 'Read the question',
-      text: 'Read each practice question carefully, noting the scenario and exactly what is being asked, just as you would in the real exam.',
-    },
-    {
-      '@type': 'HowToStep',
-      name: 'Answer before revealing',
-      text: 'Commit to an answer before revealing the solution. Attempting an answer first surfaces what you genuinely know and what you are guessing.',
-    },
-    {
-      '@type': 'HowToStep',
-      name: 'Read the full explanation',
-      text: 'Read the complete explanation: why the correct answer is right and why each distractor is wrong. This is where the real learning happens.',
-    },
-    {
-      '@type': 'HowToStep',
-      name: 'Review weak domains with spaced repetition',
-      text: 'Track which exam-guide domains you score lowest in and revisit them on a spaced-repetition schedule so the material moves into long-term memory.',
-    },
-    {
-      '@type': 'HowToStep',
-      name: 'Take timed mock exams',
-      text: 'Rehearse full-length, timed mock exams that mirror the real question count and time limit to build pacing and stamina before exam day.',
-    },
-  ],
-})
-
-// HowTo JSON-LD describing the question-and-explanation methodology: the
-// editorial process every question goes through before it ships. Distinct
-// from the study-methodology HowTo above (different @id). Mirrors the three
-// subsections (write / explain / review) of the visible "How the question
-// banks are built" section. (R23.6 / E-E-A-T)
-const methodologyHowToJsonLd = serializeJsonLd({
-  '@context': 'https://schema.org',
-  '@type': 'HowTo',
-  '@id': `${SITE_URL}/about#question-methodology`,
-  name: 'How CloudCertPrep writes and reviews practice questions',
-  description:
-    'The editorial methodology behind every CloudCertPrep practice question: written against the official AWS exam-guide task statements, never sourced from braindumps; explained with a correct-answer rationale plus a per-distractor rationale; and reviewed through public GitHub pull requests under an MIT license.',
-  author: { '@id': `${SITE_URL}/#author` },
-  publisher: { '@id': `${SITE_URL}/#organization` },
-  step: [
-    {
-      '@type': 'HowToStep',
-      name: 'Write questions aligned to exam-guide task statements',
-      text: 'Each question is authored against a specific task statement in the official AWS exam guide so coverage and difficulty track the scored exam. Questions are original, written from the published exam guide and AWS documentation, and are never sourced from braindumps or exam dumps.',
-    },
-    {
-      '@type': 'HowToStep',
-      name: 'Structure the explanation',
-      text: 'Every question ships with a two-part explanation: a rationale for why the correct answer is right, plus a per-distractor rationale for why each incorrect option is wrong.',
-    },
-    {
-      '@type': 'HowToStep',
-      name: 'Review via pull request and public audit',
-      text: 'Questions are contributed and reviewed through GitHub pull requests, so every edit has a visible author and review trail. The entire bank is publicly auditable by permalink on GitHub and is MIT licensed, free to read, reuse, and improve.',
-    },
-  ],
-})
-
-const sectionHeading = 'text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary'
-const bodyText = 'text-text-muted text-base md:text-lg leading-[1.7]'
-const link = 'text-text-primary hover:text-text-primary/70 underline'
 ---
 
-<BaseLayout
-  title="About CloudCertPrep · Free Open-Source AWS Practice Exams"
-  description="CloudCertPrep is a free, ad-free, open-source AWS practice platform built by Alex Santonastaso. See how the question banks work and why it stays free."
-  canonical={canonical}
-  jsonLd={[aboutPageJsonLd, profilePageJsonLd, howToJsonLd, methodologyHowToJsonLd]}
-  headerOverlay={true}
-  headerNoAuthedFrost={true}
->
+<BaseLayout title="關於 CloudCertPrep-zh · kesoner 的自用繁中 fork"
+  description="CloudCertPrep-zh 是 kesoner 為平板刷題與雲端架構實作建立的自用 fork。原作者為 Alex，建議與贊助請支持原專案；帳戶與資料不保證保存。"
+  canonical={canonical} jsonLd={[aboutPageJsonLd]} headerOverlay={true} headerNoAuthedFrost={true}>
   <Breadcrumb items={breadcrumbItems} visuallyHidden />
-
-  <HeroMini
-    kicker="The project"
-    title="About CloudCertPrep"
-    lede="Free, open-source, ad-free AWS certification practice exams. No paywalls, no premium tiers, no signup required to practice."
-    crumbs={[{ label: 'Home', href: '/' }, { label: 'About' }]}
-    maxWidth="max-w-3xl"
-  >
-    <div class="mt-5" style="--color-text-muted: 139 149 163; --color-text-primary: 244 246 248; --color-success: 74 222 128;">
-      <LastUpdatedStamp />
-    </div>
-  </HeroMini>
-
+  <HeroMini kicker="關於這個 fork" title="關於 CloudCertPrep-zh"
+    lede="英文不太好，想躺在床上用平板舒服刷題。這就是這個自用 fork 的起點。"
+    crumbs={[{ label: '首頁', href: '/' }, { label: '關於我們' }]} maxWidth="max-w-3xl" />
   <div class="sheet-overlap pb-16 md:pb-24 pt-10 md:pt-14">
     <div class="max-w-3xl mx-auto px-4 md:px-8">
       <div class="space-y-10 max-w-[68ch] mx-auto">
-        {/* Mission standfirst (distinct from the maintainer detail below, which
-            used to be restated here almost verbatim). */}
-        <p class="text-lg md:text-xl leading-relaxed text-text-primary [text-wrap:balance]">
-          A free, open, and fully auditable way to prepare for AWS certifications: no ads, no paywalls, no signup to start, and no "exam dumps".
+        <p class="text-lg md:text-xl leading-relaxed text-text-primary">
+          我是 kesoner，並非 CloudCertPrep 原專案的開發者或維護者。CloudCertPrep-zh 是我為自己使用而建立的繁體中文 fork，也用來實際練習雲端架構的部署與託管。
         </p>
-
-        {/* Who maintains it */}
-        <section class="space-y-3 border-t border-border-hairline pt-8 md:pt-10">
-          <h2 class={sectionHeading}>Who maintains it</h2>
-          <p class={bodyText}>
-            CloudCertPrep is created and maintained by{' '}
-            <a href="https://santonastaso.me" target="_blank" rel="noopener noreferrer" class={link}>Alex Santonastaso</a>, a software engineer who built the platform to prepare for the AWS Cloud Practitioner exam, then passed it (<a href="https://www.credly.com/badges/a67cce3e-4833-4682-8e9e-314454333667" target="_blank" rel="noopener noreferrer" class={link}>verified Credly badge</a>). The goal is simple: a high-quality, genuinely free study tool that anyone can use, inspect, and improve, without the ads, upsells, and dubious "exam dumps" that clutter the rest of the space.
+        <section class="space-y-3 border-t border-border-hairline pt-8">
+          <h2 class={sectionHeading}>原專案與作者</h2>
+          <p class={bodyText}>原專案 <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" class={link}>CloudCertPrep</a> 由
+            <a href="https://santonastaso.me" target="_blank" rel="noopener noreferrer" class={link}>Alex Santonastaso</a> 建立與維護。
+            這裡沿用原專案的程式與英文題庫，並加入繁體中文介面及個人想用的功能。原始著作、作者署名與 MIT 授權均予保留；kesoner 的身分是這個自用 fork 的建立者與託管者。
+          </p>
+          <p class={bodyText}>原專案採用 <a href={GITHUB_REPO_URL + '/blob/main/LICENSE'} target="_blank" rel="noopener noreferrer" class={link}>MIT 授權（MIT licensed）</a>。
+            可於 <a href={GITHUB_REPO_URL + '/graphs/contributors'} target="_blank" rel="noopener noreferrer" class={link}>貢獻者列表</a> 查看原作者與協作者。
           </p>
         </section>
-
-        {/* How the question banks are built - one section: the editorial
-            standard (lede) followed by the three-part methodology (write /
-            explain / review). Was two adjacent, overlapping H2 sections; the
-            methodologyHowToJsonLd above mirrors the three subsections. */}
-        <section class="space-y-3 border-t border-border-hairline pt-8 md:pt-10">
-          <h2 class={sectionHeading}>How the question banks are built</h2>
-          <p class={bodyText}>
-            Every question is aligned to the official AWS exam guide and its task statements, so topic coverage and difficulty mirror what you will face on exam day, and each ships with a detailed explanation of why the correct answer is right and why every distractor is wrong. The whole bank is validated by an automated schema checker and is publicly auditable on GitHub. This is the editorial standard every question is held to before it ships.
-          </p>
-          <h3 class="text-lg md:text-xl font-semibold tracking-[-0.01em] text-text-primary pt-2">How questions are written</h3>
-          <p class={bodyText}>
-            Each question is authored against a specific task statement in the official AWS exam guide, so coverage and difficulty track the scored exam rather than drifting into trivia. New questions arrive as community contributions through a GitHub pull request, where anyone can propose, discuss, and refine them in the open. Questions are never sourced from braindumps or exam dumps. Reproducing real exam content breaches the AWS certification agreement and teaches recall instead of understanding, so we write original questions from the published exam guide and documentation.
-          </p>
-          <h3 class="text-lg md:text-xl font-semibold tracking-[-0.01em] text-text-primary pt-2">How explanations are structured</h3>
-          <p class={bodyText}>
-            Every explanation has two parts: a rationale for the correct answer that explains why it is right, and a per-distractor rationale that explains why each incorrect option is wrong. Reading why the wrong answers are wrong is what turns a practice question into genuine understanding you can carry into the exam.
-          </p>
-          <h3 class="text-lg md:text-xl font-semibold tracking-[-0.01em] text-text-primary pt-2">How the banks are reviewed</h3>
-          <p class={bodyText}>
-            Changes are reviewed through GitHub pull requests before merging, so every edit has a visible author and review trail. The entire bank is publicly auditable: each question links to its source file by{' '}
-            <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" class={link}>permalink on GitHub</a>, so you can verify any claim against the AWS documentation yourself. Everything is{' '}
-            <a href={`${GITHUB_REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer" class={link}>MIT licensed</a>, free to read, reuse, and improve.
+        <section class="space-y-3 border-t border-border-hairline pt-8">
+          <h2 class={sectionHeading}>為什麼不用網頁翻譯就好？</h2>
+          <p class={bodyText}>小弟英文不太好，原本想在 Alex 的 main 版本使用 Google 翻譯或沉浸式翻譯輔助閱讀，卻遇到畫面更新錯誤。fork 的修正紀錄具體重現了 Google 翻譯與 React 的衝突：</p>
+          <ol class="list-decimal pl-6 space-y-3 text-text-muted text-base md:text-lg leading-[1.8]">
+            <li>Google 翻譯會將頁面原有的文字節點換成巢狀的 <code>&lt;font&gt;</code> 元素，改動 React 管理的 DOM。</li>
+            <li>React 仍保留原文字節點的參照。「開始測驗」按鈕切換為載入文字時，可能因找不到原節點而觸發錯誤畫面。</li>
+            <li>換到下一題時，也可能無法正確替換翻譯後的文字，讓上一題的題幹或選項殘留在畫面上。</li>
+          </ol>
+          <p class={bodyText}>具體修正與重現測試見 fork 的 <a href="https://github.com/kesoner/cloudcertprep/commit/07206518537a895ee5ede052a28eafcc2701d37f" target="_blank" rel="noopener noreferrer" class={link}>Google Translate／React 修正提交</a>。
+            因此這裡直接提供繁體中文介面，題幹、選項與解析保留英文，降低依賴整頁翻譯的需要。
           </p>
         </section>
-
-        {/* Free + open-source rationale */}
-        <section class="space-y-3 border-t border-border-hairline pt-8 md:pt-10">
-          <h2 class={sectionHeading}>Why it is free and open source</h2>
-          <p class={bodyText}>
-            CloudCertPrep is MIT licensed with no ads, no paywalls, and no premium tier. Good exam prep should not be locked behind a subscription. The project is sustained by optional{' '}
-            <a href={KOFI_URL} target="_blank" rel="noopener noreferrer" class={link}>Ko-fi donations</a>, which help keep hosting paid for while the platform itself stays free and ad-free.
-          </p>
+        <section class="space-y-3 border-t border-border-hairline pt-8">
+          <h2 class={sectionHeading}>床上、平板與自己的小功能</h2>
+          <p class={bodyText}>我想躺在床上，用平板舒服地刷題，也希望逐步朝離線使用的方向調整，於是有了這個 fork。目前不保證完整的離線使用體驗；登入及雲端紀錄仍需要網路。</p>
+          <p class={bodyText}>我會不定時從 Alex 的原專案 clone／同步更新，再加上自己用得開心的功能。這不是固定更新或長期維護的承諾，主要用途就是自用，以及實際操作雲端架構。</p>
         </section>
-
-        {/* Contributor credits */}
-        <section class="space-y-3 border-t border-border-hairline pt-8 md:pt-10">
-          <h2 class={sectionHeading}>Contributors</h2>
-          <p class={bodyText}>
-            CloudCertPrep is built in the open and welcomes contributions. See the{' '}
-            <a href={contributorsUrl} target="_blank" rel="noopener noreferrer" class={link}>GitHub contributors graph</a>{' '}
-            for everyone who has helped, read{' '}
-            <a href={contributingUrl} target="_blank" rel="noopener noreferrer" class={link}>CONTRIBUTING.md</a>{' '}
-            for the question schema and contribution workflow, or see the{' '}
-            <a href="/contribute" class={link}>ways to contribute</a>.
+        <section class="space-y-3 border-t border-border-hairline pt-8">
+          <h2 class={sectionHeading}>建議與贊助，請直接支持 Alex</h2>
+          <p class={bodyText}>對原專案、題目或功能有任何建議與改動想法，請直接向 Alex 提出：
+            <a href={GITHUB_REPO_URL + '/issues'} target="_blank" rel="noopener noreferrer" class={link}>原專案 GitHub Issues</a>。
+            貢獻方式可參考 <a href="/contribute" class={link}>參與貢獻</a> 與 <a href={GITHUB_REPO_URL + '/blob/main/CONTRIBUTING.md'} target="_blank" rel="noopener noreferrer" class={link}>原專案貢獻指南</a>。
           </p>
+          <p class={bodyText}>如果想贊助，請把支持留給原作者：<a href={KOFI_URL} target="_blank" rel="noopener noreferrer" class={link}>贊助 Alex 的 Ko-fi</a>。本 fork 不以募款為目的。</p>
         </section>
-
-        {/* Privacy */}
-        <section class="space-y-3 border-t border-border-hairline pt-8 md:pt-10">
-          <h2 class={sectionHeading}>Privacy</h2>
-          <p class={bodyText}>
-            CloudCertPrep is GDPR-compliant. Guest users generate no server-side personal data. Authenticated user data is stored in the EU (Supabase, Ireland) and is never sold or shared. For analytics, cookieless, privacy-friendly{' '}
-            <a href="https://umami.is" target="_blank" rel="noopener noreferrer" class={link}>Umami</a>{' '}runs for everyone, sets no cookies, and collects no personally identifiable information. We set no tracking cookies and run no advertising. Read the full{' '}
-            <a href="/privacy" class={link}>Privacy Policy</a>{' '}for details.
-          </p>
+        <section class="space-y-3 border-t border-border-hairline pt-8">
+          <h2 class={sectionHeading}>資料與服務不提供保證</h2>
+          <p class={bodyText}>本 fork 伺服器提供的任何資訊與儲存資料，包括帳號、作答紀錄及學習進度，均不保證正確性、完整性、可用性或永久保存。服務與資料可能隨時回退、遺失、中斷或下架，請勿視為可靠備份。</p>
+          <p class={bodyText}>在適用法律允許的範圍內，kesoner 不對使用本服務、服務中斷或資料回退與遺失造成的損失負責。依法不得排除或限制的責任不受此聲明影響。</p>
+          <p class={bodyText}>kesoner 保留調整、暫停、停止託管及維護本 fork 的權利。這項託管與維護決定權不改變原作者的著作權，也不限制 MIT 授權已授予的權利。詳見 <a href="/terms" class={link}>服務條款</a> 與 <a href="/privacy" class={link}>隱私權政策</a>。</p>
         </section>
-
-        {/* Contact */}
-        <section class="space-y-3 border-t border-border-hairline pt-8 md:pt-10">
-          <h2 class={sectionHeading}>Contact</h2>
-          <p class={bodyText}>
-            Questions, corrections, or ideas? Email{' '}
-            <a href="mailto:alex@cloudcertprep.io" class={link}>alex@cloudcertprep.io</a>, open an issue on{' '}
-            <a href={issuesUrl} target="_blank" rel="noopener noreferrer" class={link}>GitHub Issues</a>, or browse the source at{' '}
-            <a href="https://github.com/nastaso" target="_blank" rel="noopener noreferrer" class={link}>github.com/nastaso</a>.
-          </p>
+        <section class="space-y-3 border-t border-border-hairline pt-8">
+          <h2 class={sectionHeading}>授權疑慮與下架聯絡</h2>
+          <p class={bodyText}>若本 fork 有任何違反使用條款、授權或其他權利的地方，請寫信至 <a href="mailto:kesoner666@gmail.com" class={link}>kesoner666@gmail.com</a>，我收到通知後會立即下架。</p>
         </section>
-
-        {/* Closing funnel CTA (P2-12): a convinced reader gets a path into the
-            product instead of dead-ending on a trust page. */}
         <Card as="section" padding="md" class="text-center">
-          <h2 class="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary mb-2">Ready to start?</h2>
-          <p class="text-text-muted mb-5">Pick a certification and take a full practice exam, free and with no signup.</p>
+          <h2 class="text-xl font-semibold text-text-primary mb-3">想刷題，就舒服地開始吧</h2>
+          <p class="text-text-muted mb-5">繁體中文介面、英文題庫。訪客也能練習。</p>
           <div class="flex flex-wrap justify-center gap-3">
-            <Button href={practiceHref} variant="brand" size="lg" arrow>
-              Start practicing free
-            </Button>
-            <Button href="/#certifications" variant="secondary" size="lg">
-              Browse certifications
-            </Button>
+            <Button href={practiceHref} variant="brand" size="lg" arrow>免費開始練習</Button>
+            <Button href="/#certifications" variant="secondary" size="lg">瀏覽證照</Button>
           </div>
         </Card>
       </div>

@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
+import { SITE_URL } from './scripts/site-config.mjs';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeRaw from 'rehype-raw';
 
@@ -63,7 +64,7 @@ const blogContentSanitizeSchema = {
 
 export default defineConfig({
   output: 'static',
-  site: 'https://www.cloudcertprep.io',
+  site: SITE_URL,
   trailingSlash: 'never',
   // Sanitize HTML in blog markdown so a contributor PR cannot land raw
   // <script>/onerror= handlers (stored-XSS via the content pipeline).

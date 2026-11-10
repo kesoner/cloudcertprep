@@ -39,9 +39,10 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 // www and SITE_URL is the www host - so the browser Origin on the /account delete
 // call is always www. This value MUST match that exact origin or the CORS preflight
 // (the delete call sends an Authorization header) blocks account deletion for every
-// user. No other origin needs a cross-origin call to this function.
+// user. Set SITE_ORIGIN in a separate project's Edge Function environment to
+// use its exact deployment or local development origin instead.
 const CORS = {
-  'Access-Control-Allow-Origin': 'https://www.cloudcertprep.io',
+  'Access-Control-Allow-Origin': Deno.env.get('SITE_ORIGIN') || 'https://www.cloudcertprep.io',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }

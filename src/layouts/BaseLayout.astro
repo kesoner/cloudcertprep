@@ -8,6 +8,7 @@ import AccountLinkNoticeIsland from '../components/AccountLinkNoticeIsland.tsx'
 import SchemaOrgJsonLd from '../components/SchemaOrgJsonLd.astro'
 import { BASE_GRAPH_NODES } from '../lib/base-graph'
 import { SITE_URL } from '../lib/seo-data'
+import { APP_NAME } from '../lib/constants'
 
 interface Props {
   title: string
@@ -53,10 +54,10 @@ interface Props {
 }
 
 const {
-  title,
+  title: requestedTitle,
   description,
   canonical,
-  ogImage = 'https://www.cloudcertprep.io/og-image.png',
+  ogImage = SITE_URL + '/og-image.png',
   ogType = 'website',
   robots = 'index, follow',
   jsonLd = [],
@@ -67,6 +68,8 @@ const {
   headerSticky = true,
   noscriptDirectory = false,
 } = Astro.props
+
+const title = requestedTitle.includes(APP_NAME) ? requestedTitle : `${requestedTitle} · ${APP_NAME}`
 
 const umamiWebsiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID ?? ''
 // Umami host. Defaults to Umami Cloud; set VITE_UMAMI_HOST to a self-hosted
@@ -94,7 +97,7 @@ const robotsContent = effectiveRobots.includes('noindex')
   : `${effectiveRobots}, max-image-preview:large`
 ---
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -123,9 +126,9 @@ const robotsContent = effectiveRobots.includes('noindex')
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:alt" content={title} />
-    <meta property="og:site_name" content="CloudCertPrep" />
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:locale:alternate" content="en_GB" />
+    <meta property="og:site_name" content="CloudCertPrep-zh" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:locale:alternate" content="en_US" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -150,7 +153,7 @@ const robotsContent = effectiveRobots.includes('noindex')
 
     {/* Site-wide RSS autodiscovery so feed readers and LLM browse-mode can find
         the blog feed from any page, not just /blog. (audit W10) */}
-    <link rel="alternate" type="application/rss+xml" title="CloudCertPrep Blog" href={`${SITE_URL}/blog/rss.xml`} />
+    <link rel="alternate" type="application/rss+xml" title="CloudCertPrep-zh Blog" href={`${SITE_URL}/blog/rss.xml`} />
 
     {/* TODO(W16): add <meta name="twitter:site"> / <meta name="twitter:creator">
         once an official X/Twitter handle exists. Not invented here. */}
@@ -234,6 +237,19 @@ const robotsContent = effectiveRobots.includes('noindex')
       (function(){try{if(!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)&&'IntersectionObserver'in window){document.documentElement.classList.add('cc-js')}}catch(e){}})();
     </script>
 
+    <!-- Google Translate guard: Translate swaps text nodes for <font> wrappers,
+         so React later calls removeChild / insertBefore with a node that is no
+         longer a child of that parent and throws NotFoundError, which takes the
+         whole island down. Instead: a stale removeChild is skipped (the node is
+         already gone), and a stale insertBefore appends, so new content still
+         renders. Every hit logs a "[cc-translate-guard]" warning so real bugs
+         stay visible (the translate E2E specs fail on it). Installed before any
+         island hydrates. Labels that change at runtime are still wrapped in
+         their own element so the visible text updates. DO NOT REMOVE. -->
+    <script is:inline>
+      (function(){if(window.__ccTranslateGuard||typeof Node!=='function'||!Node.prototype)return;window.__ccTranslateGuard=true;var p=Node.prototype,rm=p.removeChild,ins=p.insertBefore,w=function(m){try{console.warn('[cc-translate-guard] '+m)}catch(e){}};p.removeChild=function(c){if(c&&c.parentNode!==this){w('skipped removeChild of a node that is not a child');return c}return rm.apply(this,arguments)};p.insertBefore=function(n,r){if(r&&r.parentNode!==this){w('insertBefore reference is not a child, appending');return ins.call(this,n,null)}return ins.apply(this,arguments)}})();
+    </script>
+
     <!-- Auth pre-paint: define a shared hasSession() helper on window, then
          apply the `cc-authed` class to <html> before paint. Logged-in
          visitors see History + Sign out immediately (no flash, no shift).
@@ -271,7 +287,7 @@ const robotsContent = effectiveRobots.includes('noindex')
         href="#main"
         class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-brand focus:text-on-brand focus:rounded focus:font-medium"
       >
-        Skip to main content
+        跳至主要內容
       </a>
 
       {showChrome && <Header showNav={headerShowNav} sticky={headerSticky} overlay={headerOverlay} noAuthedFrost={headerNoAuthedFrost} />}
@@ -409,17 +425,17 @@ const robotsContent = effectiveRobots.includes('noindex')
       </style>
       <div class="cc-no">
         <header>
-          <h1>CloudCertPrep</h1>
+          <h1>CloudCertPrep-zh</h1>
           <p class="muted" style="margin: 0;">Free Cloud Certification Practice Exams</p>
         </header>
 
         <section>
-          <p style="margin: 0 0 1rem;">CloudCertPrep is a free, open-source web application for preparing for cloud certifications. It provides full-length timed mock exams, domain-by-domain practice with adaptive spaced repetition, and progress tracking across every supported certification.</p>
+          <p style="margin: 0 0 1rem;">CloudCertPrep-zh is a free, open-source web application for preparing for cloud certifications. It provides full-length timed mock exams, domain-by-domain practice with adaptive spaced repetition, and progress tracking across every supported certification.</p>
           <p style="margin: 0;"><strong>Marketing pages, blog posts, and per-domain study content render without JavaScript.</strong> Follow the links below to read them. The interactive practice exam and domain practice flows do require JavaScript to manage timing, scoring, and progress.</p>
         </section>
 
         <section>
-          <h2>How CloudCertPrep works</h2>
+          <h2>How CloudCertPrep-zh works</h2>
           <ul>
             <li><strong>Mock exam:</strong> full-length, randomly selected questions, exactly mirroring the real exam format for the certification you choose. Scaled scoring with the cert's official passing threshold.</li>
             <li><strong>Domain practice:</strong> focused study by exam domain with instant feedback, explanations, and spaced repetition for signed-in users.</li>
@@ -430,33 +446,33 @@ const robotsContent = effectiveRobots.includes('noindex')
         <section>
           <h2>Supported certifications</h2>
           <ul>
-            <li><a href="https://www.cloudcertprep.io/aws/clf-c02">AWS Certified Cloud Practitioner (CLF-C02)</a> &mdash; foundational AWS cert. 1,050+ practice questions across 4 domains.</li>
-            <li><a href="https://www.cloudcertprep.io/aws/aif-c01">AWS Certified AI Practitioner (AIF-C01)</a> &mdash; foundational AI/ML cert. 5 domains covering AI fundamentals, generative AI, foundation models, responsible AI, and security.</li>
+            <li><a href="/aws/clf-c02">AWS Certified Cloud Practitioner (CLF-C02)</a> &mdash; foundational AWS cert. 1,050+ practice questions across 4 domains.</li>
+            <li><a href="/aws/aif-c01">AWS Certified AI Practitioner (AIF-C01)</a> &mdash; foundational AI/ML cert. 5 domains covering AI fundamentals, generative AI, foundation models, responsible AI, and security.</li>
           </ul>
         </section>
 
         <section>
           <h2>Privacy and Terms</h2>
-          <p style="margin: 0 0 0.75rem;">CloudCertPrep is GDPR-compliant. Guest users generate no server-side data. Authenticated user data is stored in the EU (Supabase, Ireland) and never sold or shared. Read the full <a href="https://www.cloudcertprep.io/privacy">Privacy Policy</a> and <a href="https://www.cloudcertprep.io/terms">Terms of Service</a>.</p>
+          <p style="margin: 0 0 0.75rem;">本 fork 的帳戶與學習資料不保證永久保存，可能隨時回退或遺失。請閱讀 <a href="/privacy">隱私權政策</a> and <a href="/terms">服務條款</a>.</p>
         </section>
 
         <section>
           <h2>Pages on this site</h2>
           <ul>
-            <li><a href="https://www.cloudcertprep.io/">Home</a></li>
-            <li><a href="https://www.cloudcertprep.io/about">About</a></li>
-            <li><a href="https://www.cloudcertprep.io/aws/clf-c02">AWS Cloud Practitioner (CLF-C02)</a></li>
-            <li><a href="https://www.cloudcertprep.io/aws/aif-c01">AWS AI Practitioner (AIF-C01)</a></li>
-            <li><a href="https://www.cloudcertprep.io/blog">Blog</a></li>
-            <li><a href="https://www.cloudcertprep.io/contribute">Contribute</a></li>
-            <li><a href="https://www.cloudcertprep.io/history">Exam history</a></li>
-            <li><a href="https://www.cloudcertprep.io/privacy">Privacy Policy</a></li>
-            <li><a href="https://www.cloudcertprep.io/terms">Terms of Service</a></li>
+            <li><a href="/">首頁</a></li>
+            <li><a href="/about">關於我們</a></li>
+            <li><a href="/aws/clf-c02">AWS Cloud Practitioner (CLF-C02)</a></li>
+            <li><a href="/aws/aif-c01">AWS AI Practitioner (AIF-C01)</a></li>
+            <li><a href="/blog">學習文章</a></li>
+            <li><a href="/contribute">參與貢獻</a></li>
+            <li><a href="/history">測驗紀錄</a></li>
+            <li><a href="/privacy">隱私權政策</a></li>
+            <li><a href="/terms">服務條款</a></li>
           </ul>
         </section>
 
         <footer>
-          <p style="margin: 0 0 0.25rem;">CloudCertPrep is created by <a href="https://santonastaso.me">Alex Santonastaso</a> and is open source on <a href="https://github.com/nastaso/cloudcertprep">GitHub</a>.</p>
+          <p style="margin: 0 0 0.25rem;">CloudCertPrep-zh 是 kesoner 自用託管的繁中 fork。原專案 CloudCertPrep 由 <a href="https://santonastaso.me">Alex Santonastaso</a> 建立，原始碼公開於 <a href="https://github.com/nastaso/cloudcertprep">GitHub</a>。</p>
           <p style="margin: 0;">Not affiliated with Amazon Web Services or Amazon.com, Inc. AWS and related trademarks belong to Amazon.</p>
         </footer>
       </div>

@@ -8,9 +8,8 @@
  * yesterday at 23:00 read at today 09:00 returns "yesterday", not
  * "10 hours ago"). Old dates fall back to a localised absolute date.
  */
-// US English, to match the site's content language (the copy was normalized to
-// US spelling). Date display follows: "Jun 1, 2026" rather than en-GB "1 Jun 2026".
-const LOCALE = 'en-US'
+// Traditional Chinese dates and relative times match the default interface.
+const LOCALE = 'zh-TW'
 const rtf = new Intl.RelativeTimeFormat(LOCALE, { numeric: 'auto' })
 const absoluteDateFmt = new Intl.DateTimeFormat(LOCALE, {
   month: 'short',
@@ -30,7 +29,7 @@ export function formatRelativeDate(dateString: string): string {
   const diffMinutes = Math.floor(diffMs / 60_000)
   const diffHours = Math.floor(diffMs / 3_600_000)
 
-  if (diffMinutes < 1) return 'Just now'
+  if (diffMinutes < 1) return '剛剛'
   if (diffMinutes < 60) return rtf.format(-diffMinutes, 'minute')
   if (diffHours < 24) return rtf.format(-diffHours, 'hour')
 

@@ -19,9 +19,9 @@ export type AuthMode = 'sign-in' | 'sign-up'
 
 const GENERIC_COPY: Record<AuthMode, string> = {
   'sign-in':
-    'Incorrect email or password. If you signed up with Google or GitHub, use that button instead.',
+    '電子郵件或密碼有誤。若使用 Google 或 GitHub 註冊，請使用對應按鈕登入。',
   'sign-up':
-    'Could not create an account with these details. If you already have an account, sign in or use "Forgot password?" instead.',
+    '無法使用這些資料建立帳戶。若已有帳戶，請登入或使用「忘記密碼？」。',
 }
 
 export function authErrorMessage(err: unknown, mode: AuthMode): string {
@@ -29,14 +29,14 @@ export function authErrorMessage(err: unknown, mode: AuthMode): string {
   const msg = raw.toLowerCase()
 
   if (msg.includes('captcha')) {
-    return 'Verification challenge failed. Please complete it and try again.'
+    return '驗證未通過，請完成驗證後再試一次。'
   }
   if (msg.includes('rate limit') || msg.includes('too many') || msg.includes('security purposes')) {
-    return 'Too many attempts. Please wait a minute and try again.'
+    return '嘗試次數過多，請稍候一分鐘再試。'
   }
   // fetch() rejects with TypeError("Failed to fetch") / supabase-js wraps it.
   if (msg.includes('failed to fetch') || msg.includes('network')) {
-    return 'Network error. Check your connection and try again.'
+    return '網路連線發生問題，請檢查連線後再試一次。'
   }
   // Server-side password policy feedback names no account state; keep it so
   // the user can actually fix the password (client validation runs first).

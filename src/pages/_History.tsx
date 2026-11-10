@@ -34,7 +34,7 @@ type ResultFilter = 'all' | 'passed' | 'failed'
 /** Special value for the cert filter representing "all certifications". */
 const CERT_FILTER_ALL = '__all__'
 
-/** Sentinel for the "All" pagination size. Replaces the prior magic number. */
+/** Sentinel for the "全部" pagination size. Replaces the prior magic number. */
 const PAGE_SIZE_ALL = Number.MAX_SAFE_INTEGER
 
 function AttemptReviewPanel({
@@ -88,7 +88,7 @@ function AttemptReviewPanel({
                 isDisabled ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {f === 'all' ? 'All' : f === 'incorrect' ? 'Incorrect' : 'Flagged'} ({count})
+              {f === 'all' ? '全部' : f === 'incorrect' ? '答錯' : '已標記'} ({count})
             </button>
           )
         })}
@@ -101,7 +101,7 @@ function AttemptReviewPanel({
           aria-pressed={reviewDomainFilter === null}
           className={filterChipClass({ active: reviewDomainFilter === null, surface: 'dark', size: 'sm' })}
         >
-          All Domains
+          所有領域
         </button>
         {Object.entries(domains).map(([id, name]) => {
           const domainId = Number(id)
@@ -123,9 +123,9 @@ function AttemptReviewPanel({
         {aqList.map((aq, idx) => {
           const isInFiltered = filtered.some(f => f.question_id === aq.question_id)
           const isCurrent = currentAq?.question_id === aq.question_id
-          const stateLabel = aq.is_correct ? 'correct' : 'incorrect'
-          const flagLabel = aq.was_flagged ? ', flagged' : ''
-          const ariaLabel = `Question ${idx + 1}: ${stateLabel}${flagLabel}`
+          const stateLabel = aq.is_correct ? '答對' : '答錯'
+          const flagLabel = aq.was_flagged ? '，已標記' : ''
+          const ariaLabel = `第 ${idx + 1} 題: ${stateLabel}${flagLabel}`
           return (
             <button
               key={idx}
@@ -149,9 +149,9 @@ function AttemptReviewPanel({
         })}
       </div>
       <div className="flex items-center justify-center gap-4 text-xs text-text-muted">
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-success/15 border border-success/30"></span> Correct</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-danger/10 border border-danger/25"></span> Incorrect</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-bg-dark ring-2 ring-warning"></span> Flagged</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-success/15 border border-success/30"></span> 答對</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-danger/10 border border-danger/25"></span> 答錯</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-bg-dark ring-2 ring-warning"></span> 已標記</span>
       </div>
 
       {/* Current Question Display */}
@@ -167,7 +167,7 @@ function AttemptReviewPanel({
         />
       ) : filtered.length === 0 ? (
         <div className="bg-bg-dark rounded-lg p-4 text-center">
-          <p className="text-text-muted text-sm">No questions match the selected filters.</p>
+          <p className="text-text-muted text-sm">沒有符合篩選條件的題目。</p>
         </div>
       ) : null}
     </div>
@@ -197,9 +197,9 @@ export function History() {
 
   // Multi-cert: no single "active" cert. Title and meta are platform-level.
   useSEO({
-    title: 'Exam history · CloudCertPrep',
+    title: '測驗紀錄 · CloudCertPrep-zh',
     description:
-      'Track your practice exam history, scores, and domain mastery across every certification on CloudCertPrep.',
+      '追蹤 CloudCertPrep-zh 各證照的模擬測驗紀錄、成績與領域熟練度。',
     // /history ships robots=noindex (R2.7); no canonical on a noindex page. (M0d)
     canonical: null,
   })
@@ -404,8 +404,8 @@ export function History() {
     return (
       <div className="p-4 md:p-8">
         <div className="max-w-7xl mx-auto" aria-busy="true">
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary mb-4 md:mb-6">Exam history</h1>
-          <p className="sr-only" role="status">Loading your exam history</p>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary mb-4 md:mb-6">測驗紀錄</h1>
+          <p className="sr-only" role="status">正在載入測驗紀錄</p>
           <div className="flex flex-wrap gap-2 mb-4" aria-hidden="true">
             <Skeleton className="h-9 w-28 rounded-xl" />
             <Skeleton className="h-9 w-24 rounded-xl" />
@@ -457,7 +457,7 @@ export function History() {
     <div className="p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary">Exam history</h1>
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary">測驗紀錄</h1>
             {user && attempts.length > 0 && (
               <Button
                 onClick={() => setShowResetModal(true)}
@@ -465,30 +465,30 @@ export function History() {
                 size="sm"
                 leftIcon={<Trash2 className="w-4 h-4" aria-hidden="true" />}
                 className="min-h-[44px]"
-                aria-label="Reset progress"
+                aria-label="重設學習進度"
               >
                 {/* A lone trash icon on mobile reads as 'delete one'; keep a
                     short text label so the destructive scope is clear. */}
-                <span className="md:hidden">Reset</span>
-                <span className="hidden md:inline">Reset progress</span>
+                <span className="md:hidden">重設</span>
+                <span className="hidden md:inline">重設學習進度</span>
               </Button>
             )}
           </div>
 
           {savedFromExam && (
             <Alert tone="success" className="mb-4">
-              Your exam attempt was saved to your history.
+              測驗結果已儲存至歷史紀錄。
             </Alert>
           )}
 
           {resetSuccess && (
             <Alert tone="success" className="mb-4">
-              Progress reset successfully.
+              已重設學習進度。
             </Alert>
           )}
 
           {/* Cert filter row (logged-in only, shown whenever the user has any
-              attempts). With a single cert it reads "All certs (N) · CLF-C02 (N)",
+              attempts). With a single cert it reads "所有證照（N) · CLF-C02 (N)",
               signalling that history is cert-aware; the control stays put as
               attempt distribution changes rather than appearing only at 2+ certs.
               Hidden on a load error (H2): with no data loaded there is nothing
@@ -497,14 +497,14 @@ export function History() {
           {!loadError && user && certsWithAttempts.length >= 1 && (
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="text-text-muted text-xs md:text-sm font-medium mr-1">
-                Certification:
+                證照：
               </span>
               <button
                 onClick={() => setCertFilter(CERT_FILTER_ALL)}
                 aria-pressed={certFilter === CERT_FILTER_ALL}
                 className={filterChipClass({ active: certFilter === CERT_FILTER_ALL })}
               >
-                All certs ({attempts.length})
+                所有證照（{attempts.length})
               </button>
               {certsWithAttempts.map(c => {
                 const count = attempts.filter(a => a.cert_code === c.code).length
@@ -534,26 +534,26 @@ export function History() {
                   aria-pressed={filter === 'all'}
                   className={filterChipClass({ active: filter === 'all' })}
                 >
-                  All ({attempts.length})
+                  全部（{attempts.length})
                 </button>
                 <button
                   onClick={() => setFilter('passed')}
                   aria-pressed={filter === 'passed'}
                   className={filterChipClass({ active: filter === 'passed' })}
                 >
-                  Passed ({passedAttempts})
+                  通過（{passedAttempts})
                 </button>
                 <button
                   onClick={() => setFilter('failed')}
                   aria-pressed={filter === 'failed'}
                   className={filterChipClass({ active: filter === 'failed' })}
                 >
-                  Failed ({attempts.length - passedAttempts})
+                  未通過（{attempts.length - passedAttempts})
                 </button>
               </div>
 
               <div className="flex items-center gap-2">
-                <label htmlFor="history-items-per-page" className="text-text-muted text-sm">Show:</label>
+                <label htmlFor="history-items-per-page" className="text-text-muted text-sm">顯示：</label>
                 <select
                   id="history-items-per-page"
                   value={itemsPerPage}
@@ -564,7 +564,7 @@ export function History() {
                   <option value={5}>5 per page</option>
                   <option value={10}>10 per page</option>
                   <option value={25}>25 per page</option>
-                  <option value={PAGE_SIZE_ALL}>All</option>
+                  <option value={PAGE_SIZE_ALL}>全部</option>
                 </select>
               </div>
             </div>
@@ -578,20 +578,20 @@ export function History() {
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-bg-dark border border-border-hairline">
                   <TrendingUp className="w-4 h-4 text-text-primary" aria-hidden="true" />
                 </span>
-                <p className="text-text-primary font-semibold tracking-[-0.01em]">Track your progress</p>
+                <p className="text-text-primary font-semibold tracking-[-0.01em]">追蹤學習進度</p>
               </div>
               <p className="text-text-muted text-sm mb-5 max-w-md">
-                Sign in to track your practice exam history and see your domain mastery improve over time. Practicing as a guest works without an account.
+                登入即可追蹤模擬測驗紀錄及各領域熟練度。不建立帳戶也能以訪客模式練習。
               </p>
               <Button onClick={() => goToLogin(navigate, location)} variant="primary" size="md">
-                Sign in
+                登入
               </Button>
             </div>
           ) : (
             <>
               {filteredAttempts.length > 0 && (
                 <div className="mb-4 text-sm text-text-muted">
-                  Showing {startIndex + 1}-{Math.min(endIndex, filteredAttempts.length)} of {filteredAttempts.length} attempts
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredAttempts.length)}/{filteredAttempts.length} attempts
                 </div>
               )}
 
@@ -601,22 +601,22 @@ export function History() {
                   role="alert"
                   className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <span>We could not load your exam history. Check your connection and try again.</span>
+                  <span>無法載入測驗紀錄，請檢查網路後再試。</span>
                   <button
                     type="button"
                     onClick={() => { setLoading(true); void loadHistory() }}
                     className="inline-flex min-h-[44px] flex-shrink-0 items-center justify-center gap-2 rounded-full border border-danger/40 px-5 text-sm font-medium text-danger transition-colors duration-200 hover:bg-danger/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40"
                   >
                     <RotateCw className="h-4 w-4" aria-hidden="true" />
-                    Try again
+                    再試一次
                   </button>
                 </Alert>
               ) : filteredAttempts.length === 0 ? (
                 <Card padding="lg" className="text-center !py-12">
                   <p className="text-text-muted text-lg">
                     {filter === 'all' && certFilter === CERT_FILTER_ALL
-                      ? 'No exam attempts yet. Take your first practice exam!'
-                      : `No matching attempts.`}
+                      ? '尚無測驗紀錄，開始第一次模擬測驗吧！'
+                      : `沒有符合條件的測驗紀錄。`}
                   </p>
                   {filter === 'all' && certFilter === CERT_FILTER_ALL && (
                     <Button
@@ -625,7 +625,7 @@ export function History() {
                       className="mt-6"
                       arrow
                     >
-                      Start practice exam
+                      開始模擬測驗
                     </Button>
                   )}
                 </Card>
@@ -651,7 +651,7 @@ export function History() {
                                   wrapped line start on mobile. */}
                               <div className="flex items-center gap-2">
                                 <h2 className="text-sm md:text-base font-semibold text-text-primary">
-                                  {attempt.passed ? 'Passed' : 'Failed'}
+                                  {attempt.passed ? '通過' : '未通過'}
                                 </h2>
                                 {attemptCert && (
                                   <span className="px-2 py-0.5 rounded-full font-mono text-[10px] md:text-[11px] font-semibold bg-bg-dark border border-border-hairline text-text-muted uppercase tracking-wide">
@@ -663,7 +663,7 @@ export function History() {
                                 {formatRelativeDate(attempt.attempted_at)} · {formatTime(attempt.time_taken_seconds)}
                               </p>
                               <p className="text-text-muted text-xs md:text-sm mt-0.5">
-                                {attempt.correct_answers}/{attempt.total_questions} correct ({Math.round(attempt.score_percent)}%)
+                                {attempt.correct_answers}/{attempt.total_questions}，正確率（{Math.round(attempt.score_percent)}%）
                               </p>
                             </div>
                           </div>
@@ -674,7 +674,7 @@ export function History() {
                         </div>
 
                         <div>
-                          <p className="text-xs md:text-sm font-semibold text-text-primary mb-2">Domain breakdown</p>
+                          <p className="text-xs md:text-sm font-semibold text-text-primary mb-2">各領域表現</p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {Object.entries(attemptDomains).map(([id, name]) => {
                               const domainId = Number(id)
@@ -701,14 +701,14 @@ export function History() {
                             {expandedAttempt === attempt.id
                               ? <ChevronDown className="w-4 h-4" aria-hidden="true" />
                               : <ChevronRight className="w-4 h-4" aria-hidden="true" />}
-                            View details
+                            查看詳細資料
                           </button>
 
                           {expandedAttempt === attempt.id && (
                             <div id={`attempt-details-${attempt.id}`} className="mt-3">
                               {reviewLoading === attempt.id ? (
                                 <div className="flex items-center justify-center p-8">
-                                  <LoadingSpinner text="Loading questions..." />
+                                  <LoadingSpinner text="正在載入題目…" />
                                 </div>
                               ) : attemptQuestions.has(attempt.id) ? (
                                 <AttemptReviewPanel
@@ -741,7 +741,7 @@ export function History() {
                     variant="secondary"
                     size="sm"
                   >
-                    Previous
+                    上一題
                   </Button>
 
                   <div className="flex gap-1">
@@ -780,7 +780,7 @@ export function History() {
                     variant="secondary"
                     size="sm"
                   >
-                    Next
+                    下一題
                   </Button>
                 </div>
               )}
@@ -798,11 +798,11 @@ export function History() {
           <div className="flex items-start gap-3 p-4 bg-danger/10 border border-danger rounded-lg">
             <AlertTriangle className="w-5 h-5 text-danger flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-text-primary text-sm font-medium mb-1">This action cannot be undone</p>
+              <p className="text-text-primary text-sm font-medium mb-1">此操作無法復原</p>
               <p className="text-text-muted text-sm">
                 {scopedCertConfig
                   ? `This will permanently delete all your ${scopedCertConfig.shortName} exam history, question responses, and domain mastery progress. Other certifications are not affected. Switch the cert filter at the top of the page to scope the reset differently.`
-                  : 'This will permanently delete your exam history, question responses, and domain mastery progress across every certification. To reset only one cert, switch the cert filter at the top of the page first.'}
+                  : '這會永久刪除所有證照的測驗紀錄、作答與領域進度。若只想重設單一證照，請先使用頁面上方的證照篩選。'}
               </p>
             </div>
           </div>
@@ -813,7 +813,7 @@ export function History() {
               variant="secondary"
               className="flex-1"
             >
-              Cancel
+              取消
             </Button>
             <Button
               onClick={handleResetProgress}
@@ -822,7 +822,7 @@ export function History() {
               loadingText="Resetting..."
               className="flex-1"
             >
-              {scopedCertConfig ? `Reset ${scopedCertConfig.shortName}` : 'Reset everything'}
+              {scopedCertConfig ? `Reset ${scopedCertConfig.shortName}` : '重設所有進度'}
             </Button>
           </div>
         </div>

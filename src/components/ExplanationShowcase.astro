@@ -50,12 +50,12 @@ const sourceUrl = `${GITHUB_REPO_URL}/blob/main/src/data/${cert.code}/domain1.js
 
 {sample && (
   <section aria-labelledby="explanation-showcase-heading" class="mt-8 md:mt-12">
-    <p class="kicker" aria-hidden="true">Explanations</p>
+    <p class="kicker" aria-hidden="true">詳細解析</p>
     <h2 id="explanation-showcase-heading" class="font-display text-[1.75rem] md:text-[2.25rem] font-semibold tracking-[-0.02em] text-text-primary mb-2">
-      Every question includes a detailed explanation
+      每一道題目都有完整解析
     </h2>
     <p class="text-lead mb-6 max-w-2xl">
-      Every question ships with a full explanation: why the correct answer is right and why each distractor is wrong.
+      每題皆說明正確答案的理由，以及其他選項為何不適合。
     </p>
 
     <SampleQuestionCard
@@ -71,7 +71,7 @@ const sourceUrl = `${GITHUB_REPO_URL}/blob/main/src/data/${cert.code}/domain1.js
     />
 
     <p class="mt-3 text-sm text-text-muted">
-      Read this question's source on{' '}
+      查看這道題目的原始檔：{' '}
       <a
         href={sourceUrl}
         target="_blank"

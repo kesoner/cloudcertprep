@@ -77,7 +77,7 @@ test('passive sign-in with a pending guest attempt but NO save intent never writ
 
   // Wait until auth has fully resolved (signed-in chrome): useAuth has run and
   // the INITIAL_SESSION event has been delivered, so the flush decision is made.
-  await expect(page.getByRole('button', { name: 'Account menu' }).first()).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "帳戶選單" }).first()).toBeVisible({ timeout: 15000 })
   // Settle past the deferred (setTimeout 0) flush attempt, had one been made.
   await page.waitForTimeout(1500)
 
@@ -107,7 +107,7 @@ test('the save-CTA intent flushes the pending attempt to the intended account', 
 
   await page.goto('/')
 
-  await expect(page.getByRole('button', { name: 'Account menu' }).first()).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "帳戶選單" }).first()).toBeVisible({ timeout: 15000 })
 
   // The flush must write the attempt for the intended account (proves both the
   // capture harness and the legitimate save path are reachable - so the negative

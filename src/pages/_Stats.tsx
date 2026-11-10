@@ -151,14 +151,14 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
         <div className="p-4 md:p-8">
           <div className="max-w-6xl mx-auto">
             <Alert tone="danger" role="status" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <span>Showing the latest saved figures. We could not refresh the live statistics.</span>
+              <span>目前顯示最近儲存的統計，暫時無法更新即時資料。</span>
               <button
                 type="button"
                 onClick={() => loadStats()}
                 className="inline-flex min-h-[44px] flex-shrink-0 items-center justify-center gap-2 rounded-full border border-danger/40 px-5 text-sm font-medium text-danger transition-colors duration-200 hover:bg-danger/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40"
               >
                 <RotateCw className="h-4 w-4" aria-hidden="true" />
-                Try again
+                再試一次
               </button>
             </Alert>
           </div>
@@ -177,12 +177,12 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
       <div className="p-4 md:p-8">
         <div className="max-w-6xl mx-auto space-y-8" aria-busy="true">
           <header className="space-y-2">
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary">Community statistics</h1>
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary">社群學習統計</h1>
             <p className="text-text-muted text-sm md:text-base">
-              Aggregated, anonymous results from the CloudCertPrep community. Your individual scores stay private to your account.
+              CloudCertPrep-zh 社群的匿名彙整結果。個人成績僅供你的帳戶查看。
             </p>
           </header>
-          <p className="sr-only" role="status">Loading community statistics</p>
+          <p className="sr-only" role="status">正在載入社群統計</p>
           {[0, 1].map(i => (
             <div key={i} className="bg-bg-card border border-border-hairline rounded-2xl p-4 md:p-6" aria-hidden="true">
               <div className="flex items-center gap-2 mb-4">
@@ -217,22 +217,22 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
               snapshot for the live island causes no layout shift or flash on
               hydration (a11y finding 2 / Property 6 unaffected). */}
           <header className="space-y-2">
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary">Community statistics</h1>
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-[-0.02em] text-text-primary">社群學習統計</h1>
             <p className="text-text-muted text-sm md:text-base">
-              Aggregated, anonymous results from the CloudCertPrep community. Your individual scores stay private to your account.
+              CloudCertPrep-zh 社群的匿名彙整結果。個人成績僅供你的帳戶查看。
             </p>
           </header>
 
           {error && (
             <Alert tone="danger" role="alert" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <span>We could not load the community statistics. Check your connection and try again.</span>
+              <span>無法載入社群統計，請檢查連線後重試。</span>
               <button
                 type="button"
                 onClick={() => loadStats()}
                 className="inline-flex min-h-[44px] flex-shrink-0 items-center justify-center gap-2 rounded-full border border-danger/40 px-5 text-sm font-medium text-danger transition-colors duration-200 hover:bg-danger/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger/40"
               >
                 <RotateCw className="h-4 w-4" aria-hidden="true" />
-                Try again
+                再試一次
               </button>
             </Alert>
           )}
@@ -255,7 +255,7 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded-full font-mono text-[11px] font-semibold uppercase tracking-wide bg-warning/15 text-warning">Coming soon</span>
+                        <span className="px-2 py-0.5 rounded-full font-mono text-[11px] font-semibold uppercase tracking-wide bg-warning/15 text-warning">即將推出</span>
                         <h2 className="text-lg md:text-xl font-semibold tracking-[-0.01em] text-text-primary">{cert.shortName}</h2>
                       </div>
                       <p className="text-text-muted text-xs md:text-sm">{cert.name}</p>
@@ -265,10 +265,10 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
                     <TrendingUp className="w-5 h-5 text-text-muted flex-shrink-0 mt-0.5" aria-hidden="true" />
                     <div>
                       <p className="text-text-primary text-sm md:text-base mb-1">
-                        {getCertTotalQuestions(cert.code).toLocaleString('en-US')} questions authored so far
+                        {getCertTotalQuestions(cert.code).toLocaleString('en-US')} 道題目已撰寫
                       </p>
                       <p className="text-text-muted text-xs md:text-sm">
-                        Question bank in development. Community stats will appear here once users start taking exams.
+                        題庫建置中，開放測驗後將顯示社群統計。
                       </p>
                     </div>
                   </div>
@@ -287,13 +287,13 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
               return (
                 <Card key={cert.code} padding="md">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-0.5 rounded-full font-mono text-[11px] font-semibold uppercase tracking-wide bg-success/15 text-success">Active</span>
+                    <span className="px-2 py-0.5 rounded-full font-mono text-[11px] font-semibold uppercase tracking-wide bg-success/15 text-success">已開放</span>
                     <h2 className="text-lg md:text-xl font-semibold tracking-[-0.01em] text-text-primary">{cert.shortName}</h2>
                   </div>
                   <p className="text-text-muted text-sm">
-                    Not enough attempts yet. Be the first to set the community benchmark.{' '}
+                    目前測驗紀錄不足，歡迎率先參與練習。{' '}
                     <a href={`/aws/${cert.code}/practice-exam`} className="text-text-primary hover:text-text-primary/70 underline">
-                      Start practicing →
+                      開始練習 →
                     </a>
                   </p>
                 </Card>
@@ -305,7 +305,7 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2 py-0.5 rounded-full font-mono text-[11px] font-semibold uppercase tracking-wide bg-success/15 text-success">Active</span>
+                      <span className="px-2 py-0.5 rounded-full font-mono text-[11px] font-semibold uppercase tracking-wide bg-success/15 text-success">已開放</span>
                       <h2 className="text-lg md:text-xl font-semibold text-text-primary">{cert.shortName}</h2>
                     </div>
                     <p className="text-text-muted text-xs md:text-sm">{cert.name}</p>
@@ -316,38 +316,38 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6">
                   <div>
                     <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">{cs.total_attempts.toLocaleString('en-US')}</p>
-                    <p className="text-text-muted text-xs md:text-sm mt-1">Total attempts</p>
+                    <p className="text-text-muted text-xs md:text-sm mt-1">測驗總次數</p>
                   </div>
                   <div>
                     <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">{cs.total_passes.toLocaleString('en-US')}</p>
-                    <p className="text-text-muted text-xs md:text-sm mt-1">Total passes</p>
+                    <p className="text-text-muted text-xs md:text-sm mt-1">通過總次數</p>
                   </div>
                   <div>
                     <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">
                       {cs.total_attempts > 0 ? Math.round((cs.total_passes / cs.total_attempts) * 100) : 0}%
                     </p>
-                    <p className="text-text-muted text-xs md:text-sm mt-1">Pass rate</p>
+                    <p className="text-text-muted text-xs md:text-sm mt-1">通過率</p>
                   </div>
                   <div>
                     <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">{Math.round(cs.avg_score)}</p>
-                    <p className="text-text-muted text-xs md:text-sm mt-1">Avg score (passed)</p>
+                    <p className="text-text-muted text-xs md:text-sm mt-1">通過者平均分數</p>
                   </div>
                   <div>
                     <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">{Math.round(cs.avg_time_minutes)} min</p>
-                    <p className="text-text-muted text-xs md:text-sm mt-1">Avg time (passed)</p>
+                    <p className="text-text-muted text-xs md:text-sm mt-1">通過者平均耗時</p>
                   </div>
                   <div>
                     <p className="font-mono text-2xl md:text-3xl font-semibold tabular-nums text-text-primary">
                       {cs.fastest_pass_seconds ? formatTime(cs.fastest_pass_seconds) : 'N/A'}
                     </p>
-                    <p className="text-text-muted text-xs md:text-sm mt-1">Fastest pass</p>
+                    <p className="text-text-muted text-xs md:text-sm mt-1">最快通過時間</p>
                   </div>
                 </div>
 
                 {/* Domain Difficulty Ranking */}
                 {cs.domain_stats && cs.domain_stats.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="text-sm md:text-base font-semibold text-text-primary mb-3">Domain difficulty (hardest first)</h3>
+                    <h3 className="text-sm md:text-base font-semibold text-text-primary mb-3">領域難度（由高至低）</h3>
                     <div className="space-y-3">
                       {(() => {
                         const certDomainNames = getCertDomains(cs.cert_code)
@@ -381,7 +381,7 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
                   <div>
                     <h3 className="text-sm md:text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
                       <Trophy className="w-4 h-4 text-success" />
-                      Recent passes
+                      近期通過紀錄
                     </h3>
                     <div className="space-y-2">
                       {cs.recent_passes.map((pass, i) => (
@@ -417,7 +417,7 @@ export function Stats({ hideInitialSkeleton = false, onLoaded }: StatsProps = {}
           {publicTotals && (
             <div className="border-t border-text-muted/10 pt-6">
               <p className="text-text-muted text-xs md:text-sm text-center">
-                {publicTotals.total_users.toLocaleString('en-US')} users · {publicTotals.total_questions_answered.toLocaleString('en-US')} questions answered across all certifications
+                {publicTotals.total_users.toLocaleString('en-US')} 位使用者 · {publicTotals.total_questions_answered.toLocaleString('en-US')} 道題目已作答（所有證照）
               </p>
             </div>
           )}

@@ -3,7 +3,7 @@
  * ComingSoonBanner.astro — Astro port of the React ComingSoonBanner.
  *
  * Rendered on cert landing pages when `cert.status === 'coming-soon'`.
- * Replaces the practice-exam CTA with a roadmap note plus a "Watch on GitHub"
+ * Replaces the practice-exam CTA with a roadmap note plus a "在 GitHub 追蹤"
  * CTA. Inlines the Clock and Github lucide SVGs. Identical markup/classes to
  * the React source.
  */
@@ -41,12 +41,10 @@ const icons = {
     </span>
     <div>
       <h2 class="text-base md:text-lg font-semibold text-text-primary mb-1">
-        {cert.shortName} is coming soon
+        {cert.shortName} 即將推出
       </h2>
       <p class="text-sm md:text-base text-text-muted leading-relaxed">
-        The {cert.name} ({cert.shortName}) question bank is being authored.
-        Watch the GitHub repository to be notified when it ships, or open an
-        issue to suggest topics, services, or sample questions.
+        {cert.name}（{cert.shortName}）題庫正在撰寫中。歡迎追蹤 GitHub 專案以掌握進度，或提出主題、服務及範例題建議。
       </p>
     </div>
   </div>
@@ -69,7 +67,7 @@ const icons = {
         aria-hidden="true"
         set:html={icons.github}
       />
-      Watch on GitHub
+      在 GitHub 追蹤
     </Button>
     <Button
       href={`${GITHUB_REPO_URL}/issues/new?template=add-certification.yml&title=Suggest+content+for+${cert.shortName}`}
@@ -77,7 +75,7 @@ const icons = {
       rel="noopener noreferrer"
       variant="ghost"
     >
-      Suggest content
+      提供內容建議
     </Button>
   </div>
 </div>

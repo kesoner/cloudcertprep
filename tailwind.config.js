@@ -37,7 +37,7 @@ export default {
       fontFamily: {
         // DSv6: headings share the system stack (no display webfont). The
         // `font-display` utility is kept so heading call sites stay explicit.
-        display: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+        display: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Helvetica Neue"', 'Helvetica', 'Arial', '"PingFang TC"', '"Microsoft JhengHei"', 'sans-serif'],
       },
       colors: {
         'brand': 'rgb(var(--color-brand) / <alpha-value>)',

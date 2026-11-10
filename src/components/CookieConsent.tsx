@@ -88,7 +88,7 @@ export function CookieConsent() {
       {/* Overlay */}
       <button
         type="button"
-        aria-label="Dismiss cookie banner"
+        aria-label="關閉 Cookie 提示"
         className="absolute inset-0 bg-black/40 pointer-events-auto cursor-default"
         onClick={handleReject}
       />
@@ -104,7 +104,7 @@ export function CookieConsent() {
         <button
           onClick={handleReject}
           className="absolute top-2 right-2 w-11 h-11 inline-flex items-center justify-center text-text-muted hover:text-text-primary transition-colors rounded-md"
-          aria-label="Close cookie banner"
+          aria-label="關閉 Cookie 提示"
         >
           <X className="w-5 h-5" />
         </button>
@@ -116,10 +116,10 @@ export function CookieConsent() {
           </div>
           <div className="flex-1 pt-1">
             <h2 id="cookie-consent-title" className="text-base md:text-lg font-semibold tracking-[-0.01em] text-text-primary mb-2">
-              Help us improve
+              協助改善服務
             </h2>
             <p className="text-text-muted text-xs md:text-sm leading-relaxed">
-              Google Analytics helps us see which features people use, so we can improve them. Anonymous, never sold. Umami (cookieless) runs either way.
+              Google Analytics 協助了解功能使用情形，以改善服務。資料匿名處理且不會出售。Umami 不使用 Cookie，會持續運作。
             </p>
           </div>
         </div>
@@ -127,18 +127,18 @@ export function CookieConsent() {
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
           <Button onClick={handleAccept} variant="primary" className="flex-1">
-            Accept
+            接受
           </Button>
           <Button onClick={handleReject} variant="secondary" className="flex-1">
-            Reject
+            拒絕
           </Button>
         </div>
 
         {/* Privacy link */}
         <p className="text-text-muted text-xs text-center mt-3">
-          Read our{' '}
+          請閱讀{' '}
           <a href="/privacy" className="text-text-primary hover:text-text-primary/70 underline">
-            Privacy Policy
+            隱私權政策
           </a>
         </p>
       </div>

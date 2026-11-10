@@ -81,7 +81,7 @@ test('sign in (confirmed user) lands authenticated + dashboard renders (P1-10 ro
   await page.waitForURL(`${BASE_URL}/`, { timeout: 20000 })
   // Signed-in indicator is now the account/user menu avatar (Sign out moved
   // inside it).
-  await expect(page.getByRole('button', { name: 'Account menu' }).first()).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "帳戶選單" }).first()).toBeVisible({ timeout: 15000 })
 
   await page.goto('/aws/clf-c02')
   // Match the authed dashboard kicker by its "<level> . Your dashboard" tail (e.g.
@@ -91,7 +91,7 @@ test('sign in (confirmed user) lands authenticated + dashboard renders (P1-10 ro
   // violation. The kicker + the two practice CTAs render regardless of the data, so
   // this verifies the signed-in dashboard WITHOUT needing the test project's progress
   // rows seeded (the structural assertions are not data-dependent).
-  await expect(page.getByText(/·\s*Your dashboard/)).toBeVisible({ timeout: 20000 })
+  await expect(page.getByText(/·\s*你的學習總覽/)).toBeVisible({ timeout: 20000 })
   // P1-10: dashboard entrance root + halo on exactly the two practice cards.
   // Scope to :visible because the prerendered guest view (hidden via display:none)
   // also carries .stagger / .halo CTAs.
@@ -102,7 +102,7 @@ test('sign in (confirmed user) lands authenticated + dashboard renders (P1-10 ro
 test('P0-1: signup shows Check-email card with resend + edit-email', async ({ page }) => {
   const email = mk('signup')
   await page.goto('/login')
-  await page.getByRole('button', { name: /have an account\? Sign up/i }).click()
+  await page.getByRole('button', { name: /have an 帳戶\? 註冊/i }).click()
   await page.locator('#email').fill(email)
   await page.locator('#password').fill(PW)
   await page.locator('#confirmPassword').fill(PW)
@@ -112,7 +112,7 @@ test('P0-1: signup shows Check-email card with resend + edit-email', async ({ pa
   // The submit must always produce a HANDLED outcome: the "Check your email"
   // success card (when email quota is available) OR a handled, non-enumerating
   // error alert (e.g. the test project's 4-emails/hour limit). Never a crash.
-  const card = page.getByRole('heading', { name: 'Check your email' })
+  const card = page.getByRole('heading', { name: "請查看你的電子郵件" })
   const alert = page.getByRole('alert')
   await expect(card.or(alert)).toBeVisible({ timeout: 25000 })
 
@@ -122,13 +122,13 @@ test('P0-1: signup shows Check-email card with resend + edit-email', async ({ pa
     // the button is in its countdown state immediately - not clickable yet, which
     // is what stops an instant resend from hitting Supabase's rate limit. bug 1:
     // no second Turnstile is rendered on the card upfront.
-    await expect(page.getByRole('button', { name: /Resend in \d+s/ })).toBeVisible()
-    await expect(page.getByText('Wrong email? Edit it')).toBeVisible()
-    await page.getByText('Wrong email? Edit it').click()
+    await expect(page.getByRole('button', { name: /\d+ 秒後可重新寄送/ })).toBeVisible()
+    await expect(page.getByText("電子郵件有誤？重新編輯")).toBeVisible()
+    await page.getByText("電子郵件有誤？重新編輯").click()
     await expect(page.locator('#email')).toBeVisible()
   } else {
     // Rate-limited path: assert the copy is the non-enumerating handled message.
-    await expect(alert).toContainText(/account|try again|wait/i)
+    await expect(alert).toContainText(/帳戶|再試一次|wait/i)
   }
 })
 
@@ -145,7 +145,7 @@ test('P0-2: confirming the signup link redirects to /?verified=1 welcome card', 
   expect(link).toBeTruthy()
 
   await page.goto(link as string)
-  await expect(page.getByText('Your email is confirmed')).toBeVisible({ timeout: 20000 })
+  await expect(page.getByText('電子郵件已驗證完成。')).toBeVisible({ timeout: 20000 })
 })
 
 // (Removed dead "P1-11: Turnstile pending helper" test: it asserted #captcha-pending,
@@ -162,7 +162,7 @@ test('P1-7: in-exam Sign out routes through the leave modal, then completes', as
   await page.waitForURL(`${BASE_URL}/`, { timeout: 20000 })
 
   await page.goto('/aws/clf-c02/practice-exam')
-  await page.getByRole('button', { name: 'Start exam', exact: true }).click()
+  await page.getByRole('button', { name: "開始測驗", exact: true }).click()
   await page.waitForFunction(() => document.body.dataset.examActive === 'true', { timeout: 25000 })
 
   // Sign out (inside the account menu) during the exam must open the leave
@@ -171,25 +171,25 @@ test('P1-7: in-exam Sign out routes through the leave modal, then completes', as
   // exam" is the URL-navigation variant) - this test asserted the old shared
   // copy and had been failing on the copy alone since then (the guard itself
   // never broke; verified live 2026-07-02).
-  const signOutDialog = page.getByRole('dialog', { name: 'Sign out?' })
-  await page.getByRole('button', { name: 'Account menu' }).click()
-  await page.getByRole('button', { name: 'Sign out' }).click()
+  const signOutDialog = page.getByRole('dialog', { name: '確定要登出嗎？' })
+  await page.getByRole('button', { name: "帳戶選單" }).click()
+  await page.getByRole('button', { name: "登出" }).click()
   await expect(signOutDialog).toBeVisible()
 
   // Stay keeps the attempt alive.
-  await page.getByRole('button', { name: 'Stay in exam' }).click()
+  await page.getByRole('button', { name: "繼續測驗" }).click()
   await expect(signOutDialog).toBeHidden()
   expect(await page.evaluate(() => document.body.dataset.examActive)).toBe('true')
 
   // Confirming completes the sign-out (back on '/', signed out -> Sign in
   // shows). The confirm click is scoped to the dialog so it can never match
   // the account-menu's own Sign out entry.
-  await page.getByRole('button', { name: 'Account menu' }).click()
-  await page.getByRole('button', { name: 'Sign out' }).click()
+  await page.getByRole('button', { name: "帳戶選單" }).click()
+  await page.getByRole('button', { name: "登出" }).click()
   await expect(signOutDialog).toBeVisible()
-  await signOutDialog.getByRole('button', { name: 'Sign out' }).click()
+  await signOutDialog.getByRole('button', { name: "登出" }).click()
   await page.waitForURL(`${BASE_URL}/`, { timeout: 20000 })
-  await expect(page.getByRole('button', { name: 'Sign in' }).first()).toBeVisible({ timeout: 15000 })
+  await expect(page.getByRole('button', { name: "登入" }).first()).toBeVisible({ timeout: 15000 })
 })
 
 test('Practice menu (signed in): includes a Dashboard link per active cert', async ({ page }) => {
@@ -201,12 +201,12 @@ test('Practice menu (signed in): includes a Dashboard link per active cert', asy
   await submitForm(page)
   await page.waitForURL(`${BASE_URL}/`, { timeout: 20000 })
 
-  const trigger = page.getByRole('button', { name: 'Practice', exact: true })
+  const trigger = page.getByRole('button', { name: "練習", exact: true })
   await expect(trigger).toBeVisible({ timeout: 10000 })
   await expect(async () => {
     if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click()
     await expect(page.locator('#site-header a[href="/aws/clf-c02"]')).toBeVisible({ timeout: 1000 })
   }).toPass({ timeout: 15000 })
   // one Dashboard link per active cert (the logged-out menu has none)
-  await expect(page.locator('#site-header').getByRole('link', { name: 'Dashboard' })).toHaveCount(2)
+  await expect(page.locator('#site-header').getByRole('link', { name: "學習總覽" })).toHaveCount(2)
 })

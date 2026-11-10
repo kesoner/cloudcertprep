@@ -66,7 +66,7 @@ export function Modal({ isOpen, title, children, onClose }: ModalProps) {
           <h2 id={titleId} className="text-xl md:text-2xl font-semibold tracking-[-0.01em] text-text-primary">{title}</h2>
           <button
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label="關閉對話框"
             className="-mr-2 inline-flex items-center justify-center w-11 h-11 text-text-muted hover:text-text-primary transition-colors rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg-card"
           >
             <X className="w-6 h-6" aria-hidden="true" />

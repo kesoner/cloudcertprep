@@ -8,18 +8,18 @@ import {
 
 describe('validatePassword', () => {
   it('rejects mismatched confirm field', () => {
-    expect(validatePassword('Mypassword1', 'Mypassword2')).toBe('Passwords do not match')
+    expect(validatePassword('Mypassword1', 'Mypassword2')).toBe('兩次輸入的密碼不一致')
   })
 
   it('rejects passwords shorter than the minimum length', () => {
     const short = 'Aa1!'
     const result = validatePassword(short, short)
-    expect(result).toBe(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`)
+    expect(result).toBe(`密碼長度至少需要 ${MIN_PASSWORD_LENGTH} 個字元`)
   })
 
   it('rejects long-but-weak passwords (e.g. all lowercase)', () => {
     expect(validatePassword('passwordpassword', 'passwordpassword')).toBe(
-      'Password is too weak. Add a number, symbol, or mix of letter cases.',
+      '密碼強度不足，請加入數字、符號或混合大小寫字母。',
     )
   })
 
@@ -56,14 +56,14 @@ describe('scorePassword', () => {
   it('returns Weak for empty input', () => {
     const result = scorePassword('')
     expect(result.score).toBe(0)
-    expect(result.label).toBe('Weak')
+    expect(result.label).toBe('較弱')
     expect(result.checks.length).toBe(false)
   })
 
   it('returns Weak for length-only input', () => {
     const result = scorePassword('passwordp')
     expect(result.score).toBe(1)
-    expect(result.label).toBe('Weak')
+    expect(result.label).toBe('較弱')
     expect(result.checks.length).toBe(true)
     expect(result.checks.caseMix).toBe(false)
     expect(result.checks.digit).toBe(false)
@@ -73,19 +73,19 @@ describe('scorePassword', () => {
   it('returns Fair when length plus exactly one extra is met', () => {
     const result = scorePassword('password1') // length + digit
     expect(result.score).toBe(2)
-    expect(result.label).toBe('Fair')
+    expect(result.label).toBe('尚可')
   })
 
   it('returns Good when length plus two extras are met', () => {
     const result = scorePassword('Password1') // length + caseMix + digit
     expect(result.score).toBe(3)
-    expect(result.label).toBe('Good')
+    expect(result.label).toBe('良好')
   })
 
   it('returns Strong when all four criteria are met', () => {
     const result = scorePassword('Password1!') // length + caseMix + digit + special
     expect(result.score).toBe(4)
-    expect(result.label).toBe('Strong')
+    expect(result.label).toBe('強')
     expect(result.checks).toEqual({
       length: true,
       caseMix: true,
@@ -97,6 +97,6 @@ describe('scorePassword', () => {
   it('caps at Strong even with very long, every-criteria-met passwords', () => {
     const result = scorePassword('Sup3rL0ngP@ssw0rdWith!Many!Symbols!')
     expect(result.score).toBe(4)
-    expect(result.label).toBe('Strong')
+    expect(result.label).toBe('強')
   })
 })

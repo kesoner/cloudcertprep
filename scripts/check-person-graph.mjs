@@ -39,9 +39,12 @@ const DIST = resolve(__dirname, '../dist')
 // --- Pre-migration snapshot: the exact <script> bodies emitted for the three
 // base-graph nodes. Serialized by JSON.stringify (no whitespace), matching the
 // SchemaOrgJsonLd.astro emitter. These bytes are the contract. ---
+import { SITE_URL } from './site-config.mjs'
+
 const SNAPSHOT = Object.freeze({
+  // Fork branding is intentional; original Organization and Person stay credited.
   WebSite:
-    '{"@context":"https://schema.org","@type":"WebSite","name":"CloudCertPrep","alternateName":"Free open-source AWS certification practice exams","url":"https://www.cloudcertprep.io/","description":"Free, open-source AWS certification practice exams with full-length mock exams, domain practice, adaptive spaced repetition, and progress tracking. MIT licensed.","inLanguage":"en","author":{"@id":"https://www.cloudcertprep.io/#author"},"publisher":{"@id":"https://www.cloudcertprep.io/#organization"}}',
+    '{"@context":"https://schema.org","@type":"WebSite","name":"CloudCertPrep-zh","alternateName":"kesoner 的自用繁體中文 fork","url":"__SITE_ORIGIN__/","description":"kesoner 自用的繁體中文 fork。原專案 CloudCertPrep 由 Alex Santonastaso 建立與維護，採用 MIT 授權。","inLanguage":"zh-Hant","author":{"@id":"https://www.cloudcertprep.io/#author"},"publisher":{"@type":"Person","name":"kesoner","url":"https://github.com/kesoner"},"isBasedOn":{"@type":"SoftwareSourceCode","name":"CloudCertPrep","codeRepository":"https://github.com/nastaso/cloudcertprep"}}',
   Organization:
     '{"@context":"https://schema.org","@type":"Organization","@id":"https://www.cloudcertprep.io/#organization","name":"CloudCertPrep","url":"https://www.cloudcertprep.io/","description":"Free, open-source cloud certification practice exam platform. MIT licensed, no ads, no paywalls.","foundingDate":"2026-03","logo":{"@type":"ImageObject","url":"https://www.cloudcertprep.io/icon-512.png","width":512,"height":512},"founder":{"@id":"https://www.cloudcertprep.io/#author"},"contactPoint":{"@type":"ContactPoint","contactType":"customer support","email":"alex@cloudcertprep.io"},"sameAs":["https://github.com/nastaso/cloudcertprep","https://ko-fi.com/alexsantonastaso"]}',
   Person:
@@ -105,7 +108,8 @@ for (const file of files) {
   const bodies = headJsonLdBodies(html)
   checked++
 
-  for (const [node, expected] of Object.entries(SNAPSHOT)) {
+  for (const [node, template] of Object.entries(SNAPSHOT)) {
+    const expected = template.replaceAll('__SITE_ORIGIN__', SITE_URL)
     if (!bodies.includes(expected)) {
       // Surface the closest same-type block to make drift obvious in the log.
       const typeTag = `"@type":"${node}"`

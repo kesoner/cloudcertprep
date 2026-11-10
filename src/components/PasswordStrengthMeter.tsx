@@ -30,10 +30,10 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
     score <= 1 ? 'text-danger' : score === 2 ? 'text-warning' : 'text-success'
 
   const criteria: Array<{ key: keyof typeof checks; text: string }> = [
-    { key: 'length', text: `At least ${MIN_PASSWORD_LENGTH} characters` },
-    { key: 'caseMix', text: 'Upper and lower case letters' },
-    { key: 'digit', text: 'A number' },
-    { key: 'special', text: 'A symbol' },
+    { key: 'length', text: `至少 ${MIN_PASSWORD_LENGTH} 個字元` },
+    { key: 'caseMix', text: '包含大小寫字母' },
+    { key: 'digit', text: '包含數字' },
+    { key: 'special', text: '包含符號' },
   ]
 
   return (
@@ -49,7 +49,7 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
         ))}
       </div>
       <p className={`text-xs mt-1.5 font-medium ${empty ? 'text-text-muted' : labelColour}`}>
-        {empty ? 'Password must include:' : label}
+        {empty ? '密碼需符合：' : label}
       </p>
       <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1">
         {criteria.map(c => {
@@ -70,7 +70,7 @@ export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) 
               <span className={ok ? 'text-text-primary' : 'text-text-muted'}>
                 {c.text}
               </span>
-              <span className="sr-only">, {ok ? 'met' : 'not met'}</span>
+              <span className="sr-only">, {ok ? '已符合' : '尚未符合'}</span>
             </li>
           )
         })}

@@ -81,7 +81,7 @@ function certTargetPath(target: Certification, pathname: string): string {
   }
   const segments = pathname.split('/').filter(Boolean)
   const suffix = segments.slice(2).join('/')
-  const CERT_AGNOSTIC_SUFFIXES = ['practice-exam', 'domain-practice']
+  const CERT_AGNOSTIC_SUFFIXES = ['practice-exam', 'domain-practice', 'wrong-answers']
   return CERT_AGNOSTIC_SUFFIXES.includes(suffix)
     ? `/${target.provider}/${target.code}/${suffix}`
     : `/${target.provider}/${target.code}`
@@ -203,7 +203,7 @@ export function CertSwitcher({ variant, onSelect, initialPathname }: CertSwitche
                   </span>
                   {isComingSoon && (
                     <span className="ml-2 px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold uppercase tracking-wide bg-warning/15 text-warning">
-                      Soon
+                      即將推出
                     </span>
                   )}
                   {isActive && <Check className="w-4 h-4 text-brand ml-2" />}
@@ -219,17 +219,17 @@ export function CertSwitcher({ variant, onSelect, initialPathname }: CertSwitche
   if (variant === 'mobile') {
     return (
       <div className="px-4 py-3 border-b border-text-muted/20">
-        <p className="text-xs text-text-muted font-medium mb-2">Active certification</p>
+        <p className="text-xs text-text-muted font-medium mb-2">目前證照</p>
         <p className="text-text-primary font-semibold mb-3">
           {cert.shortName}
           <span className="ml-2 text-text-muted text-xs font-normal">{cert.name}</span>
         </p>
         <p className="text-[10px] md:text-xs text-text-muted/70 uppercase tracking-wide mb-2">
-          Switch certification
+          切換證照
         </p>
         {examActive ? (
           <p className="text-text-muted text-xs italic">
-            Cert switching is disabled while an exam is in progress.
+            測驗進行中無法切換證照。
           </p>
         ) : (
           <div className="-mx-3">
@@ -267,7 +267,7 @@ export function CertSwitcher({ variant, onSelect, initialPathname }: CertSwitche
     // cert so switching can't corrupt in-progress state.
     return (
       <span
-        title="Cert switching is disabled while an exam is in progress."
+        title="測驗進行中無法切換證照。"
         className="inline-flex items-center h-8 px-3 rounded-full font-mono text-[12px] font-semibold tracking-wide bg-on-header/[0.07] text-on-header/40 cursor-not-allowed"
       >
         {cert.shortName}
@@ -283,7 +283,7 @@ export function CertSwitcher({ variant, onSelect, initialPathname }: CertSwitche
   return (
     <div
       role="group"
-      aria-label="Switch certification"
+      aria-label="切換證照"
       className="inline-flex items-center p-0.5 rounded-full bg-on-header/[0.06] border border-on-header/10"
     >
       {segments.map(c => {
@@ -308,7 +308,7 @@ export function CertSwitcher({ variant, onSelect, initialPathname }: CertSwitche
           >
             {c.shortName}
             {isComingSoon && (
-              <span className="text-[9px] uppercase tracking-wider text-on-header/45">Soon</span>
+              <span className="text-[9px] uppercase tracking-wider text-on-header/45">即將推出</span>
             )}
           </a>
         )
