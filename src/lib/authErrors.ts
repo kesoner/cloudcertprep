@@ -19,7 +19,7 @@ export type AuthMode = 'sign-in' | 'sign-up'
 
 const GENERIC_COPY: Record<AuthMode, string> = {
   'sign-in':
-    '電子郵件或密碼有誤。若使用 Google 或 GitHub 註冊，請使用對應按鈕登入。',
+    '電子郵件或密碼有誤。若使用第三方註冊，請使用已開放的對應登入方式。',
   'sign-up':
     '無法使用這些資料建立帳戶。若已有帳戶，請登入或使用「忘記密碼？」。',
 }

@@ -18,6 +18,7 @@ import { Turnstile, type TurnstileHandle } from '../components/Turnstile'
 import { getActiveTotalQuestions } from '../data/certifications'
 import { safeFrom } from '../lib/navigation'
 import { authErrorMessage } from '../lib/authErrors'
+import { getOAuthProviders, type OAuthProvider, type OAuthProviders } from '../lib/oauthProviders'
 
 // Client cooldown for resend / reset emails. Sized to Supabase's per-email
 // rate-limit window (the default minimum interval between auth emails to the
@@ -77,6 +78,21 @@ export function Login() {
   })
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const [providers, setProviders] = useState<OAuthProviders>({ google: false, github: false })
+  const [providerStatus, setProviderStatus] = useState<'loading' | 'ready' | 'failed'>('loading')
+
+  useEffect(() => {
+    let active = true
+    getOAuthProviders().then(available => {
+      if (active) {
+        setProviders(available)
+        setProviderStatus('ready')
+      }
+    }).catch(() => {
+      if (active) setProviderStatus('failed')
+    })
+    return () => { active = false }
+  }, [])
 
   // Restoring from the bfcache after an OAuth redirect must reset `loading`. The
   // Google / GitHub handlers set `loading` true then hand off to
@@ -220,36 +236,27 @@ export function Login() {
     }
   }
 
-  const handleGitHubSignIn = async () => {
+  const handleOAuthSignIn = async (provider: OAuthProvider) => {
     setError('')
     setLoading(true)
     try {
-      trackEvent('sign_in_initiated', { method: 'github' })
+      // Recheck before navigation: an administrator may have disabled it since mount.
+      const available = await getOAuthProviders()
+      setProviders(available)
+      if (!available[provider]) {
+        setError('此登入方式目前未開放，請使用電子郵件登入。')
+        setLoading(false)
+        return
+      }
+      trackEvent('sign_in_initiated', { method: provider })
       const supabase = await getSupabase()
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
+        provider,
         options: { redirectTo: `${window.location.origin}${from}` },
       })
       if (error) throw error
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'GitHub 登入失敗')
-      setLoading(false)
-    }
-  }
-
-  const handleGoogleSignIn = async () => {
-    setError('')
-    setLoading(true)
-    try {
-      trackEvent('sign_in_initiated', { method: 'google' })
-      const supabase = await getSupabase()
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: `${window.location.origin}${from}` },
-      })
-      if (error) throw error
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Google 登入失敗')
+    } catch {
+      setError('無法啟動第三方登入，請稍後再試或使用電子郵件登入。')
       setLoading(false)
     }
   }
@@ -656,15 +663,21 @@ export function Login() {
 
           {!isForgotPassword && (
             <>
+              {providerStatus === 'loading' && <p role="status" className="mt-4 text-sm text-text-muted">正在確認可用的登入方式…</p>}
+              {providerStatus === 'failed' && <p role="status" className="mt-4 text-sm text-text-muted">暫時無法確認第三方登入，請稍後重新整理或使用電子郵件登入。</p>}
+              {providerStatus === 'ready' && !providers.google && !providers.github && <p className="mt-4 text-sm text-text-muted">目前僅提供電子郵件登入。</p>}
+              {(providers.google || providers.github) && (
               <div className="my-4 flex items-center">
                 <div className="flex-1 border-t border-text-muted/30"></div>
                 <span className="px-4 text-text-muted text-sm">或</span>
                 <div className="flex-1 border-t border-text-muted/30"></div>
               </div>
+              )}
 
+              {providers.google && (
               <Button
                 type="button"
-                onClick={handleGoogleSignIn}
+                onClick={() => handleOAuthSignIn('google')}
                 disabled={loading}
                 variant="secondary"
                 fullWidth
@@ -680,10 +693,12 @@ export function Login() {
               >
                 使用 Google 繼續
               </Button>
+              )}
 
+              {providers.github && (
               <Button
                 type="button"
-                onClick={handleGitHubSignIn}
+                onClick={() => handleOAuthSignIn('github')}
                 disabled={loading}
                 variant="secondary"
                 fullWidth
@@ -692,6 +707,7 @@ export function Login() {
               >
                 使用 GitHub 繼續
               </Button>
+              )}
 
               {/* Quieter than the bordered OAuth buttons: on the login page the
                   goal is account creation, so the guest escape hatch shouldn't
